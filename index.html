@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaktim — İbadet Yolculuğunuzda Rehberiniz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(147, 51, 234, 0.15), transparent 60%);
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50%;
+            height: 80%;
+            background: radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.12), transparent 50%);
+        }
+        
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        
+        .hero-content h1 {
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-content p {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+        }
+        
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(147, 51, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(147, 51, 234, 0.5);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Phone Mockup */
+        .phone-wrapper {
+            position: relative;
+        }
+        
+        .phone {
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+            aspect-ratio: 9/19.5;
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border-radius: 50px;
+            padding: 14px;
+            box-shadow: 
+                0 60px 150px rgba(0, 0, 0, 0.8),
+                0 0 100px rgba(147, 51, 234, 0.2);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #0d0d0d, #1a1a1a);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 30px;
+            background: #0a0a0a;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        
+        .app-ui {
+            padding: 55px 25px 30px;
+            height: 100%;
+        }
+        
+        .status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 35px;
+            font-weight: 600;
+        }
+        
+        .greeting {
+            margin-bottom: 30px;
+        }
+        
+        .greeting h3 {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .greeting h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .prayer-widget {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(16, 185, 129, 0.15));
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 25px;
+            padding: 30px 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .widget-icon {
+            font-size: 50px;
+            margin-bottom: 12px;
+        }
+        
+        .widget-time {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .widget-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .quick-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 16px 8px;
+            text-align: center;
+        }
+        
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-text {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+        
+        /* Key Features */
+        .key-features {
+            padding: 8rem 2rem;
+            position: relative;
+        }
+        
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 5rem;
+        }
+        
+        .section-tag {
+            display: inline-block;
+            background: rgba(147, 51, 234, 0.1);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            color: #a855f7;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .section-desc {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+        }
+        
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            padding: 3rem;
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(147, 51, 234, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(147, 51, 234, 0.3);
+            box-shadow: 0 30px 80px rgba(147, 51, 234, 0.2);
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-card p {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Manevi Yolculuk Section */
+        .manevi-section {
+            padding: 8rem 2rem;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.05), rgba(16, 185, 129, 0.03));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .manevi-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        
+        .manevi-content h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .manevi-content p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+        
+        .journey-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .step {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .step:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(147, 51, 234, 0.3);
+            transform: translateX(10px);
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        
+        .step-content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        
+        .step-content p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
+        
+        .journey-visual {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .task-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 1.5rem;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .task-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .task-check {
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(147, 51, 234, 0.5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .task-check.completed {
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            border-color: transparent;
+        }
+        
+        .task-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+        
+        /* Bilge AI Section */
+        .bilge-section {
+            padding: 8rem 2rem;
+        }
+        
+        .bilge-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+        
+        .bilge-content h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .bilge-content p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+        
+        .bilge-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .bilge-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+        
+        .bilge-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .bilge-icon {
+            font-size: 1.8rem;
+        }
+        
+        .bilge-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .chat-demo {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 2rem;
+            max-width: 500px;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .bilge-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .bilge-info h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 0.2rem;
+        }
+        
+        .bilge-status {
+            font-size: 0.85rem;
+            color: #10b981;
+        }
+        
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            padding: 1rem 1.2rem;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .message.user {
+            background: rgba(147, 51, 234, 0.2);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            align-self: flex-end;
+            max-width: 80%;
+        }
+        
+        .message.bilge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            align-self: flex-start;
+            max-width: 85%;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 2rem;
+            text-align: center;
+        }
+        
+        .cta-box {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(16, 185, 129, 0.08));
+            border: 1px solid rgba(147, 51, 234, 0.2);
+            border-radius: 35px;
+            padding: 5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(from 0deg, transparent, rgba(147, 51, 234, 0.2), transparent);
+            animation: rotate 15s linear infinite;
+        }
+        
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .cta-box h2 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta-box p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2.5rem;
+        }
+        
+        .stores {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .store-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.2rem 2.5rem;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .store-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(147, 51, 234, 0.4);
+            transform: translateY(-3px);
+        }
+        
+        .store-icon {
+            font-size: 2.5rem;
+        }
+        
+        .store-info {
+            text-align: left;
+        }
+        
+        .store-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            display: block;
+        }
+        
+        .store-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #9333ea, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .footer-text {
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #9333ea;
+        }
+        
+        .copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-container,
+            .manevi-container,
+            .bilge-container {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>
+                    İbadet Yolculuğunuzda<br>
+                    <span class="gradient-text">Rehberiniz</span>
+                </h1>
+                <p>
+                    Günlük ibadet görevleri, yapay zeka destekli manevi rehberlik ve 
+                    hassas namaz vakitleri ile ibadetinizi güçlendirin. Yepyeni bir deneyim.
+                </p>
+                <div class="hero-cta">
+                    <a href="#download" class="btn btn-primary">
+                        📱 Ücretsiz İndir
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        ✨ Keşfet
+                    </a>
+                </div>
+            </div>
+            
+            <div class="phone-wrapper">
+                <div class="phone">
+                    <div class="phone-screen">
+                        <div class="notch"></div>
+                        <div class="app-ui">
+                            <div class="status">
+                                <span id="time">12:34</span>
+                                <span>🔋 98%</span>
+                            </div>
+                            
+                            <div class="greeting">
+                                <h3>Hoş geldiniz</h3>
+                                <h2>Bugün 3 göreviniz var</h2>
+                            </div>
+                            
+                            <div class="prayer-widget">
+                                <div class="widget-icon">🕌</div>
+                                <div class="widget-time" id="prayer-time">12:34</div>
+                                <div class="widget-label">Sonraki Vakit • Öğle</div>
+                            </div>
+                            
+                            <div class="quick-nav">
+                                <div class="nav-btn">
+                                    <div class="nav-icon">✨</div>
+                                    <div class="nav-text">Yolculuk</div>
+                                </div>
+                                <div class="nav-btn">
+                                    <div class="nav-icon">🤖</div>
+                                    <div class="nav-text">Bilge</div>
+                                </div>
+                                <div class="nav-btn">
+                                    <div class="nav-icon">📖</div>
+                                    <div class="nav-text">Kuran</div>
+                                </div>
+                                <div class="nav-btn">
+                                    <div class="nav-icon">🧭</div>
+                                    <div class="nav-text">Kıble</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section class="key-features" id="features">
+        <div class="section-header">
+            <span class="section-tag">Özellikler</span>
+            <h2 class="section-title">
+                İhtiyacınız Olan <span class="gradient-text">Her Şey</span>
+            </h2>
+            <p class="section-desc">
+                Modern teknoloji ile geleneksel değerleri birleştiren, 
+                ibadetinizi güçlendirecek özellikler.
+            </p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⏰</div>
+                <h3>Hassas Vakitler</h3>
+                <p>GPS teknolojisi ile konumunuza özel, Diyanet onaylı namaz vakitleri. Sesli ezan ve bildirimler.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🧭</div>
+                <h3>Kıble Pusulası</h3>
+                <p>Hassas kıble yönü tespiti. Offline çalışma desteği ile her yerde kullanın.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <h3>Kuran-ı Kerim</h3>
+                <p>Türkçe meal, sesli okuma, ayet işaretleme. Kuran'ı her zaman yanınızda taşıyın.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌙</div>
+                <h3>İslami Takvim</h3>
+                <p>Ramazan, Kurban, kandil günleri. Özel günleri kaçırmayın.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manevi Yolculuk -->
+    <section class="manevi-section">
+        <div class="manevi-container">
+            <div class="manevi-content">
+                <h2>
+                    <span class="gradient-text">Manevi Yolculuğunuz</span><br>
+                    Günlük İbadet Rehberi
+                </h2>
+                <p>
+                    Her gün size özel hazırlanmış ibadet görevleri ile maneviyatınızı 
+                    güçlendirin. Adım adım ilerleyin, gelişiminizi takip edin.
+                </p>
+                
+                <div class="journey-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Günlük Görevleriniz</h4>
+                            <p>Her gün yeni ibadet görevleri alın</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Tamamlayın & İlerleyin</h4>
+                            <p>Görevleri tamamlayarak yolculuğunuzda ilerleyin</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Gelişiminizi İzleyin</h4>
+                            <p>İstatistikleriniz ve rozetlerinizle motivasyonunuzu koruyun</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="journey-visual">
+                <div class="task-card">
+                    <div class="task-header">
+                        <div class="task-title">🌅 Sabah Namazı</div>
+                        <div class="task-check completed">✓</div>
+                    </div>
+                    <div class="task-desc">Cemaatle sabah namazı kılın</div>
+                </div>
+                
+                <div class="task-card">
+                    <div class="task-header">
+                        <div class="task-title">📖 Kuran Okuma</div>
+                        <div class="task-check completed">✓</div>
+                    </div>
+                    <div class="task-desc">10 dakika Kuran-ı Kerim okuyun</div>
+                </div>
+                
+                <div class="task-card">
+                    <div class="task-header">
+                        <div class="task-title">🤲 Dua Edin</div>
+                        <div class="task-check"></div>
+                    </div>
+                    <div class="task-desc">Sabah-akşam dualarını okuyun</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bilge AI -->
+    <section class="bilge-section">
+        <div class="bilge-container">
+            <div class="chat-demo">
+                <div class="chat-header">
+                    <div class="bilge-avatar">🤖</div>
+                    <div class="bilge-info">
+                        <h3>Bilge</h3>
+                        <div class="bilge-status">● Çevrimiçi</div>
+                    </div>
+                </div>
+                
+                <div class="chat-messages">
+                    <div class="message user">
+                        Tevekkül nedir? Hayatımda nasıl uygularım?
+                    </div>
+                    <div class="message bilge">
+                        Tevekkül, Allah'a güvenmek ve O'na dayanmaktır. Kuran'da "Kim Allah'a tevekkül ederse, O ona yeter" (Talak, 3) buyurulur. 
+                        
+                        Pratikte: Elinizden geleni yapın, sonucunu Allah'a bırakın. 🤲
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bilge-content">
+                <h2>
+                    <span class="gradient-text">Bilge</span><br>
+                    Yapay Zeka Manevi Rehberiniz
+                </h2>
+                <p>
+                    Ayet ve hadisler ışığında sorularınıza anında cevap alın. 
+                    Bilge, ibadet ve maneviyat konularında size rehberlik eder.
+                </p>
+                
+                <div class="bilge-features">
+                    <div class="bilge-item">
+                        <div class="bilge-icon">📚</div>
+                        <div class="bilge-text">Ayet ve hadis kaynaklı cevaplar</div>
+                    </div>
+                    
+                    <div class="bilge-item">
+                        <div class="bilge-icon">💬</div>
+                        <div class="bilge-text">Sınırsız soru sorabilirsiniz</div>
+                    </div>
+                    
+                    <div class="bilge-item">
+                        <div class="bilge-icon">⚡</div>
+                        <div class="bilge-text">Anında yanıt</div>
+                    </div>
+                    
+                    <div class="bilge-item">
+                        <div class="bilge-icon">🎯</div>
+                        <div class="bilge-text">Kişiselleştirilmiş rehberlik</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section" id="download">
+        <div class="cta-box">
+            <div class="cta-content">
+                <h2>Manevi Yolculuğunuza Başlayın</h2>
+                <p>
+                    iOS ve Android'de tamamen ücretsiz. 
+                    İbadetinizi güçlendiren yeni nesil uygulama.
+                </p>
+                <div class="stores">
+                    <a href="#" class="store-btn">
+                        <span class="store-icon">🍎</span>
+                        <div class="store-info">
+                            <span class="store-label">Download on the</span>
+                            <span class="store-name">App Store</span>
+                        </div>
+                    </a>
+                    <a href="#" class="store-btn">
+                        <span class="store-icon">📱</span>
+                        <div class="store-info">
+                            <span class="store-label">GET IT ON</span>
+                            <span class="store-name">Google Play</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Vaktim</div>
+            <p class="footer-text">
+                İbadet yolculuğunuzda rehberiniz
+            </p>
+            <div class="footer-links">
+                <a href="#">Gizlilik Politikası</a>
+                <a href="#">Kullanım Şartları</a>
+                <a href="#">İletişim</a>
+            </div>
+            <p class="copyright">&copy; 2024 Vaktim. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Live clock
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}`;
+            
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('prayer-time').textContent = timeStr;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
