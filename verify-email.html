@@ -169,13 +169,21 @@
         <h1>Email Doğrulandı!</h1>
         <p>Hesabınız başarıyla aktifleştirildi. Artık tüm özelliklere erişebilirsiniz.</p>
         <button class="button" onclick="openApp()">Uygulamayı Aç</button>
-        <p class="fallback">Uygulama açılmadıysa <a href="https://vaktim.app">buraya tıklayın</a></p>
+        <p class="fallback">Uygulamanız yoksa <a href="https://vaktim.app">buradan indirebilirsiniz</a></p>
       `;
       
-      // Auto-redirect after 1 second
+      // Try to open app automatically
       setTimeout(() => {
-        openApp();
-      }, 1000);
+        tryOpenApp();
+      }, 500);
+    }
+    
+    function tryOpenApp() {
+      // Try to open app with custom scheme
+      window.location.href = APP_SCHEME;
+      
+      // If app didn't open after 2 seconds, assume it's not installed
+      // (User will see the "Download" fallback link)
     }
     
     function showError(errorMessage) {
