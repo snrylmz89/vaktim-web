@@ -145,6 +145,7 @@
   <script>
     // Configuration
     const EDGE_FUNCTION_URL = 'https://gercipqmupxuvyhsvqyo.supabase.co/functions/v1/verify-email-token';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlcmNpcHFtdXB4dXZ5aHN2cXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMDczMDIsImV4cCI6MjA1Mjc4MzMwMn0.f3b4886be950e9a1fb4497d4f9de30161fb1a9c7573bcf33a026c1e6c0e2e7f4';
     const APP_SCHEME = 'vaktim://verification-success';
     
     // Get token from URL
@@ -203,7 +204,12 @@
       }
       
       try {
-        const response = await fetch(`${EDGE_FUNCTION_URL}?token=${encodeURIComponent(token)}`);
+        const response = await fetch(`${EDGE_FUNCTION_URL}?token=${encodeURIComponent(token)}`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
         
         // Edge Function returns HTML, but we check status code
         if (response.ok) {
