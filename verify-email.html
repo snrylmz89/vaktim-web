@@ -146,11 +146,11 @@
     // Configuration
     const EDGE_FUNCTION_URL = 'https://gercipqmupxuvyhsvqyo.supabase.co/functions/v1/verify-email-token';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlcmNpcHFtdXB4dXZ5aHN2cXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMDczMDIsImV4cCI6MjA1Mjc4MzMwMn0.f3b4886be950e9a1fb4497d4f9de30161fb1a9c7573bcf33a026c1e6c0e2e7f4';
-    const APP_SCHEME = 'vaktim://?emailVerified=true';
     
     // Get token from URL
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
+    const APP_SCHEME = `vaktim://verify-email?token=${token || ''}`;
     
     // Elements
     const spinner = document.getElementById('spinner');
@@ -217,35 +217,26 @@
           headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
           },
           body: JSON.stringify({ token })
         });
         
+        // Edge Function returns HTML, but we check status code
         if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            showSuccess();
-          } else {
-            showError(data.error || 'Doğrulama başarısız oldu.');
-          }
+          showSuccess();
         } else {
           // Try to extract error message from response
-          let errorMessage = 'Doğrulama sırasında bir hata oluştu.';
+          const text = await response.text();
           
-          try {
-            const data = await response.json();
-            errorMessage = data.error || errorMessage;
-          } catch (e) {
-            // Response is not JSON, use status-based messages
-            if (response.status === 404 || response.status === 400) {
-              errorMessage = 'Token geçersiz veya süresi dolmuş. Lütfen yeni bir doğrulama linki isteyin.';
-            } else if (response.status === 410) {
-              errorMessage = 'Doğrulama linkinin süresi dolmuş. Lütfen uygulamadan yeni bir link isteyin.';
-            }
+          if (response.status === 404) {
+            showError('Doğrulama linki geçersiz veya kullanılmış. Lütfen yeni bir link isteyin.');
+          } else if (response.status === 410) {
+            showError('Doğrulama linkinin süresi dolmuş. Lütfen uygulamadan yeni bir link isteyin.');
+          } else if (response.status === 400) {
+            showError('Bu doğrulama linki daha önce kullanılmış.');
+          } else {
+            showError('Doğrulama sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
           }
-          
-          showError(errorMessage);
         }
       } catch (error) {
         console.error('Verification error:', error);
