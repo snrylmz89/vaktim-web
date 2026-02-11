@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Davet - Vaktim</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    h1 { color: #1a1a2e; font-size: 28px; margin-bottom: 12px; }
+    p { color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
+    .code-box {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: monospace;
+      font-size: 20px;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .code-box.visible { display: block; }
+    .button {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: background 0.3s;
+      border: none;
+      cursor: pointer;
+      margin: 6px;
+    }
+    .button:hover { background: #1d4ed8; }
+    .button.secondary { background: #6b7280; }
+    .button.secondary:hover { background: #4b5563; }
+    .button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .fallback { margin-top: 16px; font-size: 14px; color: #999; }
+    .fallback a { color: #2563eb; text-decoration: none; }
+    .store-row { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .paste-section { margin-top: 20px; text-align: left; display: none; }
+    .paste-section.visible { display: block; }
+    .paste-section input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-top: 8px;
+    }
+    .no-code-msg { color: #6b7280; font-size: 15px; margin-bottom: 16px; }
+    #openHint { margin-top: 12px; font-size: 13px; color: #9ca3af; display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">Arkadaşın seni Vaktim'e davet etti</h1>
+    <p id="subtitle">Uygulamayı açarsan davet kodun hazır olacak.</p>
+
+    <div class="code-box" id="codeBox">
+      <span id="codeDisplay"></span>
+    </div>
+
+    <div id="hasCodeSection">
+      <button type="button" class="button" id="btnOpenApp">Uygulamayı Aç</button>
+      <button type="button" class="button secondary" id="btnCopy">Kodu Kopyala</button>
+      <p class="fallback"><a href="#" id="linkAlternate">Alternatif açma</a> (vaktim://)</p>
+    </div>
+
+    <p id="openHint">Açılmadıysa aşağıdaki mağazadan indirebilirsin.</p>
+
+    <div id="noCodeSection" class="paste-section">
+      <p class="no-code-msg">Davet kodu bulunamadı. Linkte kod varsa aşağıya yapıştırabilirsin.</p>
+      <input type="text" id="pasteInput" placeholder="Davet kodunu yapıştır" maxlength="16" autocomplete="off">
+    </div>
+
+    <div class="store-row">
+      <a class="button" id="storePrimary" href="https://apps.apple.com/app/vaktim/id1234567890" target="_blank" rel="noopener">App Store'dan İndir</a>
+      <a class="button secondary" id="storeSecondary" href="https://play.google.com/store/apps/details?id=com.vaktim.app" target="_blank" rel="noopener">Play Store'dan İndir</a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Parse code from URL: pathname normalize (trim trailing slashes) then regex
+      // Same as plan: [A-Za-z0-9_-]{6,16}, uppercase for display
+      function getCodeFromUrl() {
+        var path = location.pathname.replace(/\/+$/, '');
+        var match = path.match(/^\/davet\/([A-Za-z0-9_-]{6,16})$/);
+        if (match) return (match[1] || '').toUpperCase();
+        var q = new URLSearchParams(location.search).get('code');
+        return q ? String(q).trim().toUpperCase() : null;
+      }
+
+      var code = getCodeFromUrl();
+      var hasCode = !!code;
+
+      var codeBox = document.getElementById('codeBox');
+      var codeDisplay = document.getElementById('codeDisplay');
+      var hasCodeSection = document.getElementById('hasCodeSection');
+      var noCodeSection = document.getElementById('noCodeSection');
+      var btnOpenApp = document.getElementById('btnOpenApp');
+      var btnCopy = document.getElementById('btnCopy');
+      var linkAlternate = document.getElementById('linkAlternate');
+      var openHint = document.getElementById('openHint');
+      var pasteInput = document.getElementById('pasteInput');
+      var storePrimary = document.getElementById('storePrimary');
+      var storeSecondary = document.getElementById('storeSecondary');
+
+      if (hasCode) {
+        codeBox.classList.add('visible');
+        codeDisplay.textContent = code;
+        noCodeSection.classList.remove('visible');
+        hasCodeSection.style.display = 'block';
+      } else {
+        codeBox.classList.remove('visible');
+        hasCodeSection.style.display = 'none';
+        noCodeSection.classList.add('visible');
+      }
+
+      // User-agent: iOS -> App Store primary, Android -> Play Store primary
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      var appStoreUrl = 'https://apps.apple.com/app/vaktim/id1234567890';
+      var playStoreUrl = 'https://play.google.com/store/apps/details?id=com.vaktim.app';
+      if (isIOS) {
+        storePrimary.href = appStoreUrl;
+        storePrimary.textContent = "App Store'dan İndir";
+        storeSecondary.href = playStoreUrl;
+        storeSecondary.textContent = "Play Store'dan İndir";
+      } else {
+        storePrimary.href = playStoreUrl;
+        storePrimary.textContent = "Play Store'dan İndir";
+        storeSecondary.href = appStoreUrl;
+        storeSecondary.textContent = "App Store'dan İndir";
+      }
+
+      function openApp() {
+        if (!code) return;
+        // Bounce with ?open=1 so OS may treat as new navigation (iOS)
+        window.location.assign('https://vaktim.app/davet/' + code + '?open=1');
+        setTimeout(function() { openHint.style.display = 'block'; }, 2000);
+      }
+
+      function copyCode() {
+        if (!code) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(function() {
+            btnCopy.textContent = 'Kopyalandı!';
+            setTimeout(function() { btnCopy.textContent = 'Kodu Kopyala'; }, 1500);
+          });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = code;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btnCopy.textContent = 'Kopyalandı!';
+          setTimeout(function() { btnCopy.textContent = 'Kodu Kopyala'; }, 1500);
+        }
+      }
+
+      function openAlternate() {
+        if (!code) return;
+        window.location.href = 'vaktim://davet?code=' + encodeURIComponent(code);
+      }
+
+      if (btnOpenApp) btnOpenApp.addEventListener('click', openApp);
+      if (btnCopy) btnCopy.addEventListener('click', copyCode);
+      if (linkAlternate) linkAlternate.addEventListener('click', function(e) { e.preventDefault(); openAlternate(); });
+
+      pasteInput.addEventListener('input', function() {
+        var v = this.value.trim().toUpperCase();
+        if (v.length >= 6 && v.length <= 16 && /^[A-Za-z0-9_-]+$/.test(v)) {
+          code = v;
+          codeBox.classList.add('visible');
+          codeDisplay.textContent = code;
+          hasCodeSection.style.display = 'block';
+          noCodeSection.classList.remove('visible');
+          if (btnOpenApp) btnOpenApp.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

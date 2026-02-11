@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "TEAM_ID.com.vaktim.app",
-        "paths": ["/verify-email"]
+        "paths": ["/verify-email","/verify-email*","/davet","/davet/*"]
       }
     ]
   }
