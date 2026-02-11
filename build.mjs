@@ -51,10 +51,11 @@ if (fs.existsSync(wellKnownSrc)) {
   copyRecursive(wellKnownSrc, path.join(staticDir, '.well-known'));
 }
 
-// config.json: rewrites + .well-known content-type
+// config.json: rewrite phase first so /davet/CODE is rewritten before filesystem 404
 const config = {
   version: 3,
   routes: [
+    { handle: 'rewrite' },
     { src: '/davet', dest: '/davet/index.html' },
     { src: '/davet/', dest: '/davet/index.html' },
     { src: '/davet/(.*)', dest: '/davet/index.html' }
