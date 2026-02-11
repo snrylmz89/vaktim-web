@@ -2,6 +2,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/davet", "destination": "/davet.html" },
+    { "source": "/davet/", "destination": "/davet.html" },
     { "source": "/davet/:path*", "destination": "/davet.html" }
   ],
   "headers": [
