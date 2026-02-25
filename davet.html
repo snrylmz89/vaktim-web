@@ -3,107 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Davet - Vaktim</title>
+  <title>Davet — Vaktim</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+      background:#06060e;
+      color:#edeae3;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      -webkit-font-smoothing:antialiased;
+      position:relative;
+      overflow:hidden;
     }
-    .container {
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      text-align: center;
+    .geo{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;
+      background-image:repeating-conic-gradient(from 0deg at 50% 50%,transparent 0deg 60deg,rgba(201,168,76,.5) 60deg 61deg,transparent 61deg 120deg);
+      background-size:120px 120px;}
+    .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+    .amb-1{width:500px;height:500px;top:-150px;right:-100px;background:radial-gradient(circle,rgba(201,168,76,.1),transparent 70%)}
+    .amb-2{width:400px;height:400px;bottom:10%;left:-120px;background:radial-gradient(circle,rgba(16,185,129,.08),transparent 70%)}
+
+    .card{
+      position:relative;z-index:1;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:24px;
+      padding:3rem 2.5rem;
+      max-width:460px;
+      width:100%;
+      text-align:center;
+      box-shadow:0 30px 80px rgba(0,0,0,.4);
     }
-    h1 { color: #1a1a2e; font-size: 28px; margin-bottom: 12px; }
-    p { color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
-    .code-box {
-      background: #f3f4f6;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-family: monospace;
-      font-size: 20px;
-      letter-spacing: 2px;
-      margin-bottom: 24px;
-      display: none;
+    .card::before{content:'';position:absolute;top:-60%;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(201,168,76,.04),transparent 60%);pointer-events:none}
+
+    .brand{font-size:1.3rem;font-weight:800;color:#c9a84c;margin-bottom:.5rem;letter-spacing:-.01em}
+    .emoji-hero{font-size:2.5rem;margin-bottom:1rem}
+
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em;position:relative;z-index:1}
+    p{font-size:.9rem;color:rgba(237,234,227,.55);line-height:1.6;margin-bottom:1.2rem;position:relative;z-index:1}
+
+    .code-box{
+      background:rgba(201,168,76,.06);
+      border:1px solid rgba(201,168,76,.15);
+      border-radius:14px;
+      padding:.8rem 1.2rem;
+      font-family:'Plus Jakarta Sans',monospace;
+      font-size:1.3rem;
+      font-weight:800;
+      letter-spacing:3px;
+      color:#e4c76b;
+      margin-bottom:1.5rem;
+      display:none;
+      position:relative;z-index:1;
     }
-    .code-box.visible { display: block; }
-    .button {
-      display: inline-block;
-      background: #2563eb;
-      color: white;
-      text-decoration: none;
-      padding: 14px 32px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 16px;
-      transition: background 0.3s;
-      border: none;
-      cursor: pointer;
-      margin: 6px;
+    .code-box.visible{display:block}
+
+    .btn{
+      display:inline-block;
+      padding:.8rem 1.8rem;
+      border-radius:12px;
+      font-weight:700;font-size:.88rem;
+      border:none;cursor:pointer;
+      text-decoration:none;
+      transition:all .3s;
+      margin:.3rem;
     }
-    .button:hover { background: #1d4ed8; }
-    .button.secondary { background: #6b7280; }
-    .button.secondary:hover { background: #4b5563; }
-    .button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .fallback { margin-top: 16px; font-size: 14px; color: #999; }
-    .fallback a { color: #2563eb; text-decoration: none; }
-    .store-row { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
-    .paste-section { margin-top: 20px; text-align: left; display: none; }
-    .paste-section.visible { display: block; }
-    .paste-section input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 8px;
+    .btn-primary{
+      background:linear-gradient(135deg,#10b981,#059669);
+      color:#06060e;
+      box-shadow:0 6px 20px rgba(16,185,129,.2);
     }
-    .no-code-msg { color: #6b7280; font-size: 15px; margin-bottom: 16px; }
-    #openHint { margin-top: 12px; font-size: 13px; color: #9ca3af; display: none; }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(16,185,129,.3)}
+    .btn-secondary{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:#edeae3;
+    }
+    .btn-secondary:hover{background:rgba(255,255,255,.07);border-color:rgba(201,168,76,.2)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    .fallback{margin-top:.8rem;font-size:.75rem;color:rgba(237,234,227,.3);position:relative;z-index:1}
+    .fallback a{color:#c9a84c;text-decoration:none}
+    .fallback a:hover{text-decoration:underline}
+
+    .store-row{margin-top:1.5rem;display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;position:relative;z-index:1}
+    .store-btn{
+      display:flex;align-items:center;gap:.5rem;
+      padding:.7rem 1.4rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;
+      text-decoration:none;color:#edeae3;
+      font-size:.82rem;font-weight:600;
+      transition:all .3s;
+    }
+    .store-btn:hover{border-color:rgba(201,168,76,.2);transform:translateY(-1px)}
+    .store-icon{font-size:1.2rem}
+
+    .paste-section{margin-top:1.2rem;text-align:left;display:none;position:relative;z-index:1}
+    .paste-section.visible{display:block}
+    .paste-label{font-size:.8rem;color:rgba(237,234,227,.4);margin-bottom:.4rem}
+    .paste-section input{
+      width:100%;padding:.7rem 1rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:10px;
+      font-size:.95rem;color:#edeae3;
+      font-family:'Plus Jakarta Sans',monospace;
+      letter-spacing:1px;
+      outline:none;
+      transition:border-color .3s;
+    }
+    .paste-section input:focus{border-color:rgba(201,168,76,.3)}
+    .paste-section input::placeholder{color:rgba(237,234,227,.25)}
+
+    #openHint{margin-top:.8rem;font-size:.72rem;color:rgba(237,234,227,.25);display:none;position:relative;z-index:1}
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="geo" aria-hidden="true"></div>
+  <div class="amb amb-1" aria-hidden="true"></div>
+  <div class="amb amb-2" aria-hidden="true"></div>
+
+  <div class="card">
+    <div class="brand">Vaktim</div>
+    <div class="emoji-hero">🤝</div>
     <h1 id="title">Arkadaşın seni Vaktim'e davet etti</h1>
     <p id="subtitle">Uygulamayı açarsan davet kodun hazır olacak.</p>
 
-    <div class="code-box" id="codeBox">
-      <span id="codeDisplay"></span>
-    </div>
+    <div class="code-box" id="codeBox"><span id="codeDisplay"></span></div>
 
     <div id="hasCodeSection">
-      <button type="button" class="button" id="btnOpenApp">Uygulamayı Aç</button>
-      <button type="button" class="button secondary" id="btnCopy">Kodu Kopyala</button>
-      <p class="fallback"><a href="#" id="linkAlternate">Alternatif açma</a> (vaktim://)</p>
+      <button type="button" class="btn btn-primary" id="btnOpenApp">Uygulamayı Aç</button>
+      <button type="button" class="btn btn-secondary" id="btnCopy">Kodu Kopyala</button>
+      <p class="fallback"><a href="#" id="linkAlternate">Uygulamayı aç butonu çalışmadıysa tıkla</a></p>
     </div>
 
     <p id="openHint">Açılmadıysa aşağıdaki mağazadan indirebilirsin.</p>
 
     <div id="noCodeSection" class="paste-section">
-      <p class="no-code-msg">Davet kodu bulunamadı. Linkte kod varsa aşağıya yapıştırabilirsin.</p>
+      <p class="paste-label">Davet kodu bulunamadı. Linkte kod varsa aşağıya yapıştırabilirsin.</p>
       <input type="text" id="pasteInput" placeholder="Davet kodunu yapıştır" maxlength="16" autocomplete="off">
     </div>
 
     <div class="store-row">
-      <a class="button" id="storePrimary" href="https://apps.apple.com/app/vaktim/id1234567890" target="_blank" rel="noopener">App Store'dan İndir</a>
-      <a class="button secondary" id="storeSecondary" href="https://play.google.com/store/apps/details?id=com.vaktim.app" target="_blank" rel="noopener">Play Store'dan İndir</a>
+      <a class="store-btn" id="storePrimary" href="https://apps.apple.com/app/vaktim/id1234567890" target="_blank" rel="noopener"><span class="store-icon">🍎</span> App Store</a>
+      <a class="store-btn" id="storeSecondary" href="https://play.google.com/store/apps/details?id=com.vaktim.app" target="_blank" rel="noopener"><span class="store-icon">▶</span> Google Play</a>
     </div>
   </div>
 
   <script>
     (function() {
-      // Parse code from URL: pathname normalize (trim trailing slashes) then regex
-      // Same as plan: [A-Za-z0-9_-]{6,16}, uppercase for display
       function getCodeFromUrl() {
         var path = location.pathname.replace(/\/+$/, '');
         var match = path.match(/^\/davet\/([A-Za-z0-9_-]{6,16})$/);
@@ -142,25 +196,19 @@
         noCodeSection.classList.add('visible');
       }
 
-      // User-agent: iOS -> App Store primary, Android -> Play Store primary
       var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       var appStoreUrl = 'https://apps.apple.com/app/vaktim/id1234567890';
       var playStoreUrl = 'https://play.google.com/store/apps/details?id=com.vaktim.app';
       if (isIOS) {
-        storePrimary.href = appStoreUrl;
-        storePrimary.textContent = "App Store'dan İndir";
-        storeSecondary.href = playStoreUrl;
-        storeSecondary.textContent = "Play Store'dan İndir";
+        storePrimary.href = appStoreUrl; storePrimary.innerHTML = '<span class="store-icon">🍎</span> App Store';
+        storeSecondary.href = playStoreUrl; storeSecondary.innerHTML = '<span class="store-icon">▶</span> Google Play';
       } else {
-        storePrimary.href = playStoreUrl;
-        storePrimary.textContent = "Play Store'dan İndir";
-        storeSecondary.href = appStoreUrl;
-        storeSecondary.textContent = "App Store'dan İndir";
+        storePrimary.href = playStoreUrl; storePrimary.innerHTML = '<span class="store-icon">▶</span> Google Play';
+        storeSecondary.href = appStoreUrl; storeSecondary.innerHTML = '<span class="store-icon">🍎</span> App Store';
       }
 
       function openApp() {
         if (!code) return;
-        // Bounce with ?open=1 so OS may treat as new navigation (iOS)
         window.location.assign('https://vaktim.app/davet/' + code + '?open=1');
         setTimeout(function() { openHint.style.display = 'block'; }, 2000);
       }
@@ -174,11 +222,8 @@
           });
         } else {
           var ta = document.createElement('textarea');
-          ta.value = code;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
+          ta.value = code; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
           btnCopy.textContent = 'Kopyalandı!';
           setTimeout(function() { btnCopy.textContent = 'Kodu Kopyala'; }, 1500);
         }
