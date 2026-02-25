@@ -226,13 +226,7 @@
         .msg.u { background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.12); align-self:flex-end; border-bottom-right-radius:5px; }
         .msg.a { background:rgba(16,185,129,.06); border:1px solid rgba(16,185,129,.1); align-self:flex-start; border-bottom-left-radius:5px; }
 
-        /* ══════ STATS ══════ */
-        .stats { padding:4rem 0; }
-        .stats-g { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
-        .stat { text-align:center; padding:2.2rem 1rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); transition:border-color .25s; }
-        .stat:hover { border-color:rgba(201,168,76,.15); }
-        .stat-n { font-size:2.3rem; font-weight:900; background:linear-gradient(135deg,var(--gold),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:.2rem; }
-        .stat-l { font-size:.82rem; color:var(--text-3); }
+        
 
         /* ══════ CTA ══════ */
         .cta { padding:7rem 0; }
@@ -266,14 +260,12 @@
             .story-scroll { grid-template-columns:repeat(3,1fr); }
             .story-scroll .story-card:nth-child(4),
             .story-scroll .story-card:nth-child(5) { display:none; }
-            .stats-g { grid-template-columns:repeat(2,1fr); }
             .nav-links { display:none; }
         }
         @media(max-width:640px) {
             .cat-grid { grid-template-columns:1fr; }
             .story-scroll { grid-template-columns:1fr 1fr; }
             .story-scroll .story-card:nth-child(3) { display:none; }
-            .stats-g { grid-template-columns:1fr 1fr; }
             .hero h1 { font-size:2.5rem; }
             .cta-box { padding:3rem 1.5rem; }
             .ft-in { flex-direction:column; text-align:center; }
@@ -474,20 +466,6 @@
                     <div class="bf rv d4"><span>🎯</span><span>Kişiselleştirilmiş rehberlik</span></div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- ═══ STATS ═══ -->
-<section class="stats">
-    <div class="wrap">
-        <div class="stats-g">
-            <div class="stat rv"><div class="stat-n">50K+</div><div class="stat-l">Aktif Kullanıcı</div></div>
-            <div class="stat rv d1"><div class="stat-n">1M+</div><div class="stat-l">Tamamlanan Görev</div></div>
-            <div class="stat rv d2"><div class="stat-n">4.9</div><div class="stat-l">Uygulama Puanı</div></div>
-            <div class="stat rv d3"><div class="stat-n">100+</div><div class="stat-l">Ülke</div></div>
         </div>
     </div>
 </section>
