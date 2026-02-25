@@ -107,11 +107,10 @@
         /* Phone */
         .hero-phone { display:flex; justify-content:center; position:relative; }
         .ph-glow { position:absolute; width:340px; height:440px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(ellipse,rgba(201,168,76,.1),transparent 70%); filter:blur(60px); pointer-events:none; }
-        .ph { width:280px; aspect-ratio:9/19.5; background:linear-gradient(160deg,#181e30,#0c1018); border-radius:42px; padding:9px; box-shadow:0 50px 100px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06),inset 0 1px 0 rgba(255,255,255,.04); animation:float 7s ease-in-out infinite; position:relative; z-index:1; }
+        .ph { width:320px; aspect-ratio:9/19.5; background:linear-gradient(160deg,#181e30,#0c1018); border-radius:46px; padding:10px; box-shadow:0 50px 100px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06),inset 0 1px 0 rgba(255,255,255,.04); animation:float 7s ease-in-out infinite; position:relative; z-index:1; }
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
-        .ph-scr { width:100%; height:100%; background:#0c1220; border-radius:35px; overflow:hidden; position:relative; }
-        .ph-notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:110px; height:24px; background:#080c14; border-radius:0 0 16px 16px; z-index:5; }
-        .ph-img { width:100%; height:100%; object-fit:cover; object-position:top; border-radius:35px; }
+        .ph-scr { width:100%; height:100%; background:#0c1220; border-radius:38px; overflow:hidden; position:relative; }
+        .ph-img { width:100%; height:100%; object-fit:cover; object-position:top; border-radius:38px; }
 
         
 
@@ -323,7 +322,6 @@
                 <div class="ph-glow"></div>
                 <div class="ph">
                     <div class="ph-scr">
-                        <div class="ph-notch"></div>
                         <img src="img/app-screenshot.png" alt="Vaktim Uygulaması" class="ph-img">
                     </div>
                 </div>
