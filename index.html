@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #070b14;
+            --bg: #06060e;
             --surface: rgba(255,255,255,0.03);
             --surface-h: rgba(255,255,255,0.055);
-            --border: rgba(255,255,255,0.055);
+            --border: rgba(255,255,255,0.06);
             --teal: #10b981;
             --teal-soft: rgba(16,185,129,0.12);
             --gold: #c9a84c;
@@ -34,7 +34,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Islamic geometric pattern overlay */
+        /* Geometric pattern overlay */
         .geo-pattern {
             position: fixed;
             inset: 0;
@@ -51,21 +51,21 @@
             background-size: 120px 120px;
         }
 
-        /* Ambient glows */
-        .glow { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
-        .glow-1 { width:600px; height:600px; top:-200px; right:-100px; background:radial-gradient(circle,rgba(201,168,76,0.12),transparent 70%); }
-        .glow-2 { width:500px; height:500px; bottom:20%; left:-150px; background:radial-gradient(circle,rgba(16,185,129,0.10),transparent 70%); }
-        .glow-3 { width:400px; height:400px; top:50%; right:10%; background:radial-gradient(circle,rgba(139,92,246,0.08),transparent 70%); }
+        /* Ambient glow blobs */
+        .ambient { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
+        .ambient-1 { width:600px; height:600px; top:-200px; right:-100px; background:radial-gradient(circle,rgba(201,168,76,0.12),transparent 70%); }
+        .ambient-2 { width:500px; height:500px; bottom:20%; left:-150px; background:radial-gradient(circle,rgba(13,148,136,0.10),transparent 70%); }
+        .ambient-3 { width:400px; height:400px; top:50%; right:10%; background:radial-gradient(circle,rgba(124,58,237,0.08),transparent 70%); }
 
         /* Stars */
         .stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
         .star {
             position:absolute; width:2px; height:2px; background:var(--gold);
             border-radius:50%; opacity:0;
-            animation: twinkle var(--d) ease-in-out infinite;
-            animation-delay: var(--dl);
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
         }
-        @keyframes twinkle { 0%,100%{opacity:0} 50%{opacity:var(--b)} }
+        @keyframes twinkle { 0%,100%{opacity:0} 50%{opacity:var(--brightness)} }
 
         /* Reveal */
         .rv { opacity:0; transform:translateY(32px); transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
@@ -78,7 +78,7 @@
 
         /* ── NAV ── */
         .nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:1rem 2rem; transition:all .35s; }
-        .nav.scrolled { background:rgba(7,11,20,.82); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); border-bottom:1px solid var(--border); }
+        .nav.scrolled { background:rgba(6,6,14,0.8); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); border-bottom:1px solid var(--border); }
         .nav-in { max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
         .nav-logo { font-size:1.4rem; font-weight:900; letter-spacing:-.02em; color:var(--gold); }
         .nav-links { display:flex; gap:2rem; list-style:none; }
@@ -89,7 +89,7 @@
 
         /* ══════ HERO ══════ */
         .hero { min-height:100vh; display:flex; align-items:center; padding:8rem 0 6rem; position:relative; overflow:hidden; }
-        .hero::before { content:''; position:absolute; top:-25%; left:50%; transform:translateX(-50%); width:900px; height:900px; background:radial-gradient(circle,rgba(201,168,76,0.07),transparent 60%); pointer-events:none; }
+        .hero::before { content:''; position:absolute; top:-30%; left:50%; transform:translateX(-50%); width:900px; height:900px; background:radial-gradient(circle,rgba(201,168,76,0.10) 0%,transparent 65%); pointer-events:none; }
         .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
 
         .hero-bismillah { font-family:'Amiri',serif; font-size:1.5rem; color:var(--gold); opacity:.6; margin-bottom:1.5rem; display:block; }
@@ -309,9 +309,9 @@
 <body>
 
 <div class="geo-pattern" aria-hidden="true"></div>
-<div class="glow glow-1" aria-hidden="true"></div>
-<div class="glow glow-2" aria-hidden="true"></div>
-<div class="glow glow-3" aria-hidden="true"></div>
+<div class="ambient ambient-1" aria-hidden="true"></div>
+<div class="ambient ambient-2" aria-hidden="true"></div>
+<div class="ambient ambient-3" aria-hidden="true"></div>
 
 <!-- Nav -->
 <nav class="nav" id="nav">
@@ -591,7 +591,7 @@
     tick();setInterval(tick,1000);
 
     var starsEl=document.getElementById('stars');
-    if(starsEl){for(var i=0;i<70;i++){var s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.setProperty('--d',(3+Math.random()*4)+'s');s.style.setProperty('--dl',Math.random()*5+'s');s.style.setProperty('--b',(0.3+Math.random()*0.7).toString());starsEl.appendChild(s);}}
+    if(starsEl){for(var i=0;i<80;i++){var s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.setProperty('--dur',(3+Math.random()*4)+'s');s.style.setProperty('--delay',Math.random()*5+'s');s.style.setProperty('--brightness',(0.3+Math.random()*0.7).toString());starsEl.appendChild(s);}}
 
     var obs=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting){en.target.classList.add('vis');obs.unobserve(en.target)}})},{threshold:.12,rootMargin:'0px 0px -30px 0px'});
     document.querySelectorAll('.rv').forEach(function(el){obs.observe(el)});
