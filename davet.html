@@ -109,7 +109,11 @@
         var match = path.match(/^\/davet\/([A-Za-z0-9_-]{6,16})$/);
         if (match) return (match[1] || '').toUpperCase();
         var q = new URLSearchParams(location.search).get('code');
-        return q ? String(q).trim().toUpperCase() : null;
+        if (q) {
+          var trimmed = String(q).trim().toUpperCase();
+          if (/^[A-Z0-9_-]{6,16}$/.test(trimmed)) return trimmed;
+        }
+        return null;
       }
 
       var code = getCodeFromUrl();
