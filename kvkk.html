@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KVKK Aydınlatma Metni — Vaktim</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#06060e;color:#edeae3;-webkit-font-smoothing:antialiased}
+    .geo{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;background-image:repeating-conic-gradient(from 0deg at 50% 50%,transparent 0deg 60deg,rgba(201,168,76,.5) 60deg 61deg,transparent 61deg 120deg);background-size:120px 120px}
+    .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+    .amb-1{width:500px;height:500px;top:-150px;right:-100px;background:radial-gradient(circle,rgba(201,168,76,.08),transparent 70%)}
+    .amb-2{width:400px;height:400px;bottom:10%;left:-120px;background:radial-gradient(circle,rgba(16,185,129,.06),transparent 70%)}
+    .top-bar{position:relative;z-index:1;padding:1.2rem 2rem;border-bottom:1px solid rgba(255,255,255,.06)}
+    .top-in{max-width:800px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+    .top-logo{font-size:1.3rem;font-weight:800;color:#c9a84c;text-decoration:none}
+    .top-back{color:rgba(237,234,227,.4);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .25s}
+    .top-back:hover{color:#c9a84c}
+    .content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:3rem 2rem 5rem}
+    .content h1{font-size:1.8rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em}
+    .content .subtitle{font-size:.9rem;color:rgba(237,234,227,.4);margin-bottom:2.5rem}
+    .content h2{font-size:1.15rem;font-weight:700;color:#c9a84c;margin:2rem 0 .8rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.04)}
+    .content h2:first-of-type{border-top:none;padding-top:0}
+    .content p{font-size:.92rem;color:rgba(237,234,227,.6);line-height:1.7;margin-bottom:.8rem}
+    .content ul{margin:.5rem 0 1rem 1.2rem;list-style:none}
+    .content ul li{font-size:.92rem;color:rgba(237,234,227,.6);line-height:1.7;padding:.2rem 0;padding-left:1rem;position:relative}
+    .content ul li::before{content:'✦';position:absolute;left:0;color:#c9a84c;font-size:.7rem}
+    .content a{color:#c9a84c;text-decoration:none}
+    .content a:hover{text-decoration:underline}
+    .content strong{color:rgba(237,234,227,.8);font-weight:600}
+    .ft{position:relative;z-index:1;padding:2rem;border-top:1px solid rgba(255,255,255,.06);text-align:center}
+    .ft p{font-size:.75rem;color:rgba(237,234,227,.2)}
+  </style>
+</head>
+<body>
+<div class="geo" aria-hidden="true"></div>
+<div class="amb amb-1" aria-hidden="true"></div>
+<div class="amb amb-2" aria-hidden="true"></div>
+
+<div class="top-bar"><div class="top-in"><a href="/" class="top-logo">Vaktim</a><a href="/" class="top-back">← Ana Sayfa</a></div></div>
+
+<div class="content">
+  <h1>KVKK Aydınlatma Metni</h1>
+  <p class="subtitle">Kişisel Verilerin Korunması Hakkında Aydınlatma Metni</p>
+
+  <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, veri sorumlusu sıfatıyla faaliyet gösteren şahıs işletmesi olarak, kişisel verileriniz aşağıda açıklanan kapsamda işlenmektedir.</p>
+
+  <h2>1. Veri Sorumlusu</h2>
+  <p>İletişim: <a href="mailto:destek@vaktim.app">destek@vaktim.app</a></p>
+
+  <h2>2. İşlenen Kişisel Veriler</h2>
+  <p>Uygulama kapsamında aşağıdaki kişisel veriler işlenebilir:</p>
+  <ul>
+    <li>E-posta adresi</li>
+    <li>Profil bilgileri (kullanıcı adı, avatar görseli)</li>
+    <li>İbadet ve ilerleme verileri (namaz takibi, zikir sayıları, dua okuma istatistikleri vb.)</li>
+    <li>Abonelik durumu bilgisi</li>
+    <li>Bildirim izin durumu</li>
+  </ul>
+  <p><strong>Uygulama reklam, analiz (analytics) veya davranışsal takip verisi toplamaz.</strong></p>
+
+  <h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
+  <p>Kişisel verileriniz;</p>
+  <ul>
+    <li>Hesap oluşturulması ve kimlik doğrulama,</li>
+    <li>İbadet ve ilerleme verilerinin saklanması,</li>
+    <li>Kullanıcının açık rızası halinde bulut senkronizasyonu sağlanması,</li>
+    <li>Premium abonelik işlemlerinin yürütülmesi,</li>
+    <li>Kullanıcı destek taleplerinin cevaplanması</li>
+  </ul>
+  <p>amaçlarıyla işlenmektedir.</p>
+
+  <h2>4. Veri Aktarımı</h2>
+  <p>Verileriniz aşağıdaki hizmet sağlayıcılarla paylaşılabilir:</p>
+  <p><strong>Supabase</strong> (Almanya – Frankfurt / Avrupa Birliği)<br>Hesap ve senkronizasyon verileri Avrupa Birliği sınırları içinde saklanmaktadır.</p>
+  <p><strong>RevenueCat</strong><br>Premium abonelik yönetimi amacıyla abonelik durumuna ilişkin bilgiler RevenueCat altyapısı üzerinden işlenebilir.</p>
+  <p><strong>Verileriniz hiçbir şekilde reklam veya pazarlama amacıyla üçüncü kişilere satılmaz.</strong></p>
+
+  <h2>5. Konum ve Bildirim Kullanımı</h2>
+  <p>Konum bilgisi yalnızca cihaz üzerinde namaz vakitlerinin hesaplanması amacıyla kullanılır ve sunucuya aktarılmaz.</p>
+  <p>Bildirimler yalnızca cihaz üzerinde zamanlanır (local notifications). Sunucu tabanlı push sistemi kullanılmamaktadır.</p>
+
+  <h2>6. Biyometrik Doğrulama</h2>
+  <p>Face ID veya biyometrik doğrulama yalnızca cihazın yerleşik güvenlik sistemi aracılığıyla gerçekleştirilir. Biyometrik veriler uygulama veya sunucu tarafından işlenmez.</p>
+
+  <h2>7. Saklama Süresi</h2>
+  <p>Kişisel verileriniz;</p>
+  <ul>
+    <li>Hesap aktif olduğu sürece,</li>
+    <li>Hesap silme talebi sonrası makul süre içinde sistemlerden silinecek şekilde</li>
+  </ul>
+  <p>saklanır.</p>
+
+  <h2>8. KVKK Kapsamındaki Haklarınız</h2>
+  <p>KVKK'nın 11. maddesi uyarınca;</p>
+  <ul>
+    <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+    <li>İşlenmişse bilgi talep etme,</li>
+    <li>Düzeltme veya silme isteme,</li>
+    <li>Aktarım yapılan üçüncü kişileri öğrenme,</li>
+    <li>Zarara uğramanız halinde tazminat talep etme</li>
+  </ul>
+  <p>haklarına sahipsiniz.</p>
+  <p>Başvurularınızı <a href="mailto:destek@vaktim.app">destek@vaktim.app</a> adresine iletebilirsiniz.</p>
+</div>
+
+<div class="ft"><p>&copy; 2025 Vaktim. Tüm hakları saklıdır.</p></div>
+</body>
+</html>
