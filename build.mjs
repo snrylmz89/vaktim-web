@@ -45,6 +45,12 @@ if (fs.existsSync(davetSrc)) {
   );
 }
 
+// Copy img folder
+const imgSrc = path.join(root, 'img');
+if (fs.existsSync(imgSrc)) {
+  copyRecursive(imgSrc, path.join(staticDir, 'img'));
+}
+
 // Copy .well-known
 const wellKnownSrc = path.join(root, '.well-known');
 if (fs.existsSync(wellKnownSrc)) {
