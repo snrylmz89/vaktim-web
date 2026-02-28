@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gizlilik Politikası — Vaktim</title>
+  <title>KVKK Aydınlatma Metni — Vaktim</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -20,15 +20,16 @@
     .content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:3rem 2rem 5rem}
     .content h1{font-size:1.8rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em}
     .content .subtitle{font-size:.9rem;color:rgba(237,234,227,.4);margin-bottom:2.5rem}
+    .content h2{font-size:1.05rem;font-weight:700;color:#c9a84c;margin:2rem 0 .6rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.04)}
+    .content h2:first-of-type{border-top:none;padding-top:0}
+    .content h3{font-size:.95rem;font-weight:700;color:rgba(237,234,227,.78);margin:1.2rem 0 .45rem}
     .content p{font-size:.92rem;color:rgba(237,234,227,.6);line-height:1.7;margin-bottom:.8rem}
+    .content ul{margin:.45rem 0 1rem 1.2rem;list-style:none}
+    .content ul li{font-size:.92rem;color:rgba(237,234,227,.62);line-height:1.7;padding:.15rem 0;padding-left:1rem;position:relative}
+    .content ul li::before{content:'✦';position:absolute;left:0;color:#c9a84c;font-size:.7rem}
     .content a{color:#c9a84c;text-decoration:none}
     .content a:hover{text-decoration:underline}
     .content strong{color:rgba(237,234,227,.8);font-weight:600}
-    .highlights{display:flex;flex-direction:column;gap:.6rem;margin:1.5rem 0 2rem}
-    .hi{display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1.1rem;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.1);border-radius:14px}
-    .hi-icon{font-size:1rem;color:#10b981;flex-shrink:0;margin-top:2px}
-    .hi-text{font-size:.9rem;color:rgba(237,234,227,.65);line-height:1.5}
-    .divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:2rem 0}
     .ft{position:relative;z-index:1;padding:2rem;border-top:1px solid rgba(255,255,255,.06);text-align:center}
     .ft p{font-size:.75rem;color:rgba(237,234,227,.2)}
   </style>
@@ -41,28 +42,142 @@
 <div class="top-bar"><div class="top-in"><a href="/" class="top-logo">Vaktim</a><a href="/" class="top-back">← Ana Sayfa</a></div></div>
 
 <div class="content">
-  <h1>Gizlilik Politikası</h1>
-  <p class="subtitle">Gizliliğiniz bizim için önemlidir.</p>
+  <h1>KVKK AYDINLATMA METNİ</h1>
+  <p class="subtitle">Kişisel Verilerin Korunması Hakkında Aydınlatma Metni</p>
+  <p>Son Güncelleme Tarihi: [Tarih ekleyin]</p>
 
-  <p>Vaktim uygulaması, kişisel verilerinizi yalnızca uygulamanın çalışması için gerekli olduğu ölçüde işler.</p>
+  <p>6698 sayılı Kişisel Verilerin Korunması Kanunu (&ldquo;KVKK&rdquo;) uyarınca, veri sorumlusu sıfatıyla faaliyet gösteren şahıs işletmesi olarak Vaktim uygulaması kapsamında işlenen kişisel verilerinize ilişkin olarak sizleri aşağıdaki şekilde bilgilendiriyoruz.</p>
 
-  <div class="highlights">
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Reklam gösterilmez.</div></div>
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Analiz veya kullanıcı davranış takibi yapılmaz.</div></div>
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Verileriniz üçüncü kişilere satılmaz.</div></div>
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Bulut senkronizasyonu yalnızca açık rızanız ile aktif hale gelir.</div></div>
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Verileriniz Supabase altyapısı üzerinden Avrupa Birliği veri merkezlerinde saklanmaktadır.</div></div>
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Premium abonelik işlemleri RevenueCat altyapısı üzerinden yürütülür ve abonelik durumuna ilişkin sınırlı bilgiler işlenebilir.</div></div>
-    <div class="hi"><div class="hi-icon">✦</div><div class="hi-text">Konum bilgisi yalnızca cihaz üzerinde namaz vakitlerinin hesaplanması amacıyla kullanılır ve sunucuya aktarılmaz.</div></div>
-  </div>
+  <h2>1. Veri Sorumlusu</h2>
+  <p>Veri sorumlusu: Vaktim (Şahıs İşletmesi)<br>İletişim: <a href="mailto:destek@vaktim.app">destek@vaktim.app</a></p>
 
-  <div class="divider"></div>
+  <h2>2. İşlenen Kişisel Veriler</h2>
+  <p>Uygulama kapsamında aşağıdaki kişisel veriler işlenebilir:</p>
 
-  <p>Verileriniz üzerinde her zaman kontrol sahibisiniz. İstediğiniz zaman senkronizasyonu kapatabilir veya hesabınızı silebilirsiniz. Hesap silme talebi halinde kişisel verileriniz makul süre içinde sistemlerden silinir.</p>
+  <h3>a) Kimlik ve İletişim Bilgileri</h3>
+  <ul>
+    <li>E-posta adresi</li>
+    <li>Kullanıcı adı</li>
+    <li>Avatar görseli</li>
+  </ul>
 
-  <p>Detaylı bilgi için <a href="/kvkk">KVKK Aydınlatma Metni</a>'ni inceleyebilirsiniz.</p>
+  <h3>b) Kullanım ve Aktivite Verileri</h3>
+  <ul>
+    <li>Namaz takibi verileri</li>
+    <li>Zikir ve dua ilerleme verileri</li>
+    <li>Kur&rsquo;an okuma istatistikleri</li>
+    <li>Manevi rehber sohbet içerikleri</li>
+    <li>Bildirim izin durumu</li>
+    <li>Premium abonelik durumu</li>
+  </ul>
 
-  <p>İletişim: <a href="mailto:destek@vaktim.app">destek@vaktim.app</a></p>
+  <h3>c) Cihaz ve Teknik Veriler</h3>
+  <ul>
+    <li>Oturum bilgileri</li>
+    <li>Uygulama versiyonu</li>
+    <li>Kimlik doğrulama kayıtları</li>
+  </ul>
+
+  <h3>d) Konum Verisi</h3>
+  <p>Konum bilgisi yalnızca:</p>
+  <ul>
+    <li>Namaz vakitlerinin hesaplanması</li>
+    <li>Kıble yönünün belirlenmesi</li>
+  </ul>
+  <p>amacıyla cihaz üzerinde kullanılır. Konum verisi varsayılan olarak sunucuya aktarılmaz.</p>
+
+  <h2>3. Özel Nitelikli Kişisel Veri</h2>
+  <p>Uygulama kapsamında işlenen namaz, dua, zikir ve benzeri ibadet verileri, niteliği gereği kişinin dini inancına ilişkin dolaylı veri oluşturabilir.</p>
+  <p>Bu kapsamda söz konusu veriler KVKK madde 6 kapsamında özel nitelikli kişisel veri olarak değerlendirilebilir.</p>
+  <p>Bu veriler yalnızca:</p>
+  <ul>
+    <li>Kullanıcının açık rızası ile</li>
+    <li>Hizmetin sunulması amacıyla</li>
+    <li>Kullanıcı talebi doğrultusunda bulut senkronizasyonu aktif edildiğinde</li>
+  </ul>
+  <p>işlenmektedir.</p>
+
+  <h2>4. Kişisel Verilerin İşlenme Amaçları</h2>
+  <p>Kişisel verileriniz;</p>
+  <ul>
+    <li>Hesap oluşturulması ve kimlik doğrulama</li>
+    <li>İbadet ve ilerleme verilerinin saklanması</li>
+    <li>Kullanıcının açık rızası halinde bulut senkronizasyonu sağlanması</li>
+    <li>Premium abonelik işlemlerinin yürütülmesi</li>
+    <li>Kullanıcı destek taleplerinin cevaplanması</li>
+    <li>Uygulama güvenliğinin sağlanması</li>
+  </ul>
+  <p>amaçlarıyla işlenmektedir.</p>
+  <p>Uygulama;</p>
+  <ul>
+    <li>Reklam göstermez</li>
+    <li>Davranışsal kullanıcı takibi yapmaz</li>
+    <li>Analitik veri toplamaz</li>
+    <li>Çerez tabanlı profil çıkarmaz</li>
+  </ul>
+
+  <h2>5. Hukuki Dayanak</h2>
+  <p>Kişisel verileriniz aşağıdaki hukuki sebeplere dayanarak işlenmektedir:</p>
+  <ul>
+    <li>KVKK madde 5/2-c: Bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması</li>
+    <li>KVKK madde 5/2-f: Veri sorumlusunun meşru menfaati</li>
+    <li>KVKK madde 5/1: Açık rıza (bulut senkronizasyonu ve özel nitelikli veriler için)</li>
+    <li>KVKK madde 6/2: Özel nitelikli verilerin açık rıza ile işlenmesi</li>
+  </ul>
+
+  <h2>6. Veri Aktarımı</h2>
+  <p>Kişisel verileriniz aşağıdaki hizmet sağlayıcılarla paylaşılabilir:</p>
+  <p><strong>Supabase (Almanya &ndash; Frankfurt / Avrupa Birliği)</strong></p>
+  <p>Hesap ve senkronizasyon verileri Avrupa Birliği sınırları içerisinde saklanmaktadır.</p>
+  <p><strong>RevenueCat</strong></p>
+  <p>Premium abonelik yönetimi amacıyla abonelik durumuna ilişkin bilgiler işlenebilir.</p>
+  <p>Verileriniz:</p>
+  <ul>
+    <li>Reklam veya pazarlama amacıyla üçüncü kişilere satılmaz</li>
+    <li>Veri broker&rsquo;lara aktarılmaz</li>
+    <li>Profil çıkarma amacıyla paylaşılmaz</li>
+  </ul>
+  <p>Veriler Avrupa Birliği veri merkezlerinde saklanmakta olup AB dışına aktarım yapılmamaktadır.</p>
+
+  <h2>7. Veri Güvenliği</h2>
+  <p>Kişisel verilerinizin korunması için uygun teknik ve idari tedbirler alınmaktadır.</p>
+  <p>Bu kapsamda:</p>
+  <ul>
+    <li>Şifreli bağlantılar (SSL/TLS)</li>
+    <li>Yetkilendirilmiş erişim kontrolü</li>
+    <li>Sunucu güvenlik önlemleri</li>
+    <li>Yetkisiz erişim önleme mekanizmaları</li>
+  </ul>
+  <p>uygulanmaktadır.</p>
+  <p>Ancak internet üzerinden hiçbir veri iletimi %100 güvenli değildir.</p>
+
+  <h2>8. Saklama Süresi</h2>
+  <p>Kişisel verileriniz;</p>
+  <ul>
+    <li>Hesap aktif olduğu sürece</li>
+    <li>Hesap silme talebi sonrası makul süre içerisinde</li>
+    <li>Yasal yükümlülüklerin gerektirdiği süre boyunca</li>
+  </ul>
+  <p>saklanır.</p>
+  <p>Kullanıcı, uygulama içinden hesabını ve bulut verilerini silebilir.</p>
+
+  <h2>9. KVKK Kapsamındaki Haklarınız</h2>
+  <p>KVKK&rsquo;nın 11. maddesi uyarınca;</p>
+  <ul>
+    <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+    <li>İşlenmişse bilgi talep etme</li>
+    <li>Düzeltme veya silme isteme</li>
+    <li>Aktarım yapılan üçüncü kişileri öğrenme</li>
+    <li>İşlemenin sınırlandırılmasını talep etme</li>
+    <li>Veri taşınabilirliği talep etme</li>
+    <li>Zarara uğramanız halinde tazminat talep etme</li>
+  </ul>
+  <p>haklarına sahipsiniz.</p>
+  <p>Başvurularınızı <a href="mailto:destek@vaktim.app">destek@vaktim.app</a><br>adresine iletebilirsiniz.</p>
+  <p>Ayrıca Kişisel Verileri Koruma Kurumu&rsquo;na şikâyette bulunma hakkınız bulunmaktadır.</p>
+
+  <h2>10. Değişiklikler</h2>
+  <p>Bu Aydınlatma Metni gerekli görüldüğünde güncellenebilir.<br>Güncel versiyon uygulama veya internet sitesi üzerinden yayımlanır.</p>
 </div>
 
 <div class="ft"><p>&copy; 2025 Vaktim. Tüm hakları saklıdır.</p></div>
