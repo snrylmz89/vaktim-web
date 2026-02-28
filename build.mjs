@@ -29,7 +29,7 @@ function copyRecursive(src, dest) {
 fs.mkdirSync(staticDir, { recursive: true });
 
 // Copy root HTML
-for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html']) {
+for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html', 'sorumluluk-reddi.html']) {
   const src = path.join(root, name);
   if (fs.existsSync(src)) fs.copyFileSync(src, path.join(staticDir, name));
 }
@@ -43,6 +43,12 @@ if (fs.existsSync(davetSrc)) {
     path.join(davetSrc, 'index.html'),
     path.join(davetDest, 'index.html')
   );
+}
+
+// Copy destek folder
+const destekSrc = path.join(root, 'destek');
+if (fs.existsSync(destekSrc)) {
+  copyRecursive(destekSrc, path.join(staticDir, 'destek'));
 }
 
 // Copy img folder
