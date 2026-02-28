@@ -29,7 +29,7 @@ function copyRecursive(src, dest) {
 fs.mkdirSync(staticDir, { recursive: true });
 
 // Copy root HTML
-for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html']) {
+for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html', 'sorumluluk-reddi.html']) {
   const src = path.join(root, name);
   if (fs.existsSync(src)) fs.copyFileSync(src, path.join(staticDir, name));
 }
