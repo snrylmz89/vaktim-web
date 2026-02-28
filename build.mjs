@@ -45,6 +45,12 @@ if (fs.existsSync(davetSrc)) {
   );
 }
 
+// Copy destek folder
+const destekSrc = path.join(root, 'destek');
+if (fs.existsSync(destekSrc)) {
+  copyRecursive(destekSrc, path.join(staticDir, 'destek'));
+}
+
 // Copy img folder
 const imgSrc = path.join(root, 'img');
 if (fs.existsSync(imgSrc)) {
