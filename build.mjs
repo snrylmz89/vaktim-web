@@ -51,6 +51,20 @@ if (fs.existsSync(destekSrc)) {
   copyRecursive(destekSrc, path.join(staticDir, 'destek'));
 }
 
+// Copy shared js folder
+const jsSrc = path.join(root, 'js');
+if (fs.existsSync(jsSrc)) {
+  copyRecursive(jsSrc, path.join(staticDir, 'js'));
+}
+
+// Copy language folders
+for (const lang of ['en', 'ar']) {
+  const langSrc = path.join(root, lang);
+  if (fs.existsSync(langSrc)) {
+    copyRecursive(langSrc, path.join(staticDir, lang));
+  }
+}
+
 // Copy img folder
 const imgSrc = path.join(root, 'img');
 if (fs.existsSync(imgSrc)) {

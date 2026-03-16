@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaktim – دليلك في رحلة عبادتك</title>
+    <meta name="description" content="أوقات الصلاة، القرآن الكريم، الأذكار، الرحلة الروحية والإرشاد الروحي. إنه يرافق روتين عبادتك مع Vaktim.">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #06060e;
+            --surface: rgba(255,255,255,0.03);
+            --surface-h: rgba(255,255,255,0.055);
+            --border: rgba(255,255,255,0.06);
+            --teal: #10b981;
+            --teal-soft: rgba(16,185,129,0.12);
+            --gold: #c9a84c;
+            --gold-light: #e4c76b;
+            --gold-glow: rgba(201, 168, 76, 0.25);
+            --gold-soft: rgba(201,168,76,0.10);
+            --purple: #8b5cf6;
+            --rose: #e879a0;
+            --text: #edeae3;
+            --text-2: rgba(237,234,227,0.6);
+            --text-3: rgba(237,234,227,0.35);
+            --r: 22px;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Geometric pattern overlay */
+        .geo-pattern {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+            background-image:
+                repeating-conic-gradient(
+                    from 0deg at 50% 50%,
+                    transparent 0deg 60deg,
+                    rgba(201, 168, 76, 0.5) 60deg 61deg,
+                    transparent 61deg 120deg
+                );
+            background-size: 120px 120px;
+        }
+
+        /* Ambient glow blobs */
+        .ambient { position:fixed; border-radius:50%; filter:blur(120px); pointer-events:none; z-index:0; }
+        .ambient-1 { width:600px; height:600px; top:-200px; right:-100px; background:radial-gradient(circle,rgba(201,168,76,0.12),transparent 70%); }
+        .ambient-2 { width:500px; height:500px; bottom:20%; left:-150px; background:radial-gradient(circle,rgba(13,148,136,0.10),transparent 70%); }
+        .ambient-3 { width:400px; height:400px; top:50%; right:10%; background:radial-gradient(circle,rgba(201,168,76,0.04),transparent 70%); }
+
+        /* Stars */
+        .stars { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+        .star {
+            position:absolute; width:2px; height:2px; background:var(--gold-light);
+            border-radius:50%; opacity:0;
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+        @keyframes twinkle { 0%,100%{opacity:0} 50%{opacity:var(--brightness)} }
+
+        /* Reveal */
+        .rv { opacity:0; transform:translateY(32px); transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
+        .rv.vis { opacity:1; transform:none; }
+        .d1{transition-delay:.1s} .d2{transition-delay:.2s} .d3{transition-delay:.3s} .d4{transition-delay:.4s}
+
+        /* Layout */
+        .wrap { max-width:1180px; margin:0 auto; padding:0 2rem; }
+        section { position:relative; z-index:1; }
+
+        /* ── NAV ── */
+        .nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:1rem 2rem; transition:all .35s; }
+        .nav.scrolled { background:rgba(6,6,14,0.8); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%); border-bottom:1px solid var(--border); }
+        .nav-in { max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
+        .nav-logo { font-size:1.4rem; font-weight:900; letter-spacing:-.02em; color:var(--gold); }
+        .nav-links { display:flex; gap:2rem; list-style:none; }
+        .nav-actions { display:flex; align-items:center; gap:.65rem; }
+        .lang-select {
+            padding:.42rem .6rem;
+            border-radius:10px;
+            border:1px solid var(--border);
+            background:rgba(255,255,255,.03);
+            color:var(--text);
+            font-size:.74rem;
+            font-weight:700;
+            font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+            cursor:pointer;
+            outline:none;
+        }
+        .lang-select option { color:#111; }
+        .nav-links a { color:var(--text-3); text-decoration:none; font-size:.85rem; font-weight:500; transition:color .25s; }
+        .nav-links a:hover { color:var(--gold); }
+        .nav-cta { padding:.55rem 1.4rem; background:linear-gradient(135deg,var(--gold),#a8862e); color:var(--bg); border-radius:50px; font-weight:700; font-size:.82rem; text-decoration:none; transition:all .3s; }
+        .nav-cta:hover { box-shadow:0 6px 24px rgba(201,168,76,.25); transform:translateY(-1px); }
+
+        /* ══════ HERO ══════ */
+        .hero { min-height:100vh; display:flex; align-items:center; padding:8rem 0 6rem; position:relative; overflow:hidden; }
+        .hero::before { content:''; position:absolute; top:-30%; left:50%; transform:translateX(-50%); width:900px; height:900px; background:radial-gradient(circle,rgba(201,168,76,0.10) 0%,transparent 65%); pointer-events:none; }
+        .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+
+        .hero-bismillah { font-family:'Amiri',serif; font-size:1.5rem; color:var(--gold); opacity:.6; margin-bottom:1.5rem; display:block; }
+        .hero h1 { font-size:clamp(3rem,6vw,4.8rem); font-weight:900; line-height:1.06; letter-spacing:-.035em; margin-bottom:1.3rem; }
+        .hero h1 .glow-text { background:linear-gradient(135deg,var(--gold),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero-sub { font-size:1.1rem; color:var(--text-2); line-height:1.7; max-width:460px; margin-bottom:2.5rem; }
+        .hero-btns { display:flex; gap:.8rem; flex-wrap:wrap; }
+        .btn-gold { display:inline-flex; align-items:center; gap:.5rem; padding:1rem 2rem; background:linear-gradient(135deg,var(--gold),#a8862e); color:var(--bg); border-radius:14px; font-weight:700; font-size:.95rem; text-decoration:none; transition:all .3s; box-shadow:0 8px 28px rgba(201,168,76,.2); }
+        .btn-gold:hover { transform:translateY(-2px); box-shadow:0 14px 40px rgba(201,168,76,.3); }
+        .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:1rem 2rem; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:14px; font-weight:600; font-size:.95rem; text-decoration:none; transition:all .3s; }
+        .btn-ghost:hover { background:var(--surface-h); border-color:rgba(201,168,76,.2); }
+
+        /* Phone */
+        .hero-phone { display:flex; justify-content:center; position:relative; }
+        .ph-glow { position:absolute; width:340px; height:440px; top:50%; left:50%; transform:translate(-50%,-50%); background:radial-gradient(ellipse,rgba(201,168,76,.1),transparent 70%); filter:blur(60px); pointer-events:none; }
+        .ph { width:320px; aspect-ratio:9/19.5; background:linear-gradient(160deg,#181e30,#0c1018); border-radius:46px; padding:10px; box-shadow:0 50px 100px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.06),inset 0 1px 0 rgba(255,255,255,.04); animation:float 7s ease-in-out infinite; position:relative; z-index:1; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        .ph-scr { width:100%; height:100%; background:#0c1220; border-radius:38px; overflow:hidden; position:relative; }
+        .ph-img { width:100%; height:100%; object-fit:cover; object-position:top; border-radius:38px; }
+
+        
+
+        /* ── Divider ── */
+        .divider { width:100%; height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); position:relative; z-index:1; }
+
+        /* ══════ FEATURES ══════ */
+        .features { padding:7rem 0; }
+        .features-head { text-align:center; margin-bottom:3.5rem; }
+        .tag { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .9rem; border-radius:50px; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:1.2rem; }
+        .tag-gold { background:var(--gold-soft); border:1px solid rgba(201,168,76,.2); color:var(--gold); }
+        .tag-teal { background:var(--teal-soft); border:1px solid rgba(16,185,129,.18); color:var(--teal); }
+        .s-title { font-size:clamp(2.2rem,4.5vw,3.2rem); font-weight:900; line-height:1.1; letter-spacing:-.03em; margin-bottom:.8rem; }
+        .s-desc { font-size:1rem; color:var(--text-2); line-height:1.65; max-width:520px; }
+        .s-desc.center { margin:0 auto; }
+        .gold-t { color:var(--gold); }
+        .teal-t { color:var(--teal); }
+
+        /* Category grid */
+        .cat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+        .cat { border-radius:20px; padding:2.2rem 1.5rem; position:relative; overflow:hidden; transition:all .35s; cursor:default; border:1px solid transparent; min-height:155px; display:flex; flex-direction:column; justify-content:flex-end; }
+        .cat:hover { transform:translateY(-4px); box-shadow:0 16px 48px rgba(0,0,0,.35); }
+        .cat-icon { font-size:2.2rem; margin-bottom:.8rem; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
+        .cat h3 { font-size:1.1rem; font-weight:800; position:relative; z-index:1; }
+        .cat p { font-size:.82rem; color:rgba(255,255,255,.65); line-height:1.5; margin-top:.3rem; position:relative; z-index:1; }
+        .cat::before { content:''; position:absolute; inset:0; opacity:.15; pointer-events:none; }
+
+        .cat-namaz { background:linear-gradient(135deg,#1e2e14,#151f0e); border-color:rgba(132,204,22,.08); }
+        .cat-namaz:hover { border-color:rgba(132,204,22,.25); }
+        .cat-namaz::before { background:radial-gradient(circle at 85% 15%,rgba(132,204,22,.35),transparent 55%); }
+
+        .cat-dua { background:linear-gradient(135deg,#0e2520,#0a1a16); border-color:rgba(16,185,129,.08); }
+        .cat-dua:hover { border-color:rgba(16,185,129,.25); }
+        .cat-dua::before { background:radial-gradient(circle at 85% 15%,rgba(16,185,129,.35),transparent 55%); }
+
+        .cat-zikir { background:linear-gradient(135deg,#0e1a18,#0a1210); border-color:rgba(16,185,129,.06); }
+        .cat-zikir:hover { border-color:rgba(16,185,129,.2); }
+        .cat-zikir::before { background:radial-gradient(circle at 85% 15%,rgba(16,185,129,.2),transparent 55%); }
+
+        .cat-kuran { background:linear-gradient(135deg,#141610,#0e100a); border-color:rgba(201,168,76,.06); }
+        .cat-kuran:hover { border-color:rgba(201,168,76,.2); }
+        .cat-kuran::before { background:radial-gradient(circle at 85% 15%,rgba(201,168,76,.2),transparent 55%); }
+
+        .cat-takvim { background:linear-gradient(135deg,#18160e,#100e08); border-color:rgba(201,168,76,.06); }
+        .cat-takvim:hover { border-color:rgba(201,168,76,.2); }
+        .cat-takvim::before { background:radial-gradient(circle at 85% 15%,rgba(201,168,76,.2),transparent 55%); }
+
+        .cat-bilge { background:linear-gradient(135deg,#1a1608,#121006); border-color:rgba(201,168,76,.06); }
+        .cat-bilge:hover { border-color:rgba(201,168,76,.2); }
+        .cat-bilge::before { background:radial-gradient(circle at 85% 15%,rgba(201,168,76,.25),transparent 55%); }
+
+        /* ══════ STORY CARDS ══════ */
+        .stories { padding:7rem 0; }
+        .stories-head { text-align:center; margin-bottom:3.5rem; }
+        .story-scroll { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; }
+        .story-card { border-radius:20px; overflow:hidden; position:relative; aspect-ratio:9/14; cursor:default; transition:all .4s; }
+        .story-card:hover { transform:translateY(-6px); box-shadow:0 20px 50px rgba(0,0,0,.4); }
+        .story-bg { position:absolute; inset:0; }
+        .story-card:nth-child(1) .story-bg { background:linear-gradient(180deg,#3a2820 0%,#1a1208 50%,#0a0804 100%); }
+        .story-card:nth-child(2) .story-bg { background:linear-gradient(180deg,#1a2830 0%,#0a1418 50%,#060c10 100%); }
+        .story-card:nth-child(3) .story-bg { background:linear-gradient(180deg,#2a1828 0%,#140c14 50%,#080608 100%); }
+        .story-card:nth-child(4) .story-bg { background:linear-gradient(180deg,#282418 0%,#141208 50%,#080804 100%); }
+        .story-card:nth-child(5) .story-bg { background:linear-gradient(180deg,#182820 0%,#0c140e 50%,#060a08 100%); }
+        .story-content { position:relative; z-index:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; padding:1.2rem; }
+        .story-badge { position:absolute; top:1rem; left:1rem; font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:.3rem .6rem; border-radius:6px; background:rgba(0,0,0,.4); backdrop-filter:blur(8px); }
+        .story-quote { font-family:'Amiri',serif; font-size:1rem; line-height:1.5; margin-bottom:.5rem; }
+        .story-src { font-size:.6rem; color:var(--text-3); text-transform:uppercase; letter-spacing:.08em; }
+
+        /* ══════ JOURNEY ══════ */
+        .journey { padding:7rem 0; }
+        .journey-g { display:grid; grid-template-columns:1fr 1fr; gap:4.5rem; align-items:center; }
+        .j-steps { display:flex; flex-direction:column; gap:.8rem; }
+        .j-s { display:flex; gap:1rem; padding:1.3rem; background:var(--surface); border:1px solid var(--border); border-radius:18px; transition:all .3s; cursor:default; }
+        .j-s:hover { border-color:rgba(201,168,76,.2); background:var(--surface-h); transform:translateX(6px); }
+        .j-s-n { width:42px; height:42px; min-width:42px; background:linear-gradient(135deg,var(--gold),#a8862e); border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1rem; color:var(--bg); }
+        .j-s h4 { font-size:.95rem; font-weight:700; margin-bottom:.15rem; }
+        .j-s p { font-size:.82rem; color:var(--text-3); line-height:1.4; }
+
+        .j-visual { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:2rem; position:relative; overflow:hidden; }
+        .j-visual::before { content:''; position:absolute; top:-40%; right:-40%; width:80%; height:80%; background:radial-gradient(circle,rgba(201,168,76,.03),transparent 55%); pointer-events:none; }
+        .j-v-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; position:relative; z-index:1; }
+        .j-v-title { font-size:.7rem; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:.08em; }
+        .j-v-q { font-size:.75rem; color:var(--text-2); font-style:italic; }
+        .j-task { display:flex; align-items:center; justify-content:space-between; padding:.9rem .8rem; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.04); border-radius:14px; margin-bottom:.5rem; transition:all .25s; position:relative; z-index:1; }
+        .j-task:last-child { margin-bottom:0; }
+        .j-task:hover { border-color:rgba(201,168,76,.15); }
+        .j-task-l { display:flex; align-items:center; gap:.6rem; }
+        .j-task-l span { font-size:1.15rem; }
+        .j-task-l h5 { font-size:.88rem; font-weight:700; }
+        .j-task-l small { font-size:.65rem; color:var(--text-3); display:block; margin-top:1px; }
+        .j-chk { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.72rem; flex-shrink:0; }
+        .j-chk.done { background:linear-gradient(135deg,var(--teal),#059669); color:var(--bg); }
+        .j-chk.wait { border:2px solid rgba(201,168,76,.2); }
+
+        /* ══════ BILGE ══════ */
+        .bilge { padding:7rem 0; }
+        .bilge-g { display:grid; grid-template-columns:1fr 1fr; gap:4.5rem; align-items:center; }
+        .b-feats { display:flex; flex-direction:column; gap:.6rem; margin-top:1.5rem; }
+        .bf { display:flex; align-items:center; gap:.8rem; padding:.7rem .9rem; background:var(--surface); border:1px solid var(--border); border-radius:12px; transition:all .25s; }
+        .bf:hover { border-color:rgba(201,168,76,.18); background:rgba(201,168,76,.02); }
+        .bf span:first-child { font-size:1.2rem; }
+        .bf span:last-child { font-size:.88rem; color:rgba(255,255,255,.7); }
+
+        .chat { background:var(--surface); border:1px solid var(--border); border-radius:24px; overflow:hidden; position:relative; }
+        .chat::before { content:''; position:absolute; top:0; left:0; right:0; height:120px; background:linear-gradient(180deg,rgba(201,168,76,.03),transparent); pointer-events:none; }
+        .chat-hd { display:flex; align-items:center; gap:.7rem; padding:1.3rem 1.4rem 1rem; position:relative; z-index:1; }
+        .chat-av { width:44px; height:44px; background:linear-gradient(135deg,var(--teal),var(--purple)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+        .chat-nm { font-weight:800; font-size:1rem; }
+        .chat-st { font-size:.7rem; color:var(--teal); }
+        .chat-line { height:1px; background:var(--border); margin:0 1.4rem; }
+        .chat-msgs { padding:1rem 1.4rem 1.4rem; display:flex; flex-direction:column; gap:.6rem; position:relative; z-index:1; }
+        .msg { padding:.8rem 1rem; border-radius:16px; font-size:.85rem; line-height:1.5; max-width:85%; }
+        .msg.u { background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.12); align-self:flex-end; border-bottom-right-radius:5px; }
+        .msg.a { background:rgba(16,185,129,.06); border:1px solid rgba(16,185,129,.1); align-self:flex-start; border-bottom-left-radius:5px; }
+
+        
+
+        /* ══════ CTA ══════ */
+        .cta { padding:7rem 0; }
+        .cta-box { text-align:center; padding:5rem 3rem; background:linear-gradient(160deg,rgba(201,168,76,.04),rgba(16,185,129,.03)); border:1px solid rgba(201,168,76,.1); border-radius:28px; position:relative; overflow:hidden; }
+        .cta-box::before { content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:450px; height:450px; background:radial-gradient(circle,rgba(201,168,76,.06),transparent 55%); pointer-events:none; }
+        .cta-z { position:relative; z-index:1; }
+        .cta-bsm { font-family:'Amiri',serif; font-size:1.7rem; color:var(--gold); opacity:.4; margin-bottom:1.8rem; }
+        .cta h2 { font-size:clamp(2.2rem,4.5vw,3.2rem); font-weight:900; letter-spacing:-.02em; margin-bottom:.8rem; }
+        .cta p { font-size:1rem; color:var(--text-2); margin-bottom:2.2rem; max-width:440px; margin-left:auto; margin-right:auto; }
+        .stores { display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap; }
+        .store { display:flex; align-items:center; gap:.7rem; padding:.9rem 1.8rem; background:var(--surface); border:1px solid var(--border); border-radius:14px; text-decoration:none; color:var(--text); transition:all .3s; }
+        .store:hover { border-color:rgba(201,168,76,.25); transform:translateY(-2px); box-shadow:0 12px 35px rgba(0,0,0,.3); }
+        .store-i { font-size:1.7rem; }
+        .store-sm { font-size:.6rem; color:var(--text-3); display:block; }
+        .store-nm { font-size:.95rem; font-weight:700; }
+
+        /* ══════ FOOTER ══════ */
+        footer { padding:2.5rem 2rem; border-top:1px solid var(--border); position:relative; z-index:1; }
+        .ft-in { max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.8rem; }
+        .ft-brand { font-weight:900; color:var(--gold); font-size:1.15rem; }
+        .ft-links { display:flex; gap:1.5rem; }
+        .ft-links a { color:var(--text-3); text-decoration:none; font-size:.8rem; transition:color .25s; }
+        .ft-links a:hover { color:var(--gold); }
+        .ft-copy { font-size:.72rem; color:rgba(255,255,255,.2); }
+
+        /* ══════ RESPONSIVE ══════ */
+        @media(max-width:1024px) {
+            .hero-grid, .journey-g, .bilge-g { grid-template-columns:1fr; gap:2.5rem; }
+            .hero-phone { order:-1; }
+            .cat-grid { grid-template-columns:repeat(2,1fr); }
+            .story-scroll { grid-template-columns:repeat(3,1fr); }
+            .story-scroll .story-card:nth-child(4),
+            .story-scroll .story-card:nth-child(5) { display:none; }
+            .nav-links { display:none; }
+            .lang-select { font-size:.72rem; padding:.4rem .5rem; }
+        }
+        @media(max-width:640px) {
+            .cat-grid { grid-template-columns:1fr; }
+            .story-scroll { grid-template-columns:1fr 1fr; }
+            .story-scroll .story-card:nth-child(3) { display:none; }
+            .hero h1 { font-size:2.5rem; }
+            .cta-box { padding:3rem 1.5rem; }
+            .ft-in { flex-direction:column; text-align:center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="geo-pattern" aria-hidden="true"></div>
+<div class="ambient ambient-1" aria-hidden="true"></div>
+<div class="ambient ambient-2" aria-hidden="true"></div>
+<div class="ambient ambient-3" aria-hidden="true"></div>
+
+<!-- Nav -->
+<nav class="nav" id="nav">
+    <div class="nav-in">
+        <div class="nav-logo">Vaktim</div>
+        <ul class="nav-links">
+            <li><a href="#features">سمات</a></li>
+            <li><a href="#journey">رحلة</a></li>
+            <li><a href="#bilge">الدليل الروحي</a></li>
+        </ul>
+        <div class="nav-actions">
+            <select id="languageSwitcher" class="lang-select" aria-label="اختيار اللغة">
+                <option value="tr">TR</option>
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
+            <a href="#download" class="nav-cta">تحميل</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+    <div class="stars" id="stars" aria-hidden="true"></div>
+    <div class="wrap">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <span class="hero-bismillah rv">بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ</span>
+                <h1 class="rv d1">يعبد<br>في رحلتك<br><span class="glow-text">دليلك</span></h1>
+                <p class="hero-sub rv d2">
+                    أوقات الصلاة الدقيقة، القرآن، الذكر، الصلوات اليومية 
+                    والتوجيه الروحي - في تطبيق واحد.
+                </p>
+                <div class="hero-btns rv d3">
+                    <a href="#download" class="btn-gold">تحميل مجاني</a>
+                    <a href="#features" class="btn-ghost">يكتشف</a>
+                </div>
+            </div>
+
+            <div class="hero-phone rv d2">
+                <div class="ph-glow"></div>
+                <div class="ph">
+                    <div class="ph-scr">
+                        <img src="/img/app-screenshot.png" alt="Vaktim Uygulaması" class="ph-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features" id="features">
+    <div class="wrap">
+        <div class="features-head">
+            <div class="tag tag-teal rv">سمات</div>
+            <h2 class="s-title rv d1">إلى أمر عبادتك <span class="teal-t">رافق</span></h2>
+            <p class="s-desc center rv d2">
+                اجمع روتين صلاتك اليومي في تطبيق واحد.
+                كل جانب هو جزء من رحلتك الروحية.
+            </p>
+        </div>
+        <div class="cat-grid">
+            <div class="cat cat-namaz rv"><div class="cat-icon">🕌</div><h3>الصلاة</h3><p>أوقات دقيقة ودعم الانتهاء ومعلومات الركعات وإشعارات الأذان</p></div>
+            <div class="cat cat-dua rv d1"><div class="cat-icon">🧭</div><h3>بوصلة القبلة</h3><p>كشف دقيق لاتجاه القبلة، استخدمه في أي مكان مع دعم دون الاتصال بالإنترنت</p></div>
+            <div class="cat cat-zikir rv d2"><div class="cat-icon">📖</div><h3>القرآن الكريم</h3><p>اتبع الترجمة والترجمة الفورية والقراءة بصوت عالٍ وتقدم القراءة</p></div>
+            <div class="cat cat-kuran rv"><div class="cat-icon">📿</div><h3>الذكر والمسبحة</h3><p>مسبحة رقمية، وعداد صلوات، وتجربة ذكر قابلة للتخصيص</p></div>
+            <div class="cat cat-takvim rv d1"><div class="cat-icon">🕯️</div><h3>قنديل والعطلات</h3><p>أيام قنديل، رسائل جاهزة، الأعياد الدينية والعطلات الرسمية</p></div>
+            <div class="cat cat-bilge rv d2"><div class="cat-icon">✦</div><h3>الدليل الروحي</h3><p>توجيه أسئلتك مع الإلهام من الآيات والأحاديث</p></div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ DAILY STORIES ═══ -->
+<section class="stories">
+    <div class="wrap">
+        <div class="stories-head">
+            <div class="tag tag-gold rv">المحتويات اليومية</div>
+            <h2 class="s-title rv d1">كل يوم <span class="gold-t">إلهام جديد</span></h2>
+            <p class="s-desc center rv d2">
+                آية اليوم والحديث والصلاة وأكثر من ذلك - 
+                المحتوى الذي سوف يغذي روحك كل يوم.
+            </p>
+        </div>
+        <div class="story-scroll">
+            <div class="story-card rv">
+                <div class="story-bg"></div>
+                <div class="story-content">
+                    <div class="story-badge">آية اليوم</div>
+                    <p class="story-quote">ولا تطمئن القلوب إلا بذكر الله.</p>
+                    <span class="story-src">— رعد، 28</span>
+                </div>
+            </div>
+            <div class="story-card rv d1">
+                <div class="story-bg"></div>
+                <div class="story-content">
+                    <div class="story-badge">كلمة الحكمة</div>
+                    <p class="story-quote">ومن كان له يومين متساويين فهو في خسارة.</p>
+                    <span class="story-src">- رواه</span>
+                </div>
+            </div>
+            <div class="story-card rv d2">
+                <div class="story-bg"></div>
+                <div class="story-content">
+                    <div class="story-badge">صلاة اليوم</div>
+                    <p class="story-quote">يا إلاهي! وأسألك الهدى والتقوى والعفاف وغنى القلب.</p>
+                    <span class="story-src">- صلاة الحديث</span>
+                </div>
+            </div>
+            <div class="story-card rv d3">
+                <div class="story-bg"></div>
+                <div class="story-content">
+                    <div class="story-badge">الصبر والامتنان</div>
+                    <p class="story-quote">إن الذين صبروا لهم أجرهم بغير حساب.</p>
+                    <span class="story-src">- زومر، 10</span>
+                </div>
+            </div>
+            <div class="story-card rv d4">
+                <div class="story-bg"></div>
+                <div class="story-content">
+                    <div class="story-badge">اقتراح الذكر</div>
+                    <p class="story-quote">سبحان الله (33 مرة)</p>
+                    <span class="story-src">- التسبيحات</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ JOURNEY ═══ -->
+<section class="journey" id="journey">
+    <div class="wrap">
+        <div class="journey-g">
+            <div>
+                <div class="tag tag-gold rv">رحلة روحية</div>
+                <h2 class="s-title rv d1"><span class="gold-t">التعبدي اليومي</span><br>دليلك</h2>
+                <p class="s-desc rv d2" style="margin-bottom:1.5rem">
+                    مع الصلوات المعدة خصيصا لك كل يوم 
+                    التقدم خطوة بخطوة في رحلتك الروحية.
+                </p>
+                <div class="j-steps">
+                    <div class="j-s rv d2"><div class="j-s-n">1</div><div><h4>ابدأ اليوم بنية</h4><p>نوايا الصلاة والدعاء والذكر والقرآن والصلاة</p></div></div>
+                    <div class="j-s rv d3"><div class="j-s-n">2</div><div><h4>كاملة ومتقدمة</h4><p>المضي قدما في رحلتك من خلال استكمال الولاءات</p></div></div>
+                    <div class="j-s rv d4"><div class="j-s-n">3</div><div><h4>تتبع التقدم المحرز الخاص بك</h4><p>الملخص الأسبوعي والشارات وتتبع التقدم</p></div></div>
+                </div>
+            </div>
+            <div class="j-visual rv d1">
+                <div class="j-v-top">
+                    <div class="j-v-title">نوايا اليوم</div>
+                    <div class="j-v-q">"هل أطعمت روحك اليوم؟"</div>
+                </div>
+                <div class="j-task"><div class="j-task-l"><span>🕌</span><div><h5>الصلاة</h5><small>أداء صلاة الصبح</small></div></div><div class="j-chk done">✓</div></div>
+                <div class="j-task"><div class="j-task-l"><span>🤲</span><div><h5>الصلاة</h5><small>اقرأ صلواتك الصباحية</small></div></div><div class="j-chk done">✓</div></div>
+                <div class="j-task"><div class="j-task-l"><span>📿</span><div><h5>الذكر</h5><small>سبحان الله 33 مرة</small></div></div><div class="j-chk done">✓</div></div>
+                <div class="j-task"><div class="j-task-l"><span>📖</span><div><h5>القرآن</h5><small>قراءة القرآن الكريم لمدة 10 دقائق</small></div></div><div class="j-chk wait"></div></div>
+                <div class="j-task"><div class="j-task-l"><span>💜</span><div><h5>صلوات</h5><small>جلب Salavat إلى الشريف</small></div></div><div class="j-chk wait"></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ BILGE AI ═══ -->
+<section class="bilge" id="bilge">
+    <div class="wrap">
+        <div class="bilge-g">
+            <div class="chat rv">
+                <div class="chat-hd">
+                    <div class="chat-av">✦</div>
+                    <div><div class="chat-nm">حكيم</div><div class="chat-st">● على الانترنت</div></div>
+                </div>
+                <div class="chat-line"></div>
+                <div class="chat-msgs">
+                    <div class="msg u">ما هو التوكل؟ وكيف أطبقه في حياتي؟</div>
+                    <div class="msg a">التوكل يعني الثقة بالله والاعتماد عليه. في القرآن <em>"ومن يتوكل على الله فهو حسبه"</em> (الطلاق، 3) مذكور.<br><br>ابذل قصارى جهدك واترك النتيجة لله.</div>
+                </div>
+            </div>
+            <div>
+                <div class="tag tag-gold rv">الدليل الروحي</div>
+                <h2 class="s-title rv d1"><span class="gold-t">حكيم</span> مع<br>رحلتك الروحية</h2>
+                <p class="s-desc rv d2">فهو يرشد أسئلتك بالإلهام من الآيات والأحاديث. الحكيم دائما معك في رحلتك الروحية.</p>
+                <div class="b-feats">
+                    <div class="bf rv d2"><span>✦</span><span>أجوبة مستوحاة من الآيات والأحاديث</span></div>
+                    <div class="bf rv d3"><span>✦</span><span>يمكنك طرح أسئلتك في أي وقت</span></div>
+                    <div class="bf rv d3"><span>✦</span><span>استجابة فورية</span></div>
+                    <div class="bf rv d4"><span>✦</span><span>التوجيه الشخصي</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta" id="download">
+    <div class="wrap">
+        <div class="cta-box rv">
+            <div class="cta-z">
+                <div class="cta-bsm">﷽</div>
+                <h2>إلى رحلتك الروحية<br><span class="glow-text">ابدأ</span></h2>
+                <p>مجاني تمامًا على نظامي iOS وAndroid.<br>تطبيق جيل جديد يرافق روتين عبادتك.</p>
+                <div class="stores">
+                    <a href="#" class="store"><span class="store-i">🍎</span><div><span class="store-sm">تحميل على</span><span class="store-nm">App Store</span></div></a>
+                    <a href="#" class="store"><span class="store-i">▶</span><div><span class="store-sm">احصل عليه</span><span class="store-nm">Google Play</span></div></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="ft-in">
+        <div class="ft-brand">Vaktim</div>
+        <div class="ft-links"><a href="/ar/destek">مركز الدعم</a><a href="/ar/gizlilik">سياسة الخصوصية</a><a href="/ar/kvkk">KVKK</a><a href="/ar/kullanim-kosullari">شروط الاستخدام</a><a href="/ar/sorumluluk-reddi">تنصل</a><a href="mailto:destek@vaktim.app">تواصل</a></div>
+        <div class="ft-copy">© 2025 Vaktim. جميع الحقوق محفوظة.</div>
+    </div>
+</footer>
+
+<script src="/js/language-switcher.js"></script>
+<script>
+(function(){
+    
+
+    var starsEl=document.getElementById('stars');
+    if(starsEl){for(var i=0;i<50;i++){var s=document.createElement('div');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.setProperty('--dur',(3+Math.random()*4)+'s');s.style.setProperty('--delay',Math.random()*5+'s');s.style.setProperty('--brightness',(0.3+Math.random()*0.7).toString());starsEl.appendChild(s);}}
+
+    var obs=new IntersectionObserver(function(e){e.forEach(function(en){if(en.isIntersecting){en.target.classList.add('vis');obs.unobserve(en.target)}})},{threshold:.12,rootMargin:'0px 0px -30px 0px'});
+    document.querySelectorAll('.rv').forEach(function(el){obs.observe(el)});
+
+    var nav=document.getElementById('nav');
+    window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>50)},{passive:true});
+
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
+})();
+</script>
+</body>
+</html>

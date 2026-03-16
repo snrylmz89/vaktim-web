@@ -84,6 +84,20 @@
         .nav-in { max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; }
         .nav-logo { font-size:1.4rem; font-weight:900; letter-spacing:-.02em; color:var(--gold); }
         .nav-links { display:flex; gap:2rem; list-style:none; }
+        .nav-actions { display:flex; align-items:center; gap:.65rem; }
+        .lang-select {
+            padding:.42rem .6rem;
+            border-radius:10px;
+            border:1px solid var(--border);
+            background:rgba(255,255,255,.03);
+            color:var(--text);
+            font-size:.74rem;
+            font-weight:700;
+            font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+            cursor:pointer;
+            outline:none;
+        }
+        .lang-select option { color:#111; }
         .nav-links a { color:var(--text-3); text-decoration:none; font-size:.85rem; font-weight:500; transition:color .25s; }
         .nav-links a:hover { color:var(--gold); }
         .nav-cta { padding:.55rem 1.4rem; background:linear-gradient(135deg,var(--gold),#a8862e); color:var(--bg); border-radius:50px; font-weight:700; font-size:.82rem; text-decoration:none; transition:all .3s; }
@@ -261,6 +275,7 @@
             .story-scroll .story-card:nth-child(4),
             .story-scroll .story-card:nth-child(5) { display:none; }
             .nav-links { display:none; }
+            .lang-select { font-size:.72rem; padding:.4rem .5rem; }
         }
         @media(max-width:640px) {
             .cat-grid { grid-template-columns:1fr; }
@@ -288,7 +303,14 @@
             <li><a href="#journey">Yolculuk</a></li>
             <li><a href="#bilge">Manevi Rehber</a></li>
         </ul>
-        <a href="#download" class="nav-cta">İndir</a>
+        <div class="nav-actions">
+            <select id="languageSwitcher" class="lang-select" aria-label="Dil Seçimi">
+                <option value="tr">TR</option>
+                <option value="en">EN</option>
+                <option value="ar">AR</option>
+            </select>
+            <a href="#download" class="nav-cta">İndir</a>
+        </div>
     </div>
 </nav>
 
@@ -314,7 +336,7 @@
                 <div class="ph-glow"></div>
                 <div class="ph">
                     <div class="ph-scr">
-                        <img src="img/app-screenshot.png" alt="Vaktim Uygulaması" class="ph-img">
+                        <img src="/img/app-screenshot.png" alt="Vaktim Uygulaması" class="ph-img">
                     </div>
                 </div>
             </div>
@@ -497,6 +519,7 @@
     </div>
 </footer>
 
+<script src="/js/language-switcher.js"></script>
 <script>
 (function(){
     
