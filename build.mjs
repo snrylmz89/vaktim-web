@@ -69,6 +69,10 @@ for (const lang of ['en', 'ar']) {
 const imgSrc = path.join(root, 'img');
 if (fs.existsSync(imgSrc)) {
   copyRecursive(imgSrc, path.join(staticDir, 'img'));
+  const logoSrc = path.join(imgSrc, 'logo.png');
+  if (fs.existsSync(logoSrc)) {
+    fs.copyFileSync(logoSrc, path.join(staticDir, 'logo.png'));
+  }
 }
 
 // Copy .well-known
