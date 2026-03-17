@@ -116,7 +116,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const rawToken = urlParams.get('token');
     const token = (rawToken && /^[A-Za-z0-9._~+\/-]+=*$/.test(rawToken) && rawToken.length <= 4096) ? rawToken : null;
-    const APP_SCHEME = token ? 'vaktim://verify-email?token=' + encodeURIComponent(token) : null;
+    const APP_SCHEME = 'vaktim://?emailVerified=true';
 
     const spinner = document.getElementById('spinner');
     const content = document.getElementById('content');
@@ -160,7 +160,6 @@
     }
 
     function tryOpenApp() {
-      if (!APP_SCHEME) return;
       window.location.href = APP_SCHEME;
     }
 
@@ -182,7 +181,6 @@
     }
 
     function openApp() {
-      if (!APP_SCHEME) return;
       window.location.href = APP_SCHEME;
     }
 
