@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KVKK Clarification Text - Vaktim</title>
+  <title>Privacy Policy - Vaktim</title>
   <link rel="stylesheet" href="/fonts.css">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -19,7 +19,7 @@
     .top-back:hover{color:#c9a84c}
     .content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:3rem 2rem 5rem}
     .content h1{font-size:1.8rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em}
-    .content .subtitle{font-size:.9rem;color:rgba(237,234,227,.4);margin-bottom:2.5rem}
+    .content .subtitle{font-size:.9rem;color:rgba(237,234,227,.4);margin-bottom:1rem}
     .content h2{font-size:1.05rem;font-weight:700;color:#c9a84c;margin:2rem 0 .6rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.04)}
     .content h2:first-of-type{border-top:none;padding-top:0}
     .content h3{font-size:.95rem;font-weight:700;color:rgba(237,234,227,.78);margin:1.2rem 0 .45rem}
@@ -39,148 +39,93 @@
 <div class="amb amb-1" aria-hidden="true"></div>
 <div class="amb amb-2" aria-hidden="true"></div>
 
-<div class="top-bar"><div class="top-in"><a href="/en" class="top-logo">Vaktim</a><a href="/en" class="top-back">← Home Page</a></div></div>
+<div class="top-bar"><div class="top-in"><a href="/en" class="top-logo">Vaktim</a><a href="/en" class="top-back">&larr; Home</a></div></div>
 
 <div class="content">
-  <h1>KVKK CLARIFICATION TEXT</h1>
-  <p class="subtitle">Information Text on the Protection of Personal Data</p>
-  <p>Last Update Date: February 27, 2026</p>
+  <h1>Privacy Policy</h1>
+  <p class="subtitle">Vaktim App</p>
+  <p><strong>Data Controller:</strong> Soner Yılmaz<br><strong>Contact:</strong> <a href="mailto:destek@vaktim.app">destek@vaktim.app</a><br><strong>Last Updated:</strong> March 2026</p>
 
-  <p>In accordance with the Personal Data Protection Law No. 6698 (“KVKK”), as a sole proprietorship operating as a data controller, we inform you as follows regarding your personal data processed within the scope of the Vaktim application.</p>
+  <h2>1. Introduction</h2>
+  <p>Vaktim values user privacy. This policy outlines what data is collected when you use the app, the purposes for which it is used, and the service providers with whom it may be shared.</p>
 
-  <h2>1. Data Controller</h2>
-  <p>Data controller: Vaktim (Individual Business)<br>Communication: <a href="mailto:destek@vaktim.app">support@vaktim.app</a></p>
-
-  <h2>2. Processed Personal Data</h2>
-  <p>The following personal data may be processed within the scope of the application:</p>
-
-  <h3>a) Identity and Contact Information</h3>
+  <h2>2. Categories of Data Collected</h2>
+  <h3>2.1 Account and Profile Data</h3>
   <ul>
     <li>Email address</li>
-    <li>User name</li>
-    <li>avatar image</li>
+    <li>Display name</li>
+    <li>Avatar information</li>
+    <li>Session and authentication records</li>
   </ul>
 
-  <h3>b) Usage and Activity Data</h3>
+  <h3>2.2 Subscription and Premium Data</h3>
   <ul>
-    <li>Prayer tracking data</li>
-    <li>Dhikr and prayer progress data</li>
-    <li>Quran reading statistics</li>
-    <li>Spiritual guide chat contents</li>
-    <li>Notification permission status</li>
-    <li>Premium subscription status</li>
+    <li>Subscription status</li>
+    <li>Technical records originating from app store or payment infrastructure</li>
+    <li>Usage quota information</li>
   </ul>
 
-  <h3>c) Device and Technical Data</h3>
+  <h3>2.3 Optional Sync Data</h3>
+  <p>If you enable the sync feature and provide explicit consent, the following data may be stored in the cloud and linked to your account:</p>
   <ul>
-    <li>Session information</li>
-    <li>App version</li>
-    <li>Authentication records</li>
+    <li>Quran and prayer progress data</li>
+    <li>Dhikr and salawat summary data</li>
+    <li>Prayer tracking data and related summary statistics</li>
+    <li>Favorite content references</li>
+    <li>Badges, points, and similar gamification records</li>
   </ul>
 
-  <h3>d) Location Data</h3>
-  <p>Location information only:</p>
+  <h3>2.4 Spiritual Guide Feature</h3>
+  <p>When you use the Spiritual Guide feature, the messages you write and the limited conversation context required to generate a response are transmitted to OpenAI infrastructure through Supabase Edge Functions.</p>
+  <p>These message contents are not part of the device-to-device sync dataset. However, they are processed at your request in order to provide the feature.</p>
+  <p>For this feature, OpenAI acts as an overseas AI service provider and recipient. Additional details about its data-processing practices may be found in its own policies and contractual documents.</p>
+
+  <h3>2.5 Data Kept Only on Your Device</h3>
   <ul>
-    <li>Calculation of prayer times</li>
-    <li>Determination of Qibla direction</li>
+    <li>Quran and prayer notes</li>
+    <li>Local copies of chat history stored on the device</li>
+    <li>Full location history and local search history</li>
   </ul>
-  <p>It is used on the device for Location data is not transferred to the server by default.</p>
 
-  <h2>3. Special Personal Data</h2>
-  <p>Prayer, prayer, dhikr and similar worship data processed within the scope of the application may, due to their nature, constitute indirect data regarding the person's religious belief.</p>
-  <p>In this context, the data in question can be considered as special personal data within the scope of Article 6 of the KVKK.</p>
-  <p>These data only:</p>
-  <ul>
-    <li>With the user's explicit consent</li>
-    <li>For the purpose of providing the service</li>
-    <li>When cloud synchronization is activated upon user request</li>
-  </ul>
-  <p>is being processed.</p>
-
-  <h2>4. Purposes of Processing Personal Data</h2>
-  <p>Your personal data;</p>
+  <h2>3. Purposes of Use</h2>
+  <p>Your data may be used for the following purposes:</p>
   <ul>
     <li>Account creation and authentication</li>
-    <li>Storage of worship and progress data</li>
-    <li>Providing cloud synchronization with the user's explicit consent</li>
-    <li>Carrying out premium subscription transactions</li>
-    <li>Answering user support requests</li>
-    <li>Ensuring application security</li>
-  </ul>
-  <p>is processed for its purposes.</p>
-  <p>APPLICATION;</p>
-  <ul>
-    <li>Does not show ads</li>
-    <li>Does not do behavioral user tracking</li>
-    <li>Does not collect analytical data</li>
-    <li>Does not create cookie-based profiling</li>
+    <li>Managing profile and app settings</li>
+    <li>Synchronizing data across devices</li>
+    <li>Providing premium services</li>
+    <li>Generating AI-assisted responses</li>
+    <li>Managing usage quotas</li>
+    <li>Ensuring security, diagnosing errors, and complying with legal obligations</li>
   </ul>
 
-  <h2>5. Legal Basis</h2>
-  <p>Your personal data is processed based on the following legal reasons:</p>
+  <h2>4. Third-Party Services</h2>
+  <p>Vaktim relies on the following infrastructure and service providers to deliver the service:</p>
   <ul>
-    <li>KVKK article 5/2-c: Being directly related to the establishment or execution of a contract</li>
-    <li>KVKK article 5/2-f: Legitimate interest of the data controller</li>
-    <li>KVKK article 5/1: Explicit consent (for cloud synchronization and sensitive data)</li>
-    <li>KVKK article 6/2: Processing of special data with explicit consent</li>
+    <li>Supabase Inc.</li>
+    <li>Amazon Web Services</li>
+    <li>Cloudflare Inc.</li>
+    <li>RevenueCat Inc.</li>
+    <li>Mapbox Inc.</li>
+    <li>OpenAI LLC</li>
   </ul>
+  <p>These providers maintain their own privacy policies and data-processing procedures.</p>
+  <p>Overseas data transfers relating to optional features such as Sync and Spiritual Guide are based on your explicit consent.</p>
 
-  <h2>6. Data Transfer</h2>
-  <p>Your personal data may be shared with the following service providers:</p>
-  <p><strong>Supabase (Germany – Frankfurt / European Union)</strong></p>
-  <p>Account and synchronization data are stored within the borders of the European Union.</p>
-  <p><strong>RevenueCat</strong></p>
-  <p>Information regarding subscription status may be processed for premium subscription management purposes.</p>
-  <p>Your data:</p>
-  <ul>
-    <li>Not sold to third parties for advertising or marketing purposes</li>
-    <li>Data is not transferred to brokers</li>
-    <li>Not shared for profiling purposes</li>
-  </ul>
-  <p>The data is stored in European Union data centers and is not transferred outside the EU.</p>
+  <h2>5. Location Data</h2>
+  <p>Location data is primarily used on the device to calculate prayer times and the qibla direction. If you actively use location search or map features, search queries and related coordinates may be sent to Mapbox.</p>
 
-  <h2>7. Data Security</h2>
-  <p>Appropriate technical and administrative measures are taken to protect your personal data.</p>
-  <p>In this context:</p>
-  <ul>
-    <li>Encrypted connections (SSL/TLS)</li>
-    <li>Authorized access control</li>
-    <li>Server security measures</li>
-    <li>Intrusion prevention mechanisms</li>
-  </ul>
-  <p>is implemented.</p>
-  <p>However, no data transmission over the internet is 100% secure.</p>
+  <h2>6. Advertising and Analytics</h2>
+  <p>Vaktim does not sell user data to third parties for ad sales or behavioral advertising. Limited product analysis and technical monitoring may still be carried out only to the extent necessary and proportionate to the purpose.</p>
 
-  <h2>8. Storage Period</h2>
-  <p>Your personal data;</p>
-  <ul>
-    <li>As long as the account is active</li>
-    <li>Within a reasonable time after the account deletion request</li>
-    <li>For the period required by legal obligations</li>
-  </ul>
-  <p>is stored.</p>
-  <p>The user can delete his account and cloud data from within the app.</p>
+  <h2>7. Retention and Deletion</h2>
+  <p>Account data is retained as long as the service relationship continues. Subscription records may be retained for 10 years to comply with tax and financial obligations. Consent records may be kept for 3 years after consent is withdrawn or the account is closed. Sync data may be retained while the sync feature remains active or until your deletion request is completed. Turning off sync stops new transfers, but existing cloud data is not deleted automatically.</p>
 
-  <h2>9. Your Rights Under KVKK</h2>
-  <p>In accordance with Article 11 of KVKK;</p>
-  <ul>
-    <li>Learning whether your personal data is being processed or not</li>
-    <li>Request information if processed</li>
-    <li>Request correction or deletion</li>
-    <li>Learning the third parties to whom transfers are made</li>
-    <li>Request restriction of processing</li>
-    <li>Request data portability</li>
-    <li>Claiming compensation if you suffer damage</li>
-  </ul>
-  <p>You have the rights.</p>
-  <p>Your applications <a href="mailto:destek@vaktim.app">support@vaktim.app</a><br>You can send it to the address.</p>
-  <p>You also have the right to file a complaint with the Personal Data Protection Authority.</p>
-
-  <h2>10. Changes</h2>
-  <p>This Information Text can be updated when deemed necessary.<br>The current version is published via the application or website.</p>
+  <h2>8. Your Rights</h2>
+  <p>You may send your requests under Turkish personal data protection law to <a href="mailto:destek@vaktim.app">destek@vaktim.app</a>. If your application is rejected, if the response is found insufficient, or if no response is provided within 30 days, you also have the right to file a complaint with the Turkish Personal Data Protection Authority.</p>
 </div>
 
-<div class="ft"><p>© 2026 Vaktim. All rights reserved.</p></div>
+<div class="ft"><p>&copy; 2026 Vaktim. All rights reserved.</p></div>
 <script src="/js/language-switcher.js"></script>
 </body>
 </html>
