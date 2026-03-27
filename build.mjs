@@ -28,8 +28,8 @@ function copyRecursive(src, dest) {
 // Ensure output dirs
 fs.mkdirSync(staticDir, { recursive: true });
 
-// Copy root HTML
-for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html', 'sorumluluk-reddi.html']) {
+// Copy root HTML and shared root assets
+for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html', 'sorumluluk-reddi.html', 'fonts.css']) {
   const src = path.join(root, name);
   if (fs.existsSync(src)) fs.copyFileSync(src, path.join(staticDir, name));
 }
@@ -55,6 +55,12 @@ if (fs.existsSync(destekSrc)) {
 const jsSrc = path.join(root, 'js');
 if (fs.existsSync(jsSrc)) {
   copyRecursive(jsSrc, path.join(staticDir, 'js'));
+}
+
+// Copy self-hosted font assets
+const fontsSrc = path.join(root, 'fonts');
+if (fs.existsSync(fontsSrc)) {
+  copyRecursive(fontsSrc, path.join(staticDir, 'fonts'));
 }
 
 // Copy language folders
