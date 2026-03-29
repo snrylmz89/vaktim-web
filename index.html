@@ -115,7 +115,31 @@
             background: linear-gradient(135deg, rgba(255,215,0,0.95), rgba(255,165,0,0.9));
             border: 0;
         }
-        .lang-switch { display: inline-flex; align-items: center; gap: 6px; padding: 5px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
+        .lang-switch { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 5px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
+        .lang-menu { display: inline-flex; align-items: center; gap: 6px; }
+        .lang-current {
+            display: none;
+            min-width: 58px;
+            height: 32px;
+            padding: 0 12px;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
+            font: 700 0.72rem "Sora", system-ui, sans-serif;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: background 220ms var(--ease), border-color 220ms var(--ease), transform 220ms var(--ease);
+        }
+        .lang-current-caret {
+            font-size: 0.65rem;
+            opacity: 0.72;
+            transition: transform 220ms var(--ease);
+        }
+        .lang-switch.is-open .lang-current-caret { transform: rotate(180deg); }
         .lang-link { min-width: 36px; height: 32px; padding: 0 10px; border-radius: 999px; border: 0; background: transparent; color: var(--muted); font: 700 0.72rem "Sora", system-ui, sans-serif; letter-spacing: 0.06em; cursor: pointer; transition: background 220ms var(--ease), color 220ms var(--ease), transform 220ms var(--ease); }
         .lang-link:hover { color: var(--text); }
         .lang-link.is-active { background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.16)); color: #fff8ea; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
@@ -356,16 +380,17 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 42px;
-            height: 42px;
+            width: 34px;
+            height: 34px;
             background: url("/img/tap-hand.png") center / contain no-repeat;
             opacity: 0;
-            transform: translate3d(0, 0, 0) scale(0.78);
+            transform-origin: center;
+            transform: translateZ(0);
             filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.3));
             pointer-events: none;
-            transition: transform 720ms var(--ease), opacity 420ms ease;
+            transition: left 720ms var(--ease), top 720ms var(--ease), transform 220ms var(--ease), opacity 420ms ease;
             z-index: 4;
-            will-change: transform, opacity;
+            will-change: left, top, transform, opacity;
         }
 
         .tap-hand.is-visible {
@@ -420,13 +445,12 @@
         .status-toggle {
             position: relative;
             display: inline-flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            min-width: 68px;
-            min-height: 62px;
-            padding: 2px 4px;
+            width: 34px;
+            min-width: 34px;
+            min-height: 24px;
+            padding: 0;
             border: 0;
             border-radius: 16px;
             background: transparent;
@@ -462,11 +486,13 @@
         }
 
         .status-label {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
             max-width: 150px;
-            min-height: 14px;
             white-space: nowrap;
             opacity: 0;
-            transform: translateY(-4px);
+            transform: translate(-50%, -4px);
             transition: opacity 320ms var(--ease), transform 320ms var(--ease);
             font-size: 0.75rem;
         }
@@ -485,7 +511,7 @@
 
         .status-toggle.is-active .status-label {
             opacity: 1;
-            transform: translateY(0);
+            transform: translate(-50%, 0);
         }
 
         .status-toggle.kaza.is-active {
@@ -1079,13 +1105,129 @@
         }
 
         .journey-hand {
-            width: 38px;
-            height: 38px;
+            width: 30px;
+            height: 30px;
             z-index: 5;
         }
 
         html[dir="rtl"] .journey-task-copy {
             text-align: right;
+        }
+
+        .daily-shell {
+            display: grid;
+            gap: 28px;
+            padding: 34px;
+            border-radius: 38px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background:
+                radial-gradient(circle at top center, rgba(255,215,0,0.08), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(26,107,71,0.16), transparent 36%),
+                rgba(8,14,24,0.9);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+        }
+
+        .daily-copy {
+            display: grid;
+            gap: 14px;
+            justify-items: center;
+            text-align: center;
+        }
+
+        .daily-copy p {
+            max-width: 720px;
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .daily-stories {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 16px;
+            align-items: stretch;
+            scrollbar-width: none;
+        }
+
+        .daily-stories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .daily-story {
+            position: relative;
+            min-height: 320px;
+            padding: 18px;
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.06);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: start;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.16);
+        }
+
+        .daily-story::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.08), transparent 36%),
+                linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.16) 100%);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .daily-story > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .daily-story-tag {
+            align-self: flex-start;
+            display: inline-flex;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+            font-size: 0.73rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .daily-story-text {
+            margin: auto 0 0;
+            color: var(--text);
+            font-size: 1.08rem;
+            line-height: 1.7;
+        }
+
+        .daily-story-meta {
+            color: var(--muted-soft);
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .daily-story.tone-verse {
+            background: linear-gradient(180deg, rgba(86,52,28,0.9), rgba(48,31,19,0.96));
+        }
+
+        .daily-story.tone-wisdom {
+            background: linear-gradient(180deg, rgba(22,46,58,0.92), rgba(12,25,34,0.98));
+        }
+
+        .daily-story.tone-prayer {
+            background: linear-gradient(180deg, rgba(56,28,56,0.92), rgba(31,16,34,0.98));
+        }
+
+        .daily-story.tone-patience {
+            background: linear-gradient(180deg, rgba(67,58,24,0.92), rgba(34,29,14,0.98));
+        }
+
+        .daily-story.tone-dhikr {
+            background: linear-gradient(180deg, rgba(19,54,35,0.92), rgba(12,30,22,0.98));
         }
 
         .premium-core-wrap { min-height: 320px; display: grid; place-items: center; overflow: hidden; position: relative; }
@@ -1159,11 +1301,71 @@
             .chip.top { left: 10px; }
             .chip.bottom { right: 12px; }
             .meta, .premium-points, .journey-week { grid-template-columns: 1fr 1fr; }
+            .daily-stories {
+                grid-auto-flow: column;
+                grid-auto-columns: minmax(220px, 260px);
+                grid-template-columns: none;
+                overflow-x: auto;
+                padding-bottom: 6px;
+                scroll-snap-type: x proximity;
+            }
+            .daily-story {
+                min-height: 300px;
+                scroll-snap-align: start;
+            }
         }
 
         @media (max-width: 720px) {
             .header { width: calc(100vw - 24px); top: 10px; margin-top: 10px; border-radius: 26px; }
-            .brand span { display: none; }
+            .brand { gap: 10px; min-width: 0; }
+            .brand img { width: 32px; height: 32px; }
+            .brand span {
+                display: inline;
+                font-size: 0.98rem;
+                white-space: nowrap;
+            }
+            .header-actions {
+                margin-inline-start: auto;
+                gap: 8px;
+            }
+            .header-cta {
+                min-height: 36px;
+                padding: 0 14px;
+                font-size: 0.78rem;
+            }
+            .lang-switch {
+                padding: 0;
+                border: 0;
+                background: transparent;
+                z-index: 20;
+            }
+            .lang-current {
+                display: inline-flex;
+            }
+            .lang-menu {
+                position: absolute;
+                top: calc(100% + 8px);
+                right: 0;
+                display: none;
+                min-width: 68px;
+                flex-direction: column;
+                gap: 6px;
+                padding: 6px;
+                border-radius: 16px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: rgba(14,20,30,0.96);
+                box-shadow: 0 18px 36px rgba(0,0,0,0.28);
+                backdrop-filter: blur(18px);
+            }
+            .lang-switch.is-open .lang-menu {
+                display: flex;
+            }
+            .lang-menu .lang-link {
+                width: 100%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
             .section { padding: 86px 0; }
             h1 { font-size: clamp(2.9rem, 13vw, 4.4rem); }
             h2 { font-size: clamp(2.4rem, 11vw, 3.4rem); }
@@ -1171,11 +1373,160 @@
             .hero-stage { min-height: 560px; }
             .phone { width: min(320px, 84vw); }
             .chip { position: static; max-width: none; margin-top: 14px; }
-            .meta, .premium-points, .journey-week, .book { grid-template-columns: 1fr; }
+            .meta, .premium-points { grid-template-columns: 1fr; }
+            .tap-hand {
+                width: 30px;
+                height: 30px;
+                display: none;
+            }
+            .journey-hand {
+                width: 28px;
+                height: 28px;
+            }
+            .daily-shell {
+                padding: 24px 18px;
+                border-radius: 28px;
+                gap: 22px;
+            }
+            .daily-copy {
+                justify-items: start;
+                text-align: left;
+            }
+            html[dir="rtl"] .daily-copy {
+                justify-items: end;
+                text-align: right;
+            }
+            .daily-stories {
+                grid-auto-columns: minmax(0, 100%);
+                gap: 10px;
+                padding-bottom: 0;
+                scroll-snap-type: x mandatory;
+            }
+            .daily-story {
+                min-height: 252px;
+                padding: 16px;
+                border-radius: 24px;
+            }
+            .daily-story-text {
+                font-size: 1rem;
+            }
+            .journey-grid { gap: 14px; }
+            .journey-week {
+                grid-template-columns: repeat(7, minmax(34px, 1fr));
+                gap: 8px;
+                align-items: start;
+            }
+            .journey-day {
+                min-width: 0;
+                gap: 8px;
+                padding: 0;
+                opacity: 0.52;
+            }
+            .journey-day-label {
+                font-size: 0.78rem;
+            }
+            .journey-day-progress {
+                width: 28px;
+                height: 28px;
+            }
+            .journey-day-progress-fill {
+                width: 16px;
+                height: 16px;
+            }
+            .journey-day-progress-fill::after {
+                left: 4px;
+                top: 1px;
+                width: 5px;
+                height: 10px;
+                border-width: 0 2.5px 2.5px 0;
+            }
             .page.left, .page.right { transform: none; }
-            .cta-box { padding: 26px; }
+            .book.quran-book {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                min-height: clamp(320px, 88vw, 390px);
+                perspective: 1200px;
+            }
+            .book.quran-book::after {
+                top: 14px;
+                bottom: 14px;
+                width: 16px;
+                filter: blur(6px);
+            }
+            .book.quran-book .page {
+                padding: 16px 14px;
+                border-radius: 22px;
+            }
+            .book.quran-book .page.left.start {
+                transform: perspective(1200px) rotateY(10deg) translateX(-1px);
+            }
+            .book.quran-book .page.left.final,
+            .book.quran-book .page.right.final,
+            .book.quran-book .page.turn-right,
+            .book.quran-book .page.turn-left {
+                width: calc(50% - 1px);
+            }
+            .book.quran-book .page.right.final {
+                transform: perspective(1200px) rotateY(-6deg) translateX(0);
+            }
+            .book.quran-book .page-layer {
+                inset: 14px 12px;
+                gap: 6px;
+            }
+            .book.quran-book .surah-meta {
+                gap: 8px;
+                font-size: 0.56rem;
+            }
+            .book.quran-book .surah-title {
+                font-size: 1.05rem;
+                line-height: 0.94;
+            }
+            .book.quran-book .surah-arabic {
+                font-size: 0.96rem;
+                line-height: 1.3;
+            }
+            .book.quran-book .surah-translation {
+                font-size: 0.74rem;
+                line-height: 1.34;
+            }
+            .book.quran-book .surah-translation strong,
+            .book.quran-book .ayah strong {
+                font-size: 0.58rem;
+            }
+            .book.quran-book .ayah {
+                padding: 10px 10px;
+                border-radius: 15px;
+            }
+            .cta-box {
+                padding: 26px;
+                justify-items: stretch;
+            }
+            .mark {
+                justify-self: center;
+            }
             .store-card { width: 100%; }
-            .footer-top { flex-direction: column; align-items: flex-start; }
+            .footer-panel {
+                justify-items: stretch;
+                text-align: left;
+            }
+            .footer-links {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px 18px;
+                align-items: start;
+                justify-content: initial;
+            }
+            .footer-links a:nth-child(1) { grid-column: 2; grid-row: 1; }
+            .footer-links a:nth-child(2) { grid-column: 1; grid-row: 1; }
+            .footer-links a:nth-child(3) { grid-column: 1; grid-row: 2; }
+            .footer-links a:nth-child(4) { grid-column: 1; grid-row: 3; }
+            .footer-links a:nth-child(5) { grid-column: 1; grid-row: 4; }
+            .footer-links a:nth-child(6) { grid-column: 2; grid-row: 2; }
+            .footer-top .muted {
+                margin-top: 8px;
+                justify-self: center;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -1482,9 +1833,47 @@
                 </div>
             </section>
 
+            <section class="section" id="daily" data-reveal>
+                <div class="daily-shell">
+                    <div class="daily-copy">
+                        <div class="kicker">06 &mdash; Günlük İçerikler</div>
+                        <h2>Her gün yeni<br><span class="accent">ilham.</span></h2>
+                        <p>Günün ayeti, duası, zikri ve kısa manevi içerikleri her gün yenilenir; uygulamaya her girişte sana taze bir içerik akışı sunar.</p>
+                    </div>
+
+                    <div class="daily-stories">
+                        <article class="daily-story tone-verse" data-daily-card>
+                            <span class="daily-story-tag" data-daily-tag>Günün Ayeti</span>
+                            <p class="daily-story-text" data-daily-text>Kalpler ancak Allah'ı anmakla huzur bulur.</p>
+                            <span class="daily-story-meta" data-daily-meta>&mdash; Ra'd, 28</span>
+                        </article>
+                        <article class="daily-story tone-wisdom" data-daily-card>
+                            <span class="daily-story-tag" data-daily-tag>Hikmetli Söz</span>
+                            <p class="daily-story-text" data-daily-text>İki günü eşit olan ziyandadır.</p>
+                            <span class="daily-story-meta" data-daily-meta>&mdash; Rivayet edilir</span>
+                        </article>
+                        <article class="daily-story tone-prayer" data-daily-card>
+                            <span class="daily-story-tag" data-daily-tag>Günün Duası</span>
+                            <p class="daily-story-text" data-daily-text>Allah'ım! Senden hidayet, takva, iffet ve gönül zenginliği isterim.</p>
+                            <span class="daily-story-meta" data-daily-meta>&mdash; Hadis duası</span>
+                        </article>
+                        <article class="daily-story tone-patience" data-daily-card>
+                            <span class="daily-story-tag" data-daily-tag>Sabır &amp; Şükür</span>
+                            <p class="daily-story-text" data-daily-text>Sabredenlere mükafatları hesapsız verilecektir.</p>
+                            <span class="daily-story-meta" data-daily-meta>&mdash; Zümer, 10</span>
+                        </article>
+                        <article class="daily-story tone-dhikr" data-daily-card>
+                            <span class="daily-story-tag" data-daily-tag>Zikir Önerisi</span>
+                            <p class="daily-story-text" data-daily-text>Subhanallah (33 defa)</p>
+                            <span class="daily-story-meta" data-daily-meta>&mdash; Tesbihat</span>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
             <section class="section story-panel reverse" id="premium" data-reveal>
                 <div class="panel-copy">
-                    <div class="kicker">06 &mdash; Premium</div>
+                    <div class="kicker">07 &mdash; Premium</div>
                     <h2>Daha derin bir deneyim.<br><span class="accent">Daha fazlası seninle.</span></h2>
                     <p>Premium ile daha derin rehberlik, daha gelişmiş araçlar ve yolculuğunu daha yakından destekleyen bir deneyim seninle olur.</p>
                 </div>
@@ -1514,7 +1903,7 @@
             <section class="section" id="cta" data-reveal>
                 <div class="cta-box">
                     <div class="cta-copy">
-                        <div class="kicker">07 &mdash; Zamanın Manevi Ritmi</div>
+                        <div class="kicker">08 &mdash; Zamanın Manevi Ritmi</div>
                         <h2>Vaktini yönetme.<br><span class="accent">Onu anlamlandır.</span></h2>
                         <p>Vaktim, günün her anında sana eşlik eden dingin bir manevi alan sunar. Namaz, Kur'an ve rehberlik tek yerde, tek ritimde buluşur.</p>
 
