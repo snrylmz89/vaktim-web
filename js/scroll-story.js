@@ -24,19 +24,23 @@
     var items = document.querySelectorAll("[data-reveal]");
     if (!items.length) return;
 
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.18, rootMargin: "0px 0px -10% 0px" }
-    );
-
     items.forEach(function (item) {
+      var threshold = parseFloat(item.getAttribute("data-reveal-threshold"));
+      if (isNaN(threshold)) threshold = 0.18;
+      var rootMargin = item.getAttribute("data-reveal-margin") || "0px 0px -10% 0px";
+
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: threshold, rootMargin: rootMargin }
+      );
+
       observer.observe(item);
     });
   }
@@ -178,7 +182,7 @@
         daily: {
           kicker: "06 — Günlük İçerikler",
           title: "Her gün yeni<br><span class=\"accent\">ilham.</span>",
-          body: "Günün ayeti, duası, zikri ve kısa manevi içerikleri her gün yenilenir; uygulamaya her girişte sana taze bir içerik akışı sunar.",
+          body: "Günün ayeti, duası, zikri ve kısa manevi içerikleri her gün yenilenir; sana her gün yeni bir manevi içerik seçkisi sunar.",
           cards: [
             { tag: "Günün Ayeti", text: "Kalpler ancak Allah'ı anmakla huzur bulur.", meta: "— Ra'd, 28" },
             { tag: "Hikmetli Söz", text: "İki günü eşit olan ziyandadır.", meta: "— Rivayet edilir" },
@@ -293,7 +297,7 @@
         daily: {
           kicker: "06 — Daily Inspiration",
           title: "Fresh meaning<br><span class=\"accent\">every day.</span>",
-          body: "Daily verses, prayers, dhikr and short reflections are refreshed each day, giving you a quiet reason to return.",
+          body: "Daily verses, prayers, dhikr and short reflections are refreshed once a day, offering a calm set of new content to return to.",
           cards: [
             { tag: "Verse of the Day", text: "Surely, in the remembrance of Allah do hearts find rest.", meta: "— Ar-Ra'd 13:28" },
             { tag: "Wisdom for Today", text: "The one whose two days are equal is at loss.", meta: "— Reported saying" },
@@ -408,7 +412,7 @@
         daily: {
           kicker: "06 — المحتوى اليومي",
           title: "إلهام جديد<br><span class=\"accent\">كل يوم.</span>",
-          body: "آية اليوم، والدعاء، والذكر، والخواطر القصيرة تتجدد يوميًا لتمنحك سببًا هادئًا للعودة كل يوم.",
+          body: "تتجدد آية اليوم والدعاء والذكر والخواطر القصيرة مرة كل يوم، لتمنحك باقة جديدة هادئة تعود إليها كل يوم.",
           cards: [
             { tag: "آية اليوم", text: "ألا بذكر الله تطمئن القلوب.", meta: "— الرعد، 28" },
             { tag: "حكمة اليوم", text: "من استوى يوماه فهو مغبون.", meta: "— أثر مشهور" },
