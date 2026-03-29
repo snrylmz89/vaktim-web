@@ -1171,7 +1171,37 @@
             .hero-stage { min-height: 560px; }
             .phone { width: min(320px, 84vw); }
             .chip { position: static; max-width: none; margin-top: 14px; }
-            .meta, .premium-points, .journey-week { grid-template-columns: 1fr; }
+            .meta, .premium-points { grid-template-columns: 1fr; }
+            .journey-grid { gap: 14px; }
+            .journey-week {
+                grid-template-columns: repeat(7, minmax(34px, 1fr));
+                gap: 8px;
+                align-items: start;
+            }
+            .journey-day {
+                min-width: 0;
+                gap: 8px;
+                padding: 0;
+                opacity: 0.52;
+            }
+            .journey-day-label {
+                font-size: 0.78rem;
+            }
+            .journey-day-progress {
+                width: 28px;
+                height: 28px;
+            }
+            .journey-day-progress-fill {
+                width: 16px;
+                height: 16px;
+            }
+            .journey-day-progress-fill::after {
+                left: 4px;
+                top: 1px;
+                width: 5px;
+                height: 10px;
+                border-width: 0 2.5px 2.5px 0;
+            }
             .page.left, .page.right { transform: none; }
             .book.quran-book {
                 grid-template-columns: 1fr 1fr;
@@ -1229,9 +1259,36 @@
                 padding: 10px 10px;
                 border-radius: 15px;
             }
-            .cta-box { padding: 26px; }
+            .cta-box {
+                padding: 26px;
+                justify-items: stretch;
+            }
+            .mark {
+                justify-self: center;
+            }
             .store-card { width: 100%; }
-            .footer-top { flex-direction: column; align-items: flex-start; }
+            .footer-panel {
+                justify-items: stretch;
+                text-align: right;
+            }
+            .footer-links {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px 18px;
+                align-items: start;
+                justify-content: initial;
+            }
+            .footer-links a:nth-child(1) { grid-column: 2; grid-row: 1; }
+            .footer-links a:nth-child(2) { grid-column: 1; grid-row: 1; }
+            .footer-links a:nth-child(3) { grid-column: 1; grid-row: 2; }
+            .footer-links a:nth-child(4) { grid-column: 1; grid-row: 3; }
+            .footer-links a:nth-child(5) { grid-column: 1; grid-row: 4; }
+            .footer-links a:nth-child(6) { grid-column: 2; grid-row: 2; }
+            .footer-top .muted {
+                margin-top: 8px;
+                justify-self: center;
+                text-align: center;
+            }
         }
     </style>
 </head>
