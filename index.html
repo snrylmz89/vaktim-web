@@ -103,10 +103,22 @@
         .nav { display: inline-flex; gap: 18px; color: var(--muted); font-size: 0.95rem; }
         .nav a:hover { color: var(--text); }
         .header-actions { display: inline-flex; align-items: center; gap: 10px; }
+        .header-cta {
+            min-height: 40px;
+            padding: 0 16px;
+            font-size: 0.84rem;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+        .btn.ghost.header-cta {
+            color: #221603;
+            background: linear-gradient(135deg, rgba(255,215,0,0.95), rgba(255,165,0,0.9));
+            border: 0;
+        }
         .lang-switch { display: inline-flex; align-items: center; gap: 6px; padding: 5px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); }
         .lang-link { min-width: 36px; height: 32px; padding: 0 10px; border-radius: 999px; border: 0; background: transparent; color: var(--muted); font: 700 0.72rem "Sora", system-ui, sans-serif; letter-spacing: 0.06em; cursor: pointer; transition: background 220ms var(--ease), color 220ms var(--ease), transform 220ms var(--ease); }
         .lang-link:hover { color: var(--text); }
-        .lang-link.is-active { background: linear-gradient(135deg, rgba(255,215,0,0.22), rgba(255,165,0,0.14)); color: #ffe7a6; }
+        .lang-link.is-active { background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.16)); color: #fff8ea; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
         .back-link { padding: 11px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); }
 
         .section { padding: 110px 0; }
@@ -830,39 +842,89 @@
         .journey-week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 12px; }
         .journey-day {
             position: relative;
-            overflow: hidden;
-            padding: 16px 12px;
-            border-radius: 18px;
+            overflow: visible;
+            padding: 0 4px;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
             text-align: center;
             color: var(--muted-soft);
-            transform: translateY(18px);
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
-            opacity: 0.34;
-            filter: saturate(0.72) brightness(0.78);
-            transition: transform 880ms var(--ease), opacity 360ms var(--ease), filter 360ms var(--ease), border-color 420ms var(--ease), color 420ms var(--ease), box-shadow 420ms var(--ease);
+            transform: none;
+            background: none;
+            border: 0;
+            opacity: 0.4;
+            filter: none;
+            transition: opacity 320ms var(--ease), color 320ms var(--ease);
         }
 
         .journey-day::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: linear-gradient(135deg, #21d384, #1A6B47);
-            transform: scaleY(var(--day-progress, 0));
-            transform-origin: bottom;
-            opacity: var(--day-progress, 0);
-            transition: transform 380ms var(--ease), opacity 260ms ease;
+            content: none;
         }
 
-        .journey-day > span,
-        .journey-day > strong {
+        .journey-day-label,
+        .journey-day > .journey-day-progress {
             position: relative;
             z-index: 1;
         }
 
-        .journey-day strong { display: block; margin-top: 10px; color: var(--text); }
-        .is-visible .journey-day { transform: translateY(0); }
+        .journey-day-label {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            line-height: 1;
+        }
+
+        .journey-day-progress {
+            width: 30px;
+            height: 30px;
+            margin: 0;
+            border-radius: 999px;
+            background: conic-gradient(
+                from -90deg,
+                #1A6B47 0deg,
+                #1A6B47 var(--day-progress-angle, 0deg),
+                rgba(255,255,255,0.14) var(--day-progress-angle, 0deg),
+                rgba(255,255,255,0.14) 360deg
+            );
+            display: grid;
+            place-items: center;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+            transition: transform 320ms var(--ease), box-shadow 320ms var(--ease);
+        }
+
+        .journey-day {
+            --journey-complete-green: #1A6B47;
+        }
+
+        .journey-day-progress-fill {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: #0b1220;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+            position: relative;
+            transition: background 260ms var(--ease), box-shadow 260ms var(--ease);
+        }
+
+        .journey-day-progress-fill::after {
+            content: "";
+            position: absolute;
+            left: 4px;
+            top: 1px;
+            width: 6px;
+            height: 12px;
+            border: solid #fff;
+            border-width: 0 3px 3px 0;
+            filter: drop-shadow(0 0 4px rgba(255,255,255,0.42));
+            transform: rotate(45deg) scale(0.72);
+            opacity: 0;
+            transition: opacity 180ms ease, transform 220ms var(--ease);
+        }
+
+        .is-visible .journey-day { transform: none; }
         .is-visible .journey-task { opacity: 1; transform: translateY(0); }
         .is-visible .journey-day:nth-child(1) { transition-delay: 120ms; }
         .is-visible .journey-day:nth-child(2) { transition-delay: 180ms; }
@@ -879,17 +941,35 @@
         .journey-day.is-current {
             color: var(--text);
             opacity: 1;
-            filter: none;
-            border-color: rgba(33,211,132,0.44);
-            box-shadow: 0 22px 38px rgba(33,211,132,0.12), 0 18px 30px rgba(0,0,0,0.2);
-            transform: translateY(-8px) scale(1.06);
+            transform: none;
         }
         .journey-day.is-done {
             color: var(--text);
-            opacity: 0.96;
-            filter: none;
-            border-color: rgba(33,211,132,0.3);
-            box-shadow: 0 18px 30px rgba(0,0,0,0.18);
+            opacity: 0.82;
+        }
+
+        .journey-day.is-complete {
+            opacity: 1;
+        }
+
+        .journey-day.is-current .journey-day-progress {
+            box-shadow: 0 0 0 8px rgba(33,211,132,0.08), inset 0 0 0 1px rgba(255,255,255,0.06);
+            transform: scale(1.18);
+        }
+
+        .journey-day.is-done .journey-day-progress {
+            box-shadow: 0 0 0 4px rgba(33,211,132,0.05), inset 0 0 0 1px rgba(255,255,255,0.06);
+        }
+
+        .journey-day.is-complete .journey-day-progress-fill {
+            background: var(--journey-complete-green);
+            box-shadow: 0 8px 16px rgba(33,211,132,0.18);
+        }
+
+        .journey-day.is-complete .journey-day-progress-fill::after {
+            opacity: 1;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.72));
+            transform: rotate(45deg) scale(1.08);
         }
 
         .journey-plan {
@@ -1114,12 +1194,12 @@
             <nav class="nav" aria-label="Bolumler">
                 <a href="#namaz">Namaz</a>
                 <a href="#quran">Kur'an</a>
-                <a href="#rafi">Rafi</a>
-                <a href="#journey">Yolculuk</a>
+                <a href="#rafi">Rafi Hoca</a>
                 <a href="#premium">Premium</a>
             </nav>
 
             <div class="header-actions">
+                <a class="btn ghost header-cta" href="#cta">İndir</a>
                 <div id="languageSwitcher" class="lang-switch" aria-label="Language">
                     <button type="button" class="lang-link" data-lang="tr">TR</button>
                     <button type="button" class="lang-link" data-lang="en">EN</button>
@@ -1330,13 +1410,13 @@
                     <div class="card">
                         <div class="journey-grid">
                             <div class="journey-week">
-                                <div class="journey-day" data-journey-day><span>Pzt</span><strong>1</strong></div>
-                                <div class="journey-day" data-journey-day><span>Sal&#305;</span><strong>2</strong></div>
-                                <div class="journey-day" data-journey-day><span>&#199;r&#351;</span><strong>3</strong></div>
-                                <div class="journey-day" data-journey-day><span>Pr&#351;</span><strong>4</strong></div>
-                                <div class="journey-day" data-journey-day><span>Cuma</span><strong>5</strong></div>
-                                <div class="journey-day" data-journey-day><span>Cmt</span><strong>6</strong></div>
-                                <div class="journey-day" data-journey-day><span>Pazar</span><strong>7</strong></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">Pzt</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">Sal&#305;</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">&#199;r&#351;</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">Pr&#351;</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">Cuma</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">Cmt</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
+                                <div class="journey-day" data-journey-day><span class="journey-day-label">Pazar</span><div class="journey-day-progress" aria-hidden="true"><span class="journey-day-progress-fill"></span></div></div>
                             </div>
 
                             <div class="journey-plan" aria-label="Manevi yolculuk görev listesi">
