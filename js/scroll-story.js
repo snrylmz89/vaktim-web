@@ -175,8 +175,20 @@
             { icon: "✨", title: "Salavat", body: "Günü salavatla yumuşakça tamamla" }
           ]
         },
+        daily: {
+          kicker: "06 — Günlük İçerikler",
+          title: "Her gün yeni<br><span class=\"accent\">ilham.</span>",
+          body: "Günün ayeti, duası, zikri ve kısa manevi içerikleri her gün yenilenir; uygulamaya her girişte sana taze bir içerik akışı sunar.",
+          cards: [
+            { tag: "Günün Ayeti", text: "Kalpler ancak Allah'ı anmakla huzur bulur.", meta: "— Ra'd, 28" },
+            { tag: "Hikmetli Söz", text: "İki günü eşit olan ziyandadır.", meta: "— Rivayet edilir" },
+            { tag: "Günün Duası", text: "Allah'ım! Senden hidayet, takva, iffet ve gönül zenginliği isterim.", meta: "— Hadis duası" },
+            { tag: "Sabır & Şükür", text: "Sabredenlere mükafatları hesapsız verilecektir.", meta: "— Zümer, 10" },
+            { tag: "Zikir Önerisi", text: "Subhanallah (33 defa)", meta: "— Tesbihat" }
+          ]
+        },
         premium: {
-          kicker: "06 — Premium",
+          kicker: "07 — Premium",
           title: "Daha derin bir deneyim.<br><span class=\"accent\">Daha fazlası seninle.</span>",
           body: "Premium ile daha derin rehberlik, daha gelişmiş araçlar ve yolculuğunu daha yakından destekleyen bir deneyim seninle olur.",
           points: [
@@ -187,7 +199,7 @@
           ]
         },
         cta: {
-          kicker: "07 — Zamanın Manevi Ritmi",
+          kicker: "08 — Zamanın Manevi Ritmi",
           title: "Vaktini yönetme.<br><span class=\"accent\">Onu anlamlandır.</span>",
           body: "Vaktim, günün her anında sana eşlik eden dingin bir manevi alan sunar. Namaz, Kur'an ve rehberlik tek yerde, tek ritimde buluşur.",
           storeSmalls: ["App Store’dan indir", "Google Play’de aç"]
@@ -278,8 +290,20 @@
             { icon: "✨", title: "Salawat", body: "Close the day gently with salawat" }
           ]
         },
+        daily: {
+          kicker: "06 — Daily Inspiration",
+          title: "Fresh meaning<br><span class=\"accent\">every day.</span>",
+          body: "Daily verses, prayers, dhikr and short reflections are refreshed each day, giving you a quiet reason to return.",
+          cards: [
+            { tag: "Verse of the Day", text: "Surely, in the remembrance of Allah do hearts find rest.", meta: "— Ar-Ra'd 13:28" },
+            { tag: "Wisdom for Today", text: "The one whose two days are equal is at loss.", meta: "— Reported saying" },
+            { tag: "Daily Prayer", text: "O Allah, I ask You for guidance, mindfulness, chastity, and contentment.", meta: "— Prophetic supplication" },
+            { tag: "Patience & Gratitude", text: "The patient will be given their reward without measure.", meta: "— Az-Zumar 39:10" },
+            { tag: "Dhikr Suggestion", text: "Subhanallah (33 times)", meta: "— Tasbih" }
+          ]
+        },
         premium: {
-          kicker: "06 — Premium",
+          kicker: "07 — Premium",
           title: "A deeper experience.<br><span class=\"accent\">More when you need it.</span>",
           body: "Premium gives you deeper guidance, more advanced tools, and a richer experience that stays closer to your journey.",
           points: [
@@ -290,7 +314,7 @@
           ]
         },
         cta: {
-          kicker: "07 — The Spiritual Rhythm of Your Time",
+          kicker: "08 — The Spiritual Rhythm of Your Time",
           title: "Don't just manage your time.<br><span class=\"accent\">Give it meaning.</span>",
           body: "Vaktim offers a calm spiritual space that stays with you through the day. Prayer, Qur'an and guidance come together in one place, in one rhythm.",
           storeSmalls: ["Download on the", "Get it on"]
@@ -381,8 +405,20 @@
             { icon: "✨", title: "الصلاة على النبي", body: "اختم يومك بهدوء بالصلاة على النبي" }
           ]
         },
+        daily: {
+          kicker: "06 — المحتوى اليومي",
+          title: "إلهام جديد<br><span class=\"accent\">كل يوم.</span>",
+          body: "آية اليوم، والدعاء، والذكر، والخواطر القصيرة تتجدد يوميًا لتمنحك سببًا هادئًا للعودة كل يوم.",
+          cards: [
+            { tag: "آية اليوم", text: "ألا بذكر الله تطمئن القلوب.", meta: "— الرعد، 28" },
+            { tag: "حكمة اليوم", text: "من استوى يوماه فهو مغبون.", meta: "— أثر مشهور" },
+            { tag: "دعاء اليوم", text: "اللهم إني أسألك الهدى والتقى والعفاف والغنى.", meta: "— دعاء نبوي" },
+            { tag: "الصبر والشكر", text: "إنما يوفى الصابرون أجرهم بغير حساب.", meta: "— الزمر، 10" },
+            { tag: "ذكر مقترح", text: "سبحان الله (٣٣ مرة)", meta: "— تسبيحات" }
+          ]
+        },
         premium: {
-          kicker: "06 — Premium",
+          kicker: "07 — Premium",
           title: "تجربة أعمق.<br><span class=\"accent\">وخيارات أكثر معك.</span>",
           body: "يمنحك Premium إرشادًا أعمق، وأدوات أكثر تقدمًا، وتجربة أقرب إلى احتياجك في رحلتك.",
           points: [
@@ -393,7 +429,7 @@
           ]
         },
         cta: {
-          kicker: "07 — الإيقاع الروحي لوقتك",
+          kicker: "08 — الإيقاع الروحي لوقتك",
           title: "لا تُدر وقتك فقط.<br><span class=\"accent\">امنحه معنى.</span>",
           body: "يمنحك Vaktim مساحة روحية هادئة ترافقك طوال اليوم. الصلاة والقرآن والإرشاد تجتمع في مكان واحد وعلى إيقاع واحد.",
           storeSmalls: ["حمّل من", "احصل عليه من"]
@@ -448,6 +484,9 @@
 
     var locale = getScrollStoryLocale();
     var copy = getScrollStoryCopy(locale);
+    var hasDailySection = !!document.querySelector("#daily");
+    var premiumKicker = hasDailySection ? copy.premium.kicker : copy.premium.kicker.replace(/^07/, "06");
+    var ctaKicker = hasDailySection ? copy.cta.kicker : copy.cta.kicker.replace(/^08/, "07");
 
     document.documentElement.setAttribute("lang", copy.lang);
     document.documentElement.setAttribute("dir", copy.dir);
@@ -547,12 +586,29 @@
       if (body) body.textContent = task.body;
     });
 
-    setText("#premium .kicker", copy.premium.kicker);
+    setText("#daily .kicker", copy.daily.kicker);
+    setHTML("#daily h2", copy.daily.title);
+    setText("#daily .daily-copy p", copy.daily.body);
+    var dailyCards = document.querySelectorAll("#daily [data-daily-card]");
+    dailyCards.forEach(function (item, index) {
+      var story = copy.daily.cards[index];
+      if (!story) return;
+
+      var tag = item.querySelector("[data-daily-tag]");
+      var text = item.querySelector("[data-daily-text]");
+      var meta = item.querySelector("[data-daily-meta]");
+
+      if (tag) tag.textContent = story.tag;
+      if (text) text.textContent = story.text;
+      if (meta) meta.textContent = story.meta;
+    });
+
+    setText("#premium .kicker", premiumKicker);
     setHTML("#premium h2", copy.premium.title);
     setText("#premium p", copy.premium.body);
     setHTMLList("#premium .premium-point", copy.premium.points);
 
-    setText("#cta .kicker", copy.cta.kicker);
+    setText("#cta .kicker", ctaKicker);
     setHTML("#cta h2", copy.cta.title);
     setText("#cta p", copy.cta.body);
     setTextList("#cta .store-copy small", copy.cta.storeSmalls);
@@ -886,19 +942,25 @@
 
       var stackRect = stack.getBoundingClientRect();
       var circleRect = circle.getBoundingClientRect();
-      var x = circleRect.left - stackRect.left - 6;
-      var y = circleRect.top - stackRect.top - 10;
-      var transformValue = "translate3d(" + x.toFixed(1) + "px, " + y.toFixed(1) + "px, 0) scale(0.78)";
+      var isMobile = window.innerWidth <= 720;
+      var handWidth = hand.offsetWidth || 42;
+      var handHeight = hand.offsetHeight || 42;
+      var tipX = 0.22;
+      var tipY = 0.14;
+      var x = circleRect.left + circleRect.width * 0.5 - stackRect.left - handWidth * tipX;
+      var y = circleRect.top + circleRect.height * 0.5 - stackRect.top - handHeight * tipY;
 
-      if (immediate) {
+      if (immediate || isMobile) {
         hand.style.transition = "none";
-        hand.style.transform = transformValue;
+        hand.style.left = x.toFixed(1) + "px";
+        hand.style.top = y.toFixed(1) + "px";
         hand.getBoundingClientRect();
         hand.style.transition = "";
         return;
       }
 
-      hand.style.transform = transformValue;
+      hand.style.left = x.toFixed(1) + "px";
+      hand.style.top = y.toFixed(1) + "px";
     }
 
     function resetPrayerState() {
@@ -1050,8 +1112,9 @@
 
     var sequenceStarted = false;
     var showDelay = 160;
-    var moveGap = 980;
-    var tapDelay = 460;
+    var isMobileViewport = window.innerWidth <= 720;
+    var moveGap = isMobileViewport ? 1160 : 980;
+    var tapDelay = isMobileViewport ? 780 : 460;
     var betweenDaysPause = 860;
     var loopPause = 1900;
 
@@ -1061,19 +1124,25 @@
 
       var planRect = plan.getBoundingClientRect();
       var circleRect = circle.getBoundingClientRect();
-      var x = circleRect.left - planRect.left - 6;
-      var y = circleRect.top - planRect.top - 10;
-      var transformValue = "translate3d(" + x.toFixed(1) + "px, " + y.toFixed(1) + "px, 0) scale(0.76)";
+      var isMobile = window.innerWidth <= 720;
+      var handWidth = hand.offsetWidth || 30;
+      var handHeight = hand.offsetHeight || 30;
+      var tipX = 0.22;
+      var tipY = 0.14;
+      var x = circleRect.left + circleRect.width * 0.5 - planRect.left - handWidth * tipX;
+      var y = circleRect.top + circleRect.height * 0.5 - planRect.top - handHeight * tipY;
 
-      if (immediate) {
+      if (immediate || isMobile) {
         hand.style.transition = "none";
-        hand.style.transform = transformValue;
+        hand.style.left = x.toFixed(1) + "px";
+        hand.style.top = y.toFixed(1) + "px";
         hand.getBoundingClientRect();
         hand.style.transition = "";
         return;
       }
 
-      hand.style.transform = transformValue;
+      hand.style.left = x.toFixed(1) + "px";
+      hand.style.top = y.toFixed(1) + "px";
     }
 
     function clearChecks() {
