@@ -1,6 +1,5 @@
 (function () {
   var SUPPORTED_LANGS = ["tr", "en", "ar"];
-  var STORAGE_KEY = "vaktim_lang";
 
   function normalizePath(pathname) {
     if (!pathname) return "/";
@@ -54,55 +53,53 @@
     box.style.padding = "4px 6px";
     box.style.backdropFilter = "blur(8px)";
 
-    var select = document.createElement("select");
-    select.id = "languageSwitcher";
-    select.setAttribute("aria-label", "Language");
-    select.style.background = "transparent";
-    select.style.color = "#edeae3";
-    select.style.border = "none";
-    select.style.font = "600 12px Plus Jakarta Sans, system-ui, sans-serif";
-    select.style.outline = "none";
-    select.style.cursor = "pointer";
+    var wrap = document.createElement("div");
+    wrap.id = "languageSwitcher";
+    wrap.setAttribute("aria-label", "Language");
+    wrap.style.display = "inline-flex";
+    wrap.style.gap = "6px";
 
-    [
-      { value: "tr", label: "TR" },
-      { value: "en", label: "EN" },
-      { value: "ar", label: "AR" }
-    ].forEach(function (opt) {
-      var option = document.createElement("option");
-      option.value = opt.value;
-      option.textContent = opt.label;
-      option.style.color = "#111";
-      select.appendChild(option);
+    SUPPORTED_LANGS.forEach(function (lang) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.textContent = lang.toUpperCase();
+      button.setAttribute("data-lang", lang);
+      button.style.border = "1px solid rgba(255,255,255,.12)";
+      button.style.background = lang === initialLang ? "rgba(255,215,0,.18)" : "rgba(255,255,255,.04)";
+      button.style.color = "#edeae3";
+      button.style.borderRadius = "999px";
+      button.style.padding = "6px 10px";
+      button.style.font = "700 11px Sora, system-ui, sans-serif";
+      button.style.cursor = "pointer";
+      button.addEventListener("click", onChange);
+      wrap.appendChild(button);
     });
 
-    select.value = initialLang;
-    select.addEventListener("change", onChange);
-    box.appendChild(select);
+    box.appendChild(wrap);
     document.body.appendChild(box);
-    return select;
+    return wrap;
+  }
+
+  function updateSelectorState(selector, currentLang) {
+    selector.querySelectorAll("[data-lang]").forEach(function (node) {
+      var isActive = node.getAttribute("data-lang") === currentLang;
+      node.classList.toggle("is-active", isActive);
+      if (node.tagName === "BUTTON") {
+        node.setAttribute("aria-pressed", isActive ? "true" : "false");
+      }
+    });
   }
 
   function init() {
     var info = splitPath(window.location.pathname);
     var currentLang = info.lang;
     var basePath = info.basePath;
-    var preferredLang = localStorage.getItem(STORAGE_KEY);
 
     setHtmlDirection(currentLang);
 
-    if (preferredLang && SUPPORTED_LANGS.includes(preferredLang) && preferredLang !== currentLang) {
-      var targetPath = toPath(preferredLang, basePath);
-      if (targetPath !== normalizePath(window.location.pathname)) {
-        window.location.replace(targetPath + window.location.search + window.location.hash);
-        return;
-      }
-    }
-
     function handleChange(e) {
-      var selected = e.target.value;
+      var selected = e.target.getAttribute("data-lang") || e.target.value;
       if (!SUPPORTED_LANGS.includes(selected)) return;
-      localStorage.setItem(STORAGE_KEY, selected);
       var target = toPath(selected, basePath);
       if (target !== normalizePath(window.location.pathname)) {
         window.location.href = target + window.location.search + window.location.hash;
@@ -112,9 +109,16 @@
     var selector = document.getElementById("languageSwitcher");
     if (!selector) {
       selector = createFloatingSelector(currentLang, handleChange);
-    } else {
+    }
+
+    if (selector.tagName === "SELECT") {
       selector.value = currentLang;
       selector.addEventListener("change", handleChange);
+    } else {
+      selector.querySelectorAll("[data-lang]").forEach(function (node) {
+        node.addEventListener("click", handleChange);
+      });
+      updateSelectorState(selector, currentLang);
     }
   }
 
