@@ -1,0 +1,110 @@
+#!/usr/bin/env node
+/**
+ * Vercel Build Output API: copy static files to .vercel/output/static
+ * and write config with davet rewrites. Fixes 404 on /davet and /davet/CODE.
+ */
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = __dirname;
+const outDir = path.join(root, '.vercel', 'output');
+const staticDir = path.join(outDir, 'static');
+
+function copyRecursive(src, dest) {
+  const stat = fs.statSync(src);
+  if (stat.isDirectory()) {
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    for (const name of fs.readdirSync(src)) {
+      copyRecursive(path.join(src, name), path.join(dest, name));
+    }
+  } else {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(src, dest);
+  }
+}
+
+// Ensure output dirs
+fs.mkdirSync(staticDir, { recursive: true });
+
+// Copy root HTML and shared root assets
+for (const name of ['index.html', 'verify-email.html', 'kvkk.html', 'gizlilik.html', 'kullanim-kosullari.html', 'sorumluluk-reddi.html', 'fonts.css']) {
+  const src = path.join(root, name);
+  if (fs.existsSync(src)) fs.copyFileSync(src, path.join(staticDir, name));
+}
+
+// Copy davet folder
+const davetSrc = path.join(root, 'davet');
+if (fs.existsSync(davetSrc)) {
+  const davetDest = path.join(staticDir, 'davet');
+  fs.mkdirSync(davetDest, { recursive: true });
+  fs.copyFileSync(
+    path.join(davetSrc, 'index.html'),
+    path.join(davetDest, 'index.html')
+  );
+}
+
+// Copy destek folder
+const destekSrc = path.join(root, 'destek');
+if (fs.existsSync(destekSrc)) {
+  copyRecursive(destekSrc, path.join(staticDir, 'destek'));
+}
+
+// Copy shared js folder
+const jsSrc = path.join(root, 'js');
+if (fs.existsSync(jsSrc)) {
+  copyRecursive(jsSrc, path.join(staticDir, 'js'));
+}
+
+// Copy self-hosted font assets
+const fontsSrc = path.join(root, 'fonts');
+if (fs.existsSync(fontsSrc)) {
+  copyRecursive(fontsSrc, path.join(staticDir, 'fonts'));
+}
+
+// Copy language folders
+for (const lang of ['en', 'ar']) {
+  const langSrc = path.join(root, lang);
+  if (fs.existsSync(langSrc)) {
+    copyRecursive(langSrc, path.join(staticDir, lang));
+  }
+}
+
+// Copy img folder
+const imgSrc = path.join(root, 'img');
+if (fs.existsSync(imgSrc)) {
+  copyRecursive(imgSrc, path.join(staticDir, 'img'));
+  const logoSrc = path.join(imgSrc, 'logo.png');
+  if (fs.existsSync(logoSrc)) {
+    fs.copyFileSync(logoSrc, path.join(staticDir, 'logo.png'));
+  }
+}
+
+// Copy .well-known
+const wellKnownSrc = path.join(root, '.well-known');
+if (fs.existsSync(wellKnownSrc)) {
+  copyRecursive(wellKnownSrc, path.join(staticDir, '.well-known'));
+}
+
+// config.json: rewrite phase first so /davet/CODE is rewritten before filesystem 404
+const config = {
+  version: 3,
+  routes: [
+    { handle: 'rewrite' },
+    { src: '/davet', dest: '/davet/index.html' },
+    { src: '/davet/', dest: '/davet/index.html' },
+    { src: '/davet/(.*)', dest: '/davet/index.html' }
+  ],
+  overrides: {
+    '.well-known/apple-app-site-association': { contentType: 'application/json' },
+    '.well-known/assetlinks.json': { contentType: 'application/json' }
+  }
+};
+
+fs.writeFileSync(
+  path.join(outDir, 'config.json'),
+  JSON.stringify(config, null, 2)
+);
+
+console.log('Build done: .vercel/output/static + config.json');

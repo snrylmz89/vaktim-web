@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aydınlatma Metni - Vaktim</title>
+  <link rel="stylesheet" href="/fonts.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#06060e;color:#edeae3;-webkit-font-smoothing:antialiased}
+    .geo{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;background-image:repeating-conic-gradient(from 0deg at 50% 50%,transparent 0deg 60deg,rgba(201,168,76,.5) 60deg 61deg,transparent 61deg 120deg);background-size:120px 120px}
+    .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+    .amb-1{width:500px;height:500px;top:-150px;right:-100px;background:radial-gradient(circle,rgba(201,168,76,.08),transparent 70%)}
+    .amb-2{width:400px;height:400px;bottom:10%;left:-120px;background:radial-gradient(circle,rgba(16,185,129,.06),transparent 70%)}
+    .top-bar{position:relative;z-index:1;padding:1.2rem 2rem;border-bottom:1px solid rgba(255,255,255,.06)}
+    .top-in{max-width:800px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+    .top-logo{font-size:1.3rem;font-weight:800;color:#c9a84c;text-decoration:none}
+    .top-back{color:rgba(237,234,227,.4);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .25s}
+    .top-back:hover{color:#c9a84c}
+    .content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:3rem 2rem 5rem}
+    .content h1{font-size:1.8rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em}
+    .content .subtitle{font-size:.9rem;color:rgba(237,234,227,.4);margin-bottom:1rem}
+    .content h2{font-size:1.05rem;font-weight:700;color:#c9a84c;margin:2rem 0 .6rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.04)}
+    .content h2:first-of-type{border-top:none;padding-top:0}
+    .content h3{font-size:.95rem;font-weight:700;color:rgba(237,234,227,.78);margin:1.2rem 0 .45rem}
+    .content p{font-size:.92rem;color:rgba(237,234,227,.6);line-height:1.7;margin-bottom:.8rem}
+    .content ul{margin:.45rem 0 1rem 1.2rem;list-style:none}
+    .content ul li{font-size:.92rem;color:rgba(237,234,227,.62);line-height:1.7;padding:.15rem 0;padding-left:1rem;position:relative}
+    .content ul li::before{content:'✦';position:absolute;left:0;color:#c9a84c;font-size:.7rem}
+    .content a{color:#c9a84c;text-decoration:none}
+    .content a:hover{text-decoration:underline}
+    .content strong{color:rgba(237,234,227,.8);font-weight:600}
+    .ft{position:relative;z-index:1;padding:2rem;border-top:1px solid rgba(255,255,255,.06);text-align:center}
+    .ft p{font-size:.75rem;color:rgba(237,234,227,.2)}
+  </style>
+</head>
+<body>
+<div class="geo" aria-hidden="true"></div>
+<div class="amb amb-1" aria-hidden="true"></div>
+<div class="amb amb-2" aria-hidden="true"></div>
+
+<div class="top-bar"><div class="top-in"><a href="/" class="top-logo">Vaktim</a><a href="/" class="top-back">&larr; Ana Sayfa</a></div></div>
+
+<div class="content">
+  <h1>Aydınlatma Metni</h1>
+  <p class="subtitle">Vaktim Uygulaması</p>
+  <p><strong>Veri Sorumlusu:</strong> Soner Yılmaz<br><strong>İletişim:</strong> <a href="mailto:destek@vaktim.app">destek@vaktim.app</a><br><strong>Son Güncelleme:</strong> Mart 2026</p>
+
+  <h2>1. Veri Sorumlusunun Kimliği</h2>
+  <p>Kişisel verileriniz, 6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında Soner Yılmaz tarafından veri sorumlusu sıfatıyla işlenmektedir.</p>
+
+  <h2>2. İşlenen Kişisel Veriler ve İşleme Amaçları</h2>
+  <h3>2.1 Her Koşulda İşlenen Veriler</h3>
+  <ul>
+    <li>Hesap ve kimlik doğrulama verileri: e-posta adresi, oturum bilgileri, OAuth kimlikleri</li>
+    <li>Profil verileri: görünen ad, avatar bilgisi</li>
+    <li>Abonelik ve premium verileri: abonelik durumu, ilgili teknik kayıtlar</li>
+    <li>Kullanım ve kota verileri: AI kullanım sayacı, kullanım limiti bilgileri</li>
+    <li>Rıza kayıtları: sync ve ilgili onay kayıtları</li>
+  </ul>
+  <p>Bu veriler; hesap oluşturma, giriş işlemleri, profil yönetimi, premium hizmetlerin sunulması, kota yönetimi ve yasal yükümlülüklerin yerine getirilmesi amaçlarıyla işlenir.</p>
+  <p>Bu veri kategorileri bakımından başlıca hukuki sebepler; sözleşmenin kurulması veya ifası, veri sorumlusunun hukuki yükümlülüklerinin yerine getirilmesi ve uyuşmazlık halinde hakkın tesisi, kullanılması veya korunmasıdır.</p>
+
+  <h3>2.2 Yalnızca Sync Özelliği Açıkken İşlenen Veriler</h3>
+  <p>Sync özelliğini etkinleştirmeniz ve ilgili açık rızayı vermeniz halinde aşağıdaki verileriniz cihazlar arası senkronizasyon amacıyla işlenebilir:</p>
+  <ul>
+    <li>Kuran okuma ilerlemesi: sure veya ayet referansları, ilerleme durumu, son işlem zamanı</li>
+    <li>Dua okuma ilerlemesi: dua referansları, okunma sayısı, son işlem zamanı</li>
+    <li>Zikir ve salavat özet verileri: toplam sayılar, günlük özetler, seriler, ilişkili başarı verileri</li>
+    <li>Namaz takip verileri: işaretlenen vakit, tarih, işaretleme zamanı, zamanında kılınma bilgisi ve ilgili özet istatistikler</li>
+    <li>Favori içerik referansları</li>
+    <li>Rozet, puan ve benzeri oyunlaştırma verileri</li>
+  </ul>
+
+  <h3>2.3 Manevi Rehber Özelliği Kullanıldığında İşlenen Veriler</h3>
+  <p>Manevi Rehber özelliğini kullandığınızda aşağıdaki veriler işlenebilir:</p>
+  <ul>
+    <li>Yazdığınız mesaj içeriği</li>
+    <li>Yanıt üretimi için gerekli sınırlı sohbet bağlamı</li>
+    <li>Teknik kullanım ve kota bilgileri</li>
+  </ul>
+  <p>Bu veriler, yapay zeka destekli yanıt üretimi amacıyla işlenir. Manevi Rehber mesaj içerikleri cihazlar arası sync veri setine dahil değildir; ancak özelliği kullandığınız anda Supabase Edge Functions üzerinden OpenAI altyapısına iletilir.</p>
+  <p>Manevi Rehber kapsamındaki mesaj içeriği işleme ve buna bağlı yurt dışı aktarım, ilgili özellik için alınan açık rızanıza dayanır.</p>
+
+  <h3>2.4 Yalnızca Cihazda Kalan Veriler</h3>
+  <ul>
+    <li>Kuran ve dua notları</li>
+    <li>Uygulama içi sohbet geçmişinin cihazda tutulan yerel kopyaları</li>
+    <li>Tam konum geçmişi ve yerel arama geçmişi</li>
+  </ul>
+
+  <h2>3. Kişisel Verilerin Aktarımı</h2>
+  <h3>3.1 Yurt Dışı Aktarım</h3>
+  <p>Verileriniz, hizmetin sunulabilmesi amacıyla aşağıdaki hizmet sağlayıcılar aracılığıyla yurt dışına aktarılabilir:</p>
+  <ul>
+    <li>Supabase Inc.: veritabanı, kimlik doğrulama, depolama ve fonksiyon altyapısı</li>
+    <li>Amazon Web Services: Supabase altyapısının barındırıldığı sunucu hizmetleri</li>
+    <li>Cloudflare Inc.: ağ, güvenlik ve içerik dağıtım hizmetleri</li>
+    <li>RevenueCat Inc.: abonelik ve premium yönetimi</li>
+    <li>Mapbox Inc.: kullanıcı tarafından başlatılan konum araması ve harita işlemleri</li>
+    <li>OpenAI LLC: Manevi Rehber özelliği kapsamında yanıt üretimi</li>
+  </ul>
+  <p>Sync ve Manevi Rehber kapsamında yapılan isteğe bağlı yurt dışı aktarım işlemleri, Kanun'un 9 uncu maddesi çerçevesinde ilgili açık rızanıza dayanılarak yürütülür.</p>
+  <p>Hesap yönetimi, kimlik doğrulama, altyapı, abonelik ve benzeri süreçlerde kullanılan yurt dışı hizmet sağlayıcıları bakımından aktarım süreçleri, ilgili veri kategorisine uygulanabilen işleme ve aktarım şartları ile sözleşmesel ve teknik güvenceler çerçevesinde değerlendirilir.</p>
+
+  <h3>3.2 Kişisel Veri Toplama Yöntemi ve Hukuki Sebep</h3>
+  <p>Kişisel verileriniz;</p>
+  <ul>
+    <li>Doğrudan sizden alınan kayıt ve profil formları</li>
+    <li>Uygulama içindeki tercihleriniz ve açık rıza seçimleriniz</li>
+    <li>Cihaz ve uygulama kullanım akışları</li>
+    <li>Abonelik ve ödeme altyapılarından gelen teknik bildirimler</li>
+    <li>Kullanıcı tarafından başlatılan konum araması, harita ve yapay zeka özelliği kullanımları</li>
+  </ul>
+  <p>aracılığıyla, tamamen veya kısmen otomatik yollarla elde edilebilir.</p>
+  <p>Bu veriler, Kanun'un 5 inci ve 6 ncı maddelerinde yer alan işleme şartlarına; ilgili durumda sözleşmenin ifası, hukuki yükümlülük, hakkın tesisi veya korunması ve açık rıza hukuki sebeplerine dayanılarak işlenir.</p>
+
+  <h2>4. Saklama Süreleri</h2>
+  <ul>
+    <li>Hesap ve profil verileri: hesap ilişkisi devam ettiği sürece; hesap kapatma veya silme talebi sonrasında aktif sistemlerden silinmesi için gerekli operasyonel süre boyunca</li>
+    <li>Abonelik kayıtları: ilgili mali ve vergisel yükümlülükler kapsamında 10 yıl</li>
+    <li>Sync verileri: sync özelliği aktif olduğu sürece; sync kapatma ve silme talebinizin ardından talebin sonuçlandırılmasına kadar</li>
+    <li>Rıza kayıtları: rızanın geri çekilmesinden veya hesap kapanışından itibaren 3 yıl</li>
+  </ul>
+  <p>Sync özelliğini kapatmanız yeni veri aktarımını durdurur; daha önce buluta aktarılmış verilerin silinmesi için ayrıca talepte bulunabilirsiniz.</p>
+
+  <h2>5. Teknik ve İdari Tedbirler</h2>
+  <p>Verilerinizin korunması amacıyla erişim kontrolü, şifreli iletişim, kullanıcı bazlı yetkilendirme, asgari yetki prensibi ve güvenlik izleme tedbirleri uygulanmaktadır.</p>
+
+  <h2>6. Haklarınız</h2>
+  <p>Kanun'un 11 inci maddesi kapsamında veri sorumlusuna başvurarak;</p>
+  <ul>
+    <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+    <li>İşlenmişse buna ilişkin bilgi talep etme</li>
+    <li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+    <li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme</li>
+    <li>Eksik veya yanlış işlenmiş olması halinde düzeltilmesini isteme</li>
+    <li>Kanun'da öngörülen şartlar çerçevesinde silinmesini veya yok edilmesini isteme</li>
+    <li>Düzeltme, silme veya yok etme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme</li>
+    <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi sonucu aleyhinize bir sonucun ortaya çıkmasına itiraz etme</li>
+    <li>Kanuna aykırı işlenmesi nedeniyle zarara uğramanız halinde zararın giderilmesini talep etme</li>
+  </ul>
+
+  <h3>Başvuru ve Şikayet Yolu</h3>
+  <p>KVKK kapsamındaki taleplerinizi öncelikle <a href="mailto:destek@vaktim.app">destek@vaktim.app</a> adresine iletebilirsiniz. Başvurunuzun reddedilmesi, verilen cevabın yetersiz bulunması veya başvurunuza 30 gün içinde cevap verilmemesi halinde, Kanun'un 14 üncü maddesi kapsamında Kişisel Verileri Koruma Kurulu'na şikayette bulunabilirsiniz.</p>
+</div>
+
+<div class="ft"><p>&copy; 2026 Vaktim. Tüm hakları saklıdır.</p></div>
+<script src="/js/language-switcher.js"></script>
+</body>
+</html>

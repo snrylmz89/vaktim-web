@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Vaktim</title>
+  <link rel="stylesheet" href="/fonts.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#06060e;color:#edeae3;-webkit-font-smoothing:antialiased}
+    .geo{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;background-image:repeating-conic-gradient(from 0deg at 50% 50%,transparent 0deg 60deg,rgba(201,168,76,.5) 60deg 61deg,transparent 61deg 120deg);background-size:120px 120px}
+    .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+    .amb-1{width:500px;height:500px;top:-150px;right:-100px;background:radial-gradient(circle,rgba(201,168,76,.08),transparent 70%)}
+    .amb-2{width:400px;height:400px;bottom:10%;left:-120px;background:radial-gradient(circle,rgba(16,185,129,.06),transparent 70%)}
+    .top-bar{position:relative;z-index:1;padding:1.2rem 2rem;border-bottom:1px solid rgba(255,255,255,.06)}
+    .top-in{max-width:800px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+    .top-logo{font-size:1.3rem;font-weight:800;color:#c9a84c;text-decoration:none}
+    .top-back{color:rgba(237,234,227,.4);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .25s}
+    .top-back:hover{color:#c9a84c}
+    .content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:3rem 2rem 5rem}
+    .content h1{font-size:1.8rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em}
+    .content .subtitle{font-size:.9rem;color:rgba(237,234,227,.4);margin-bottom:1rem}
+    .content h2{font-size:1.05rem;font-weight:700;color:#c9a84c;margin:2rem 0 .6rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.04)}
+    .content h2:first-of-type{border-top:none;padding-top:0}
+    .content h3{font-size:.95rem;font-weight:700;color:rgba(237,234,227,.78);margin:1.2rem 0 .45rem}
+    .content p{font-size:.92rem;color:rgba(237,234,227,.6);line-height:1.7;margin-bottom:.8rem}
+    .content ul{margin:.45rem 0 1rem 1.2rem;list-style:none}
+    .content ul li{font-size:.92rem;color:rgba(237,234,227,.62);line-height:1.7;padding:.15rem 0;padding-left:1rem;position:relative}
+    .content ul li::before{content:'✦';position:absolute;left:0;color:#c9a84c;font-size:.7rem}
+    .content a{color:#c9a84c;text-decoration:none}
+    .content a:hover{text-decoration:underline}
+    .content strong{color:rgba(237,234,227,.8);font-weight:600}
+    .ft{position:relative;z-index:1;padding:2rem;border-top:1px solid rgba(255,255,255,.06);text-align:center}
+    .ft p{font-size:.75rem;color:rgba(237,234,227,.2)}
+  </style>
+</head>
+<body>
+<div class="geo" aria-hidden="true"></div>
+<div class="amb amb-1" aria-hidden="true"></div>
+<div class="amb amb-2" aria-hidden="true"></div>
+
+<div class="top-bar"><div class="top-in"><a href="/en" class="top-logo">Vaktim</a><a href="/en" class="top-back">&larr; Home</a></div></div>
+
+<div class="content">
+  <h1>Privacy Policy</h1>
+  <p class="subtitle">Vaktim App</p>
+  <p><strong>Data Controller:</strong> Soner Yılmaz<br><strong>Contact:</strong> <a href="mailto:destek@vaktim.app">destek@vaktim.app</a><br><strong>Last Updated:</strong> March 2026</p>
+
+  <h2>1. Introduction</h2>
+  <p>Vaktim values user privacy. This policy outlines what data is collected when you use the app, the purposes for which it is used, and the service providers with whom it may be shared.</p>
+
+  <h2>2. Categories of Data Collected</h2>
+  <h3>2.1 Account and Profile Data</h3>
+  <ul>
+    <li>Email address</li>
+    <li>Display name</li>
+    <li>Avatar information</li>
+    <li>Session and authentication records</li>
+  </ul>
+
+  <h3>2.2 Subscription and Premium Data</h3>
+  <ul>
+    <li>Subscription status</li>
+    <li>Technical records originating from app store or payment infrastructure</li>
+    <li>Usage quota information</li>
+  </ul>
+
+  <h3>2.3 Optional Sync Data</h3>
+  <p>If you enable the sync feature and provide explicit consent, the following data may be stored in the cloud and linked to your account:</p>
+  <ul>
+    <li>Quran and prayer progress data</li>
+    <li>Dhikr and salawat summary data</li>
+    <li>Prayer tracking data and related summary statistics</li>
+    <li>Favorite content references</li>
+    <li>Badges, points, and similar gamification records</li>
+  </ul>
+
+  <h3>2.4 Spiritual Guide Feature</h3>
+  <p>When you use the Spiritual Guide feature, the messages you write and the limited conversation context required to generate a response are transmitted to OpenAI infrastructure through Supabase Edge Functions.</p>
+  <p>These message contents are not part of the device-to-device sync dataset. However, they are processed at your request in order to provide the feature.</p>
+  <p>For this feature, OpenAI acts as an overseas AI service provider and recipient. Additional details about its data-processing practices may be found in its own policies and contractual documents.</p>
+
+  <h3>2.5 Data Kept Only on Your Device</h3>
+  <ul>
+    <li>Quran and prayer notes</li>
+    <li>Local copies of chat history stored on the device</li>
+    <li>Full location history and local search history</li>
+  </ul>
+
+  <h2>3. Purposes of Use</h2>
+  <p>Your data may be used for the following purposes:</p>
+  <ul>
+    <li>Account creation and authentication</li>
+    <li>Managing profile and app settings</li>
+    <li>Synchronizing data across devices</li>
+    <li>Providing premium services</li>
+    <li>Generating AI-assisted responses</li>
+    <li>Managing usage quotas</li>
+    <li>Ensuring security, diagnosing errors, and complying with legal obligations</li>
+  </ul>
+
+  <h2>4. Third-Party Services</h2>
+  <p>Vaktim relies on the following infrastructure and service providers to deliver the service:</p>
+  <ul>
+    <li>Supabase Inc.</li>
+    <li>Amazon Web Services</li>
+    <li>Cloudflare Inc.</li>
+    <li>RevenueCat Inc.</li>
+    <li>Mapbox Inc.</li>
+    <li>OpenAI LLC</li>
+  </ul>
+  <p>These providers maintain their own privacy policies and data-processing procedures.</p>
+  <p>Overseas data transfers relating to optional features such as Sync and Spiritual Guide are based on your explicit consent.</p>
+
+  <h2>5. Location Data</h2>
+  <p>Location data is primarily used on the device to calculate prayer times and the qibla direction. If you actively use location search or map features, search queries and related coordinates may be sent to Mapbox.</p>
+
+  <h2>6. Advertising and Analytics</h2>
+  <p>Vaktim does not sell user data to third parties for ad sales or behavioral advertising. Limited product analysis and technical monitoring may still be carried out only to the extent necessary and proportionate to the purpose.</p>
+
+  <h2>7. Retention and Deletion</h2>
+  <p>Account data is retained as long as the service relationship continues. Subscription records may be retained for 10 years to comply with tax and financial obligations. Consent records may be kept for 3 years after consent is withdrawn or the account is closed. Sync data may be retained while the sync feature remains active or until your deletion request is completed. Turning off sync stops new transfers, but existing cloud data is not deleted automatically.</p>
+
+  <h2>8. Your Rights</h2>
+  <p>You may send your requests under Turkish personal data protection law to <a href="mailto:destek@vaktim.app">destek@vaktim.app</a>. If your application is rejected, if the response is found insufficient, or if no response is provided within 30 days, you also have the right to file a complaint with the Turkish Personal Data Protection Authority.</p>
+</div>
+
+<div class="ft"><p>&copy; 2026 Vaktim. All rights reserved.</p></div>
+<script src="/js/language-switcher.js"></script>
+</body>
+</html>

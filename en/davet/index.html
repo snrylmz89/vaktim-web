@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invitation — Vaktim</title>
+  <link rel="stylesheet" href="/fonts.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+      background:#06060e;
+      color:#edeae3;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      -webkit-font-smoothing:antialiased;
+      position:relative;
+      overflow:hidden;
+    }
+    .geo{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;
+      background-image:repeating-conic-gradient(from 0deg at 50% 50%,transparent 0deg 60deg,rgba(201,168,76,.5) 60deg 61deg,transparent 61deg 120deg);
+      background-size:120px 120px;}
+    .amb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+    .amb-1{width:500px;height:500px;top:-150px;right:-100px;background:radial-gradient(circle,rgba(201,168,76,.1),transparent 70%)}
+    .amb-2{width:400px;height:400px;bottom:10%;left:-120px;background:radial-gradient(circle,rgba(16,185,129,.08),transparent 70%)}
+
+    .card{
+      position:relative;z-index:1;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:24px;
+      padding:3rem 2.5rem;
+      max-width:460px;
+      width:100%;
+      text-align:center;
+      box-shadow:0 30px 80px rgba(0,0,0,.4);
+    }
+    .card::before{content:'';position:absolute;top:-60%;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(201,168,76,.04),transparent 60%);pointer-events:none}
+
+    .brand{font-size:1.3rem;font-weight:800;color:#c9a84c;margin-bottom:.5rem;letter-spacing:-.01em}
+    .emoji-hero{font-size:2.5rem;margin-bottom:1rem}
+
+    h1{font-size:1.4rem;font-weight:800;margin-bottom:.5rem;letter-spacing:-.02em;position:relative;z-index:1}
+    p{font-size:.9rem;color:rgba(237,234,227,.55);line-height:1.6;margin-bottom:1.2rem;position:relative;z-index:1}
+
+    .code-box{
+      background:rgba(201,168,76,.06);
+      border:1px solid rgba(201,168,76,.15);
+      border-radius:14px;
+      padding:.8rem 1.2rem;
+      font-family:'Plus Jakarta Sans',monospace;
+      font-size:1.3rem;
+      font-weight:800;
+      letter-spacing:3px;
+      color:#e4c76b;
+      margin-bottom:1.5rem;
+      display:none;
+      position:relative;z-index:1;
+    }
+    .code-box.visible{display:block}
+
+    .btn{
+      display:inline-block;
+      padding:.8rem 1.8rem;
+      border-radius:12px;
+      font-weight:700;font-size:.88rem;
+      border:none;cursor:pointer;
+      text-decoration:none;
+      transition:all .3s;
+      margin:.3rem;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#10b981,#059669);
+      color:#06060e;
+      box-shadow:0 6px 20px rgba(16,185,129,.2);
+    }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(16,185,129,.3)}
+    .btn-secondary{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      color:#edeae3;
+    }
+    .btn-secondary:hover{background:rgba(255,255,255,.07);border-color:rgba(201,168,76,.2)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+
+    .fallback{margin-top:.8rem;font-size:.75rem;color:rgba(237,234,227,.3);position:relative;z-index:1}
+    .fallback a{color:#c9a84c;text-decoration:none}
+    .fallback a:hover{text-decoration:underline}
+
+    .store-row{margin-top:1.5rem;display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;position:relative;z-index:1}
+    .store-btn{
+      display:flex;align-items:center;gap:.5rem;
+      padding:.7rem 1.4rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;
+      text-decoration:none;color:#edeae3;
+      font-size:.82rem;font-weight:600;
+      transition:all .3s;
+    }
+    .store-btn:hover{border-color:rgba(201,168,76,.2);transform:translateY(-1px)}
+    .store-icon{font-size:1.2rem}
+
+    .paste-section{margin-top:1.2rem;text-align:left;display:none;position:relative;z-index:1}
+    .paste-section.visible{display:block}
+    .paste-label{font-size:.8rem;color:rgba(237,234,227,.4);margin-bottom:.4rem}
+    .paste-section input{
+      width:100%;padding:.7rem 1rem;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:10px;
+      font-size:.95rem;color:#edeae3;
+      font-family:'Plus Jakarta Sans',monospace;
+      letter-spacing:1px;
+      outline:none;
+      transition:border-color .3s;
+    }
+    .paste-section input:focus{border-color:rgba(201,168,76,.3)}
+    .paste-section input::placeholder{color:rgba(237,234,227,.25)}
+
+    #openHint{margin-top:.8rem;font-size:.72rem;color:rgba(237,234,227,.25);display:none;position:relative;z-index:1}
+  </style>
+</head>
+<body>
+  <div class="geo" aria-hidden="true"></div>
+  <div class="amb amb-1" aria-hidden="true"></div>
+  <div class="amb amb-2" aria-hidden="true"></div>
+
+  <div class="card">
+    <div class="brand">Vaktim</div>
+    <div class="emoji-hero">🤝</div>
+    <h1 id="title">Your friend invited you to Vaktim</h1>
+    <p id="subtitle">If you open the application, your invitation code will be ready.</p>
+
+    <div class="code-box" id="codeBox"><span id="codeDisplay"></span></div>
+
+    <div id="hasCodeSection">
+      <button type="button" class="btn btn-primary" id="btnOpenApp">Open App</button>
+      <button type="button" class="btn btn-secondary" id="btnCopy">Copy Code</button>
+      <p class="fallback"><a href="#" id="linkAlternate">If the open the application button does not work, click it</a></p>
+    </div>
+
+    <p id="openHint">If it is not opened, you can download it from the store below.</p>
+
+    <div id="noCodeSection" class="paste-section">
+      <p class="paste-label">Invitation code not found. If there is a code in the link, you can paste it below.</p>
+      <input type="text" id="pasteInput" placeholder="Paste the invitation code" maxlength="16" autocomplete="off">
+    </div>
+
+    <div class="store-row">
+      <a class="store-btn" id="storePrimary" href="https://apps.apple.com/app/vaktim/id1234567890" target="_blank" rel="noopener"><span class="store-icon">🍎</span> App Store</a>
+      <a class="store-btn" id="storeSecondary" href="https://play.google.com/store/apps/details?id=com.vaktim.app" target="_blank" rel="noopener"><span class="store-icon">▶</span> Google Play</a>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      function getCodeFromUrl() {
+        var path = location.pathname.replace(/\/+$/, '');
+        var match = path.match(/^\/davet\/([A-Za-z0-9_-]{6,16})$/);
+        if (match) return (match[1] || '').toUpperCase();
+        var q = new URLSearchParams(location.search).get('code');
+        if (q) {
+          var trimmed = String(q).trim().toUpperCase();
+          if (/^[A-Z0-9_-]{6,16}$/.test(trimmed)) return trimmed;
+        }
+        return null;
+      }
+
+      var code = getCodeFromUrl();
+      var hasCode = !!code;
+
+      var codeBox = document.getElementById('codeBox');
+      var codeDisplay = document.getElementById('codeDisplay');
+      var hasCodeSection = document.getElementById('hasCodeSection');
+      var noCodeSection = document.getElementById('noCodeSection');
+      var btnOpenApp = document.getElementById('btnOpenApp');
+      var btnCopy = document.getElementById('btnCopy');
+      var linkAlternate = document.getElementById('linkAlternate');
+      var openHint = document.getElementById('openHint');
+      var pasteInput = document.getElementById('pasteInput');
+      var storePrimary = document.getElementById('storePrimary');
+      var storeSecondary = document.getElementById('storeSecondary');
+
+      if (hasCode) {
+        codeBox.classList.add('visible');
+        codeDisplay.textContent = code;
+        noCodeSection.classList.remove('visible');
+        hasCodeSection.style.display = 'block';
+      } else {
+        codeBox.classList.remove('visible');
+        hasCodeSection.style.display = 'none';
+        noCodeSection.classList.add('visible');
+      }
+
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      var appStoreUrl = 'https://apps.apple.com/app/vaktim/id1234567890';
+      var playStoreUrl = 'https://play.google.com/store/apps/details?id=com.vaktim.app';
+      if (isIOS) {
+        storePrimary.href = appStoreUrl; storePrimary.innerHTML = '<span class="store-icon">🍎</span> App Store';
+        storeSecondary.href = playStoreUrl; storeSecondary.innerHTML = '<span class="store-icon">▶</span> Google Play';
+      } else {
+        storePrimary.href = playStoreUrl; storePrimary.innerHTML = '<span class="store-icon">▶</span> Google Play';
+        storeSecondary.href = appStoreUrl; storeSecondary.innerHTML = '<span class="store-icon">🍎</span> App Store';
+      }
+
+      function openApp() {
+        if (!code) return;
+        window.location.assign('https://vaktim.app/davet/' + code + '?open=1');
+        setTimeout(function() { openHint.style.display = 'block'; }, 2000);
+      }
+
+      function copyCode() {
+        if (!code) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(function() {
+            btnCopy.textContent = 'Copied!';
+            setTimeout(function() { btnCopy.textContent = 'Copy Code'; }, 1500);
+          });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = code; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+          btnCopy.textContent = 'Copied!';
+          setTimeout(function() { btnCopy.textContent = 'Copy Code'; }, 1500);
+        }
+      }
+
+      function openAlternate() {
+        if (!code) return;
+        window.location.href = 'vaktim://davet?code=' + encodeURIComponent(code);
+      }
+
+      if (btnOpenApp) btnOpenApp.addEventListener('click', openApp);
+      if (btnCopy) btnCopy.addEventListener('click', copyCode);
+      if (linkAlternate) linkAlternate.addEventListener('click', function(e) { e.preventDefault(); openAlternate(); });
+
+      pasteInput.addEventListener('input', function() {
+        var v = this.value.trim().toUpperCase();
+        if (v.length >= 6 && v.length <= 16 && /^[A-Za-z0-9_-]+$/.test(v)) {
+          code = v;
+          codeBox.classList.add('visible');
+          codeDisplay.textContent = code;
+          hasCodeSection.style.display = 'block';
+          noCodeSection.classList.remove('visible');
+          if (btnOpenApp) btnOpenApp.disabled = false;
+        }
+      });
+    })();
+  </script>
+<script src="/js/language-switcher.js"></script>
+</body>
+</html>
