@@ -101,7 +101,8 @@
         brandAlt: "Vaktim logosu",
         phoneAlt: "Vaktim uygulaması telefon görünümü",
         navAriaLabel: "Bölümler",
-        nav: ["Namaz", "Kur'an", "Rafi", "Yolculuk", "Premium"],
+        nav: ["Namaz", "Kur'an", "Rafi Hoca", "Premium"],
+        headerCta: "İndir",
         backText: "Ana Sayfa",
         backHref: "/",
         heroTitle: "Vaktinle<br><span class=\"accent\">Bağ Kur.</span>",
@@ -203,7 +204,8 @@
         brandAlt: "Vaktim logo",
         phoneAlt: "Vaktim app screen on a phone",
         navAriaLabel: "Sections",
-        nav: ["Prayer", "Qur'an", "Rafi", "Journey", "Premium"],
+        nav: ["Prayer", "Qur'an", "Rafi Hoca", "Premium"],
+        headerCta: "Download",
         backText: "Home",
         backHref: "/en/",
         heroTitle: "Connect With<br><span class=\"accent\">Your Time.</span>",
@@ -305,7 +307,8 @@
         brandAlt: "شعار Vaktim",
         phoneAlt: "عرض تطبيق Vaktim على الهاتف",
         navAriaLabel: "الأقسام",
-        nav: ["الصلاة", "القرآن", "رافي", "الرحلة", "المميز"],
+        nav: ["الصلاة", "القرآن", "رافي هوجا", "بريميوم"],
+        headerCta: "حمّل",
         backText: "الصفحة الرئيسية",
         backHref: "/ar/",
         heroTitle: "ارتبط<br><span class=\"accent\">بوقتك.</span>",
@@ -455,6 +458,7 @@
     setAttr(".phone img", "alt", copy.phoneAlt);
     setAttr(".nav", "aria-label", copy.navAriaLabel);
     setTextList(".nav a", copy.nav);
+    setText(".header-cta", copy.headerCta);
     setText(".back-link", copy.backText);
     setAttr(".back-link", "href", copy.backHref);
 
@@ -528,7 +532,7 @@
     setText("#journey p", copy.journey.body);
     setText("#journey .quote", copy.journey.quote);
     setAttr("#journey .journey-plan", "aria-label", copy.journey.aria);
-    setTextList("#journey .journey-day span", copy.journey.days);
+    setTextList("#journey .journey-day-label", copy.journey.days);
     var journeyTasks = document.querySelectorAll("#journey [data-journey-task]");
     journeyTasks.forEach(function (item, index) {
       var task = copy.journey.tasks[index];
@@ -1083,12 +1087,14 @@
 
     function setDayProgress(day, progress) {
       if (!day) return;
-      day.style.setProperty("--day-progress", String(Math.max(0, Math.min(1, progress))));
+      var normalized = Math.max(0, Math.min(1, progress));
+      day.style.setProperty("--day-progress", String(normalized));
+      day.style.setProperty("--day-progress-angle", (normalized * 360).toFixed(1) + "deg");
     }
 
     function resetDays() {
       days.forEach(function (day) {
-        day.classList.remove("is-current", "is-done");
+        day.classList.remove("is-current", "is-done", "is-complete");
         setDayProgress(day, 0);
       });
     }
@@ -1097,6 +1103,7 @@
       days.forEach(function (day, dayIndex) {
         day.classList.toggle("is-current", dayIndex === index);
         day.classList.toggle("is-done", dayIndex < index);
+        day.classList.toggle("is-complete", dayIndex < index);
         setDayProgress(day, dayIndex < index ? 1 : 0);
       });
     }
@@ -1113,6 +1120,7 @@
         check.classList.add("is-active");
         check.setAttribute("aria-pressed", "true");
         setDayProgress(day, progress);
+        if (day) day.classList.toggle("is-complete", progress >= 1);
 
         if (task) {
           window.setTimeout(function () {
