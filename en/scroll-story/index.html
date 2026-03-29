@@ -179,6 +179,19 @@
             direction: rtl;
         }
 
+        html[dir="rtl"] .book.quran-book,
+        html[dir="rtl"] .book.quran-book .page,
+        html[dir="rtl"] .book.quran-book .page-layer {
+            direction: ltr;
+        }
+
+        html[dir="rtl"] .book.quran-book .surah-meta,
+        html[dir="rtl"] .book.quran-book .surah-title,
+        html[dir="rtl"] .book.quran-book .surah-translation,
+        html[dir="rtl"] .book.quran-book .ayah {
+            text-align: right;
+        }
+
         .actions, .store-links, .tool-row { display: flex; flex-wrap: wrap; gap: 14px; }
         .actions { margin-top: 30px; }
 
