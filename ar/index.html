@@ -364,7 +364,7 @@
             filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.34)) brightness(1.04);
         }
 
-        .prayer-item, .chat-bubble, .journey-day, .premium-point, .tool-pill {
+        .prayer-item, .chat-bubble, .journey-day, .journey-task, .premium-point, .tool-pill {
             border: 1px solid rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.03);
         }
@@ -826,6 +826,7 @@
             transition-delay: 80ms;
         }
 
+        .journey-grid { display: grid; gap: 18px; }
         .journey-week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 12px; }
         .journey-day {
             position: relative;
@@ -835,7 +836,11 @@
             text-align: center;
             color: var(--muted-soft);
             transform: translateY(18px);
-            transition: transform 880ms var(--ease), border-color 880ms var(--ease), color 880ms var(--ease);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            opacity: 0.34;
+            filter: saturate(0.72) brightness(0.78);
+            transition: transform 880ms var(--ease), opacity 360ms var(--ease), filter 360ms var(--ease), border-color 420ms var(--ease), color 420ms var(--ease), box-shadow 420ms var(--ease);
         }
 
         .journey-day::before {
@@ -843,11 +848,11 @@
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            background: linear-gradient(180deg, rgba(255,215,0,0.18), rgba(26,107,71,0.18));
-            transform: scaleY(0);
+            background: linear-gradient(135deg, #21d384, #1A6B47);
+            transform: scaleY(var(--day-progress, 0));
             transform-origin: bottom;
-            opacity: 0;
-            transition: transform 1020ms linear, opacity 360ms var(--ease);
+            opacity: var(--day-progress, 0);
+            transition: transform 380ms var(--ease), opacity 260ms ease;
         }
 
         .journey-day > span,
@@ -857,54 +862,151 @@
         }
 
         .journey-day strong { display: block; margin-top: 10px; color: var(--text); }
-        .is-visible .journey-day { transform: translateY(0); color: var(--text); }
-        .is-visible .journey-day:nth-child(1) { transition-delay: 180ms; }
-        .is-visible .journey-day:nth-child(2) { transition-delay: 1160ms; }
-        .is-visible .journey-day:nth-child(3) { transition-delay: 2140ms; }
-        .is-visible .journey-day:nth-child(4) { transition-delay: 3120ms; }
-        .is-visible .journey-day:nth-child(5) { transition-delay: 4100ms; }
-        .is-visible .journey-day:nth-child(6) { transition-delay: 4700ms; }
-        .is-visible .journey-day:nth-child(7) { transition-delay: 5280ms; }
-        .is-visible .journey-day:nth-child(1)::before { transition-delay: 180ms; }
-        .is-visible .journey-day:nth-child(2)::before { transition-delay: 1160ms; }
-        .is-visible .journey-day:nth-child(3)::before { transition-delay: 2140ms; }
-        .is-visible .journey-day:nth-child(4)::before { transition-delay: 3120ms; }
-        .is-visible .journey-day:nth-child(5)::before { transition-delay: 4100ms; }
-        .is-visible .journey-day:nth-child(6)::before { transition-delay: 4880ms; }
-        .is-visible .journey-day:nth-child(7)::before { transition-delay: 5660ms; }
-        .is-visible .journey-day.active { border-color: rgba(255,215,0,0.18); box-shadow: 0 16px 28px rgba(0,0,0,0.16); }
-        .is-visible .journey-day.active::before { transform: scaleY(1); opacity: 1; }
-        .chart { margin-top: 18px; padding: 18px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
-        .chart svg { width: 100%; height: auto; }
-        .chart-segment {
-            fill: none;
-            stroke: #21d384;
-            stroke-width: 6;
-            stroke-linecap: butt;
-            stroke-linejoin: round;
-            stroke-dasharray: var(--segment-length, 100);
-            stroke-dashoffset: var(--segment-length, 100);
-            opacity: 0;
-            transition: stroke-dashoffset 1020ms linear, opacity 80ms linear;
+        .is-visible .journey-day { transform: translateY(0); }
+        .is-visible .journey-task { opacity: 1; transform: translateY(0); }
+        .is-visible .journey-day:nth-child(1) { transition-delay: 120ms; }
+        .is-visible .journey-day:nth-child(2) { transition-delay: 180ms; }
+        .is-visible .journey-day:nth-child(3) { transition-delay: 240ms; }
+        .is-visible .journey-day:nth-child(4) { transition-delay: 300ms; }
+        .is-visible .journey-day:nth-child(5) { transition-delay: 360ms; }
+        .is-visible .journey-day:nth-child(6) { transition-delay: 420ms; }
+        .is-visible .journey-day:nth-child(7) { transition-delay: 480ms; }
+        .is-visible .journey-task:nth-child(2) { transition-delay: 180ms; }
+        .is-visible .journey-task:nth-child(3) { transition-delay: 240ms; }
+        .is-visible .journey-task:nth-child(4) { transition-delay: 300ms; }
+        .is-visible .journey-task:nth-child(5) { transition-delay: 360ms; }
+        .is-visible .journey-task:nth-child(6) { transition-delay: 420ms; }
+        .journey-day.is-current {
+            color: var(--text);
+            opacity: 1;
+            filter: none;
+            border-color: rgba(33,211,132,0.44);
+            box-shadow: 0 22px 38px rgba(33,211,132,0.12), 0 18px 30px rgba(0,0,0,0.2);
+            transform: translateY(-8px) scale(1.06);
+        }
+        .journey-day.is-done {
+            color: var(--text);
+            opacity: 0.96;
+            filter: none;
+            border-color: rgba(33,211,132,0.3);
+            box-shadow: 0 18px 30px rgba(0,0,0,0.18);
         }
 
-        .is-visible .chart-segment { stroke-dashoffset: 0; opacity: 1; }
-        .is-visible .chart-segment.s1 { transition-delay: 180ms; }
-        .is-visible .chart-segment.s2 { transition-delay: 1160ms; }
-        .is-visible .chart-segment.s3 { transition-delay: 2140ms; }
-        .is-visible .chart-segment.s4 { transition-delay: 3120ms; }
-        .is-visible .chart-segment.s5 { transition-delay: 4100ms; }
-        .is-visible .chart-segment.s6 { transition-delay: 4880ms; }
+        .journey-plan {
+            position: relative;
+            display: grid;
+            gap: 14px;
+            padding-top: 24px;
+        }
 
-        .chart-point { fill: #21d384; opacity: 0; transition: opacity 240ms linear; }
-        .is-visible .chart-point { opacity: 1; }
-        .is-visible .chart-point.p1 { transition-delay: 120ms; }
-        .is-visible .chart-point.p2 { transition-delay: 980ms; }
-        .is-visible .chart-point.p3 { transition-delay: 1960ms; }
-        .is-visible .chart-point.p4 { transition-delay: 2940ms; }
-        .is-visible .chart-point.p5 { transition-delay: 3920ms; }
-        .is-visible .chart-point.p6 { transition-delay: 4700ms; }
-        .is-visible .chart-point.p7 { transition-delay: 5480ms; }
+        .journey-task {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 18px 18px;
+            border-radius: 22px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 760ms var(--ease), transform 760ms var(--ease), border-color 320ms var(--ease), box-shadow 320ms var(--ease);
+        }
+
+        .journey-task.is-focused {
+            border-color: rgba(255,215,0,0.16);
+            box-shadow: 0 16px 28px rgba(0,0,0,0.16);
+            transform: translateY(-2px);
+        }
+
+        .journey-task-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, rgba(255,215,0,0.14), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+            font-size: 1.18rem;
+        }
+
+        .journey-task-copy {
+            min-width: 0;
+            display: grid;
+            gap: 4px;
+        }
+
+        .journey-task-copy strong {
+            display: block;
+            color: var(--text);
+            font-size: 1.02rem;
+        }
+
+        .journey-task-copy span {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .journey-check {
+            appearance: none;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+        }
+
+        .journey-check-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1.5px solid rgba(255,215,0,0.24);
+            background: rgba(255,255,255,0.02);
+            position: relative;
+            transition: transform 320ms var(--ease), background 320ms var(--ease), border-color 320ms var(--ease), box-shadow 320ms var(--ease);
+        }
+
+        .journey-check-circle::after {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            width: 8px;
+            height: 14px;
+            border: solid #fff;
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg) scale(0.72);
+            opacity: 0;
+            transition: opacity 180ms ease, transform 240ms var(--ease);
+        }
+
+        .journey-check.is-active .journey-check-circle {
+            background: linear-gradient(135deg, #21d384, #1A6B47);
+            border-color: rgba(33,211,132,0.32);
+            box-shadow: 0 12px 22px rgba(33,211,132,0.24);
+        }
+
+        .journey-check.is-active .journey-check-circle::after {
+            opacity: 1;
+            transform: rotate(45deg) scale(1);
+        }
+
+        .journey-check.is-tapping .journey-check-circle {
+            transform: scale(0.92);
+        }
+
+        .journey-hand {
+            width: 38px;
+            height: 38px;
+            z-index: 5;
+        }
+
+        html[dir="rtl"] .journey-task-copy {
+            text-align: right;
+        }
 
         .premium-core-wrap { min-height: 320px; display: grid; place-items: center; overflow: hidden; position: relative; }
         .ring, .ring::before, .ring::after { position: absolute; content: ""; border-radius: 999px; border: 1px solid rgba(255,215,0,0.14); }
@@ -1228,39 +1330,72 @@
                     <div class="card">
                         <div class="journey-grid">
                             <div class="journey-week">
-                                <div class="journey-day active"><span>Pzt</span><strong>1</strong></div>
-                                <div class="journey-day active"><span>Sal&#305;</span><strong>2</strong></div>
-                                <div class="journey-day active"><span>&#199;r&#351;</span><strong>3</strong></div>
-                                <div class="journey-day active"><span>Pr&#351;</span><strong>4</strong></div>
-                                <div class="journey-day active"><span>Cuma</span><strong>5</strong></div>
-                                <div class="journey-day active"><span>Cmt</span><strong>6</strong></div>
-                                <div class="journey-day active"><span>Pazar</span><strong>7</strong></div>
+                                <div class="journey-day" data-journey-day><span>Pzt</span><strong>1</strong></div>
+                                <div class="journey-day" data-journey-day><span>Sal&#305;</span><strong>2</strong></div>
+                                <div class="journey-day" data-journey-day><span>&#199;r&#351;</span><strong>3</strong></div>
+                                <div class="journey-day" data-journey-day><span>Pr&#351;</span><strong>4</strong></div>
+                                <div class="journey-day" data-journey-day><span>Cuma</span><strong>5</strong></div>
+                                <div class="journey-day" data-journey-day><span>Cmt</span><strong>6</strong></div>
+                                <div class="journey-day" data-journey-day><span>Pazar</span><strong>7</strong></div>
                             </div>
 
-                            <div class="chart">
-                                <svg viewBox="0 0 640 220" role="img" aria-label="Manevi yolculuk grafiği">
-                                    <defs>
-                                        <linearGradient id="journeyGradient" x1="0%" x2="100%">
-                                            <stop offset="0%" stop-color="#FFD700"></stop>
-                                            <stop offset="100%" stop-color="#21d384"></stop>
-                                        </linearGradient>
-                                    </defs>
-                                    <path d="M0 200 L640 200" stroke="rgba(255,255,255,0.08)" stroke-width="2"></path>
-                                    <path d="M0 40 L0 200" stroke="rgba(255,255,255,0.08)" stroke-width="2"></path>
-                                    <line class="chart-segment s1" pathLength="100" x1="32" y1="170" x2="128" y2="158"></line>
-                                    <line class="chart-segment s2" pathLength="100" x1="128" y1="158" x2="224" y2="136"></line>
-                                    <line class="chart-segment s3" pathLength="100" x1="224" y1="136" x2="320" y2="112"></line>
-                                    <line class="chart-segment s4" pathLength="100" x1="320" y1="112" x2="416" y2="100"></line>
-                                    <line class="chart-segment s5" pathLength="100" x1="416" y1="100" x2="512" y2="88"></line>
-                                    <line class="chart-segment s6" pathLength="100" x1="512" y1="88" x2="608" y2="76"></line>
-                                    <circle class="chart-point p1" cx="32" cy="170" r="7"></circle>
-                                    <circle class="chart-point p2" cx="128" cy="158" r="7"></circle>
-                                    <circle class="chart-point p3" cx="224" cy="136" r="7"></circle>
-                                    <circle class="chart-point p4" cx="320" cy="112" r="7"></circle>
-                                    <circle class="chart-point p5" cx="416" cy="100" r="7"></circle>
-                                    <circle class="chart-point p6" cx="512" cy="88" r="7"></circle>
-                                    <circle class="chart-point p7" cx="608" cy="76" r="7"></circle>
-                                </svg>
+                            <div class="journey-plan" aria-label="قائمة مهام الرحلة الروحية">
+                                <div class="tap-hand journey-hand" id="journeyTapHand" aria-hidden="true"></div>
+
+                                <div class="journey-task" data-journey-task>
+                                    <div class="journey-task-icon" data-journey-task-icon aria-hidden="true">🕌</div>
+                                    <div class="journey-task-copy">
+                                        <strong data-journey-task-title>الصلاة</strong>
+                                        <span data-journey-task-body>استقبل وقت الصلاة بنية هادئة</span>
+                                    </div>
+                                    <button class="journey-check" type="button" data-journey-check aria-pressed="false" tabindex="-1">
+                                        <span class="journey-check-circle" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+
+                                <div class="journey-task" data-journey-task>
+                                    <div class="journey-task-icon" data-journey-task-icon aria-hidden="true">🤲</div>
+                                    <div class="journey-task-copy">
+                                        <strong data-journey-task-title>الدعاء</strong>
+                                        <span data-journey-task-body>جدّد نيتك بدعاء قصير</span>
+                                    </div>
+                                    <button class="journey-check" type="button" data-journey-check aria-pressed="false" tabindex="-1">
+                                        <span class="journey-check-circle" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+
+                                <div class="journey-task" data-journey-task>
+                                    <div class="journey-task-icon" data-journey-task-icon aria-hidden="true">📿</div>
+                                    <div class="journey-task-copy">
+                                        <strong data-journey-task-title>الذكر</strong>
+                                        <span data-journey-task-body>أنعش قلبك ببضع أذكار</span>
+                                    </div>
+                                    <button class="journey-check" type="button" data-journey-check aria-pressed="false" tabindex="-1">
+                                        <span class="journey-check-circle" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+
+                                <div class="journey-task" data-journey-task>
+                                    <div class="journey-task-icon" data-journey-task-icon aria-hidden="true">📖</div>
+                                    <div class="journey-task-copy">
+                                        <strong data-journey-task-title>القرآن</strong>
+                                        <span data-journey-task-body>اقرأ مقطعًا قصيرًا وتأمل فيه</span>
+                                    </div>
+                                    <button class="journey-check" type="button" data-journey-check aria-pressed="false" tabindex="-1">
+                                        <span class="journey-check-circle" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+
+                                <div class="journey-task" data-journey-task>
+                                    <div class="journey-task-icon" data-journey-task-icon aria-hidden="true">✨</div>
+                                    <div class="journey-task-copy">
+                                        <strong data-journey-task-title>الصلاة على النبي</strong>
+                                        <span data-journey-task-body>اختم يومك بهدوء بالصلاة على النبي</span>
+                                    </div>
+                                    <button class="journey-check" type="button" data-journey-check aria-pressed="false" tabindex="-1">
+                                        <span class="journey-check-circle" aria-hidden="true"></span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -164,8 +164,15 @@
           title: "Küçük adımlar,<br><span class=\"accent\">büyük değişim.</span>",
           body: "Haftalık ilerleyişini gör, istikrarını takip et ve günlük adımlarının zamanla nasıl güçlendiğini net bir şekilde izle.",
           quote: "Küçük adımlarını görünür kıl, ilerleyişini her gün biraz daha belirginleştir.",
-          aria: "Manevi yolculuk grafiği",
-          days: ["Pzt", "Salı", "Çrş", "Prş", "Cuma", "Cmt", "Pazar"]
+          aria: "Manevi yolculuk görev listesi",
+          days: ["Pzt", "Salı", "Çrş", "Prş", "Cuma", "Cmt", "Pazar"],
+          tasks: [
+            { icon: "🕌", title: "Namaz", body: "Günün vaktini sakin bir niyetle karşıla" },
+            { icon: "🤲", title: "Dua", body: "Kısa bir dua ile kalbini toparla" },
+            { icon: "📿", title: "Zikir", body: "Birkaç zikirle iç ritmini tazele" },
+            { icon: "📖", title: "Kur'an", body: "Kısa bir bölüm oku ve üzerinde dur" },
+            { icon: "✨", title: "Salavat", body: "Günü salavatla yumuşakça tamamla" }
+          ]
         },
         premium: {
           kicker: "06 — Premium",
@@ -259,8 +266,15 @@
           title: "Small steps,<br><span class=\"accent\">lasting change.</span>",
           body: "See your weekly progress, follow your consistency, and watch how your daily steps grow stronger over time.",
           quote: "Make your small steps visible and let your progress become clearer each day.",
-          aria: "Spiritual journey chart",
-          days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+          aria: "Spiritual journey checklist",
+          days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          tasks: [
+            { icon: "🕌", title: "Prayer", body: "Meet the time of prayer with a calm intention" },
+            { icon: "🤲", title: "Dua", body: "Gather your heart with a short supplication" },
+            { icon: "📿", title: "Dhikr", body: "Refresh your inner rhythm with a few remembrances" },
+            { icon: "📖", title: "Qur'an", body: "Read a short passage and sit with it" },
+            { icon: "✨", title: "Salawat", body: "Close the day gently with salawat" }
+          ]
         },
         premium: {
           kicker: "06 — Premium",
@@ -354,8 +368,15 @@
           title: "خطوات صغيرة،<br><span class=\"accent\">وأثر أكبر.</span>",
           body: "تابع تقدمك الأسبوعي، وراقب ثباتك، وشاهد كيف تنمو خطواتك اليومية بوضوح مع الوقت.",
           quote: "اجعل خطواتك الصغيرة مرئية، ودع تقدمك يزداد وضوحًا يومًا بعد يوم.",
-          aria: "مخطط الرحلة الروحية",
-          days: ["اثن", "ثلا", "أرب", "خمي", "جمع", "سبت", "أحد"]
+          aria: "قائمة مهام الرحلة الروحية",
+          days: ["اثن", "ثلا", "أرب", "خمي", "جمع", "سبت", "أحد"],
+          tasks: [
+            { icon: "🕌", title: "الصلاة", body: "استقبل وقت الصلاة بنية هادئة" },
+            { icon: "🤲", title: "الدعاء", body: "جدّد نيتك بدعاء قصير" },
+            { icon: "📿", title: "الذكر", body: "أنعش قلبك ببضع أذكار" },
+            { icon: "📖", title: "القرآن", body: "اقرأ مقطعًا قصيرًا وتأمل فيه" },
+            { icon: "✨", title: "الصلاة على النبي", body: "اختم يومك بهدوء بالصلاة على النبي" }
+          ]
         },
         premium: {
           kicker: "06 — Premium",
@@ -506,8 +527,21 @@
     setHTML("#journey h2", copy.journey.title);
     setText("#journey p", copy.journey.body);
     setText("#journey .quote", copy.journey.quote);
-    setAttr("#journey svg", "aria-label", copy.journey.aria);
+    setAttr("#journey .journey-plan", "aria-label", copy.journey.aria);
     setTextList("#journey .journey-day span", copy.journey.days);
+    var journeyTasks = document.querySelectorAll("#journey [data-journey-task]");
+    journeyTasks.forEach(function (item, index) {
+      var task = copy.journey.tasks[index];
+      if (!task) return;
+
+      var icon = item.querySelector("[data-journey-task-icon]");
+      var title = item.querySelector("[data-journey-task-title]");
+      var body = item.querySelector("[data-journey-task-body]");
+
+      if (icon) icon.textContent = task.icon;
+      if (title) title.textContent = task.title;
+      if (body) body.textContent = task.body;
+    });
 
     setText("#premium .kicker", copy.premium.kicker);
     setHTML("#premium h2", copy.premium.title);
@@ -1002,12 +1036,166 @@
     observer.observe(toolsSection);
   }
 
-  function setupJourneySegments() {
-    document.querySelectorAll(".chart-segment").forEach(function (segment) {
-      if (typeof segment.getTotalLength !== "function") return;
-      var length = segment.getTotalLength();
-      segment.style.setProperty("--segment-length", length.toFixed(2));
+  function setupJourneyChecklist() {
+    var section = document.getElementById("journey");
+    var plan = document.querySelector("#journey .journey-plan");
+    var hand = document.getElementById("journeyTapHand");
+    var days = document.querySelectorAll("#journey [data-journey-day]");
+    var checks = document.querySelectorAll("#journey [data-journey-check]");
+    if (!section || !plan || !hand || !days.length || !checks.length) return;
+
+    var sequenceStarted = false;
+    var showDelay = 160;
+    var moveGap = 980;
+    var tapDelay = 460;
+    var betweenDaysPause = 860;
+    var loopPause = 1900;
+
+    function moveHandTo(check, immediate) {
+      var circle = check.querySelector(".journey-check-circle");
+      if (!circle) return;
+
+      var planRect = plan.getBoundingClientRect();
+      var circleRect = circle.getBoundingClientRect();
+      var x = circleRect.left - planRect.left - 6;
+      var y = circleRect.top - planRect.top - 10;
+      var transformValue = "translate3d(" + x.toFixed(1) + "px, " + y.toFixed(1) + "px, 0) scale(0.76)";
+
+      if (immediate) {
+        hand.style.transition = "none";
+        hand.style.transform = transformValue;
+        hand.getBoundingClientRect();
+        hand.style.transition = "";
+        return;
+      }
+
+      hand.style.transform = transformValue;
+    }
+
+    function clearChecks() {
+      checks.forEach(function (check) {
+        var task = check.closest("[data-journey-task]");
+        check.classList.remove("is-active", "is-tapping");
+        check.setAttribute("aria-pressed", "false");
+        if (task) task.classList.remove("is-focused");
+      });
+    }
+
+    function setDayProgress(day, progress) {
+      if (!day) return;
+      day.style.setProperty("--day-progress", String(Math.max(0, Math.min(1, progress))));
+    }
+
+    function resetDays() {
+      days.forEach(function (day) {
+        day.classList.remove("is-current", "is-done");
+        setDayProgress(day, 0);
+      });
+    }
+
+    function setCurrentDay(index) {
+      days.forEach(function (day, dayIndex) {
+        day.classList.toggle("is-current", dayIndex === index);
+        day.classList.toggle("is-done", dayIndex < index);
+        setDayProgress(day, dayIndex < index ? 1 : 0);
+      });
+    }
+
+    function activateCheck(check, day, progress) {
+      var task = check.closest("[data-journey-task]");
+      if (task) task.classList.add("is-focused");
+      check.classList.add("is-tapping");
+      hand.classList.add("is-tapping");
+
+      window.setTimeout(function () {
+        hand.classList.remove("is-tapping");
+        check.classList.remove("is-tapping");
+        check.classList.add("is-active");
+        check.setAttribute("aria-pressed", "true");
+        setDayProgress(day, progress);
+
+        if (task) {
+          window.setTimeout(function () {
+            task.classList.remove("is-focused");
+          }, 240);
+        }
+      }, 320);
+    }
+
+    function runLoop() {
+      resetDays();
+      clearChecks();
+      hand.classList.remove("is-visible", "is-tapping");
+      moveHandTo(checks[0], true);
+
+      window.setTimeout(function () {
+        hand.classList.add("is-visible");
+      }, showDelay);
+
+      days.forEach(function (day, dayIndex) {
+        var dayStart = showDelay + dayIndex * (checks.length * moveGap + betweenDaysPause);
+
+        window.setTimeout(function () {
+          clearChecks();
+          setCurrentDay(dayIndex);
+          moveHandTo(checks[0], dayIndex === 0);
+        }, dayStart);
+
+        checks.forEach(function (check, checkIndex) {
+          var moveAt = dayStart + checkIndex * moveGap;
+          var tapAt = moveAt + tapDelay;
+
+          if (!(dayIndex === 0 && checkIndex === 0)) {
+            window.setTimeout(function () {
+              moveHandTo(check);
+            }, moveAt);
+          }
+
+          window.setTimeout(function () {
+            activateCheck(check, day, (checkIndex + 1) / checks.length);
+          }, tapAt);
+        });
+
+        window.setTimeout(function () {
+          day.classList.remove("is-current");
+          day.classList.add("is-done");
+        }, dayStart + checks.length * moveGap + 160);
+      });
+
+      var totalDuration = showDelay + days.length * (checks.length * moveGap + betweenDaysPause);
+
+      window.setTimeout(function () {
+        hand.classList.remove("is-visible", "is-tapping");
+      }, totalDuration - betweenDaysPause + 420);
+
+      window.setTimeout(function () {
+        runLoop();
+      }, totalDuration + loopPause);
+    }
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting || sequenceStarted) return;
+
+          sequenceStarted = true;
+          runLoop();
+
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.42 }
+    );
+
+    moveHandTo(checks[0], true);
+
+    window.addEventListener("resize", function () {
+      if (!sequenceStarted) {
+        moveHandTo(checks[0], true);
+      }
     });
+
+    observer.observe(section);
   }
 
   function updateSceneProgress() {
@@ -1023,7 +1211,7 @@
     bindAnchorScroll();
     setupPrayerToggles();
     setupCompassSequence();
-    setupJourneySegments();
+    setupJourneyChecklist();
     updateSceneProgress();
 
     window.addEventListener(
