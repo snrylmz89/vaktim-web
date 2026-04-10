@@ -8,7 +8,9 @@
         ],
         "components": [
           { "/": "/davet", "comment": "Davet linkleri uygulamada açılır" },
-          { "/": "/davet/*", "comment": "Davet linkleri uygulamada açılır" }
+          { "/": "/davet/*", "comment": "Davet linkleri uygulamada açılır" },
+          { "/": "/verify-email", "comment": "E-posta doğrulama uygulamada açılır" },
+          { "/": "/verify-email/*", "comment": "E-posta doğrulama uygulamada açılır" }
         ]
       }
     ]
