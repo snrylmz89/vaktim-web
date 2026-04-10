@@ -110,12 +110,16 @@
   </div>
 
   <script>
-    const EDGE_FUNCTION_URL = 'https://gercipqmupxuvyhsvqyo.supabase.co/functions/v1/verify-email-token';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlcmNpcHFtdXB4dXZ5aHN2cXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMDczMDIsImV4cCI6MjA1Mjc4MzMwMn0.f3b4886be950e9a1fb4497d4f9de30161fb1a9c7573bcf33a026c1e6c0e2e7f4';
+    const PROD_EDGE_URL = 'https://gercipqmupxuvyhsvqyo.supabase.co/functions/v1/verify-email-token';
+    const PROD_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlcmNpcHFtdXB4dXZ5aHN2cXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMDczMDIsImV4cCI6MjA1Mjc4MzMwMn0.f3b4886be950e9a1fb4497d4f9de30161fb1a9c7573bcf33a026c1e6c0e2e7f4';
 
     const urlParams = new URLSearchParams(window.location.search);
     const rawToken = urlParams.get('token');
     const token = (rawToken && /^[A-Za-z0-9._~+\/-]+=*$/.test(rawToken) && rawToken.length <= 4096) ? rawToken : null;
+    const pref = urlParams.get('pref');
+    const ak = urlParams.get('ak');
+    const EDGE_FUNCTION_URL = pref ? 'https://' + pref + '.supabase.co/functions/v1/verify-email-token' : PROD_EDGE_URL;
+    const SUPABASE_ANON_KEY = ak || PROD_ANON_KEY;
     const APP_SCHEME = 'vaktim://?emailVerified=true';
 
     const spinner = document.getElementById('spinner');
