@@ -88,6 +88,25 @@
     }
   }
 
+  function buildSelector(initialLang, onChange) {
+    var wrap = document.createElement("div");
+    wrap.id = "languageSwitcher";
+    wrap.setAttribute("aria-label", "Language");
+    wrap.className = "lang-switch";
+
+    SUPPORTED_LANGS.forEach(function (lang) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.textContent = lang.toUpperCase();
+      button.setAttribute("data-lang", lang);
+      button.className = "lang-link";
+      button.addEventListener("click", onChange);
+      wrap.appendChild(button);
+    });
+
+    return wrap;
+  }
+
   function createFloatingSelector(initialLang, onChange) {
     var box = document.createElement("div");
     box.style.position = "fixed";
@@ -100,17 +119,12 @@
     box.style.padding = "4px 6px";
     box.style.backdropFilter = "blur(8px)";
 
-    var wrap = document.createElement("div");
-    wrap.id = "languageSwitcher";
-    wrap.setAttribute("aria-label", "Language");
+    var wrap = buildSelector(initialLang, onChange);
     wrap.style.display = "inline-flex";
     wrap.style.gap = "6px";
 
-    SUPPORTED_LANGS.forEach(function (lang) {
-      var button = document.createElement("button");
-      button.type = "button";
-      button.textContent = lang.toUpperCase();
-      button.setAttribute("data-lang", lang);
+    wrap.querySelectorAll("[data-lang]").forEach(function (button) {
+      var lang = button.getAttribute("data-lang");
       button.style.border = "1px solid rgba(255,255,255,.12)";
       button.style.background = lang === initialLang ? "rgba(255,215,0,.18)" : "rgba(255,255,255,.04)";
       button.style.color = "#edeae3";
@@ -118,12 +132,32 @@
       button.style.padding = "6px 10px";
       button.style.font = "700 11px Sora, system-ui, sans-serif";
       button.style.cursor = "pointer";
-      button.addEventListener("click", onChange);
-      wrap.appendChild(button);
     });
 
     box.appendChild(wrap);
     document.body.appendChild(box);
+    return wrap;
+  }
+
+  function createHeaderSelector(initialLang, onChange) {
+    var topIn = document.querySelector(".top-in");
+    if (!topIn) return null;
+
+    var host = topIn.querySelector(".top-actions");
+    if (!host) {
+      host = document.createElement("div");
+      host.className = "top-actions";
+
+      var topBack = topIn.querySelector(".top-back");
+      if (topBack && !topIn.querySelector(".top-nav")) {
+        host.appendChild(topBack);
+      }
+
+      topIn.appendChild(host);
+    }
+
+    var wrap = buildSelector(initialLang, onChange);
+    host.appendChild(wrap);
     return wrap;
   }
 
@@ -228,7 +262,7 @@
 
     selector = document.getElementById("languageSwitcher");
     if (!selector) {
-      selector = createFloatingSelector(currentLang, handleChange);
+      selector = createHeaderSelector(currentLang, handleChange) || createFloatingSelector(currentLang, handleChange);
     }
 
     selector = enhanceSelector(selector);
