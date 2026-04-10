@@ -1,10 +1,15 @@
 {
   "applinks": {
-    "apps": [],
     "details": [
       {
-        "appID": "TEAM_ID.com.vaktim.app",
-        "paths": ["/verify-email","/verify-email*","/davet","/davet/*"]
+        "appIDs": [
+          "G323M354S3.com.vaktim.app",
+          "G323M354S3.com.vaktim.app.dev"
+        ],
+        "components": [
+          { "/": "/davet", "comment": "Davet linkleri uygulamada açılır" },
+          { "/": "/davet/*", "comment": "Davet linkleri uygulamada açılır" }
+        ]
       }
     ]
   }
