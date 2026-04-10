@@ -7,10 +7,10 @@
           "G323M354S3.com.vaktim.app.dev"
         ],
         "components": [
-          { "/": "/davet", "comment": "Davet linkleri uygulamada açılır" },
-          { "/": "/davet/*", "comment": "Davet linkleri uygulamada açılır" },
-          { "/": "/verify-email", "comment": "E-posta doğrulama uygulamada açılır" },
-          { "/": "/verify-email/*", "comment": "E-posta doğrulama uygulamada açılır" }
+          { "/": "/davet", "comment": "Invite links open in app" },
+          { "/": "/davet/*", "comment": "Invite links open in app" },
+          { "/": "/verify-email", "comment": "Email verification opens in app" },
+          { "/": "/verify-email/*", "comment": "Email verification opens in app" }
         ]
       }
     ]
