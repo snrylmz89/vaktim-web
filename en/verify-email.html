@@ -115,15 +115,18 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const rawToken = urlParams.get('token');
-    const token = (rawToken && /^[A-Za-z0-9._~+\/-]+=*$/.test(rawToken) && rawToken.length <= 4096) ? rawToken : null;
+    const token = (rawToken && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawToken)) ? rawToken : null;
     const pref = urlParams.get('pref');
     const ak = urlParams.get('ak');
     const EDGE_FUNCTION_URL = pref ? 'https://' + pref + '.supabase.co/functions/v1/verify-email-token' : PROD_EDGE_URL;
     const SUPABASE_ANON_KEY = ak || PROD_ANON_KEY;
-    const APP_SCHEME = 'vaktim://?emailVerified=true';
 
     const spinner = document.getElementById('spinner');
     const content = document.getElementById('content');
+
+    let appOpenedSignal = false;
+    let webVerifyStarted = false;
+    let fallbackTimer = null;
 
     function createIcon(type) {
       var div = document.createElement('div');
@@ -137,7 +140,7 @@
       return div;
     }
 
-    function showSuccess() {
+    function showWebSuccess() {
       spinner.style.display = 'none';
       content.textContent = '';
       content.appendChild(createIcon('success'));
@@ -150,7 +153,7 @@
       var btn = document.createElement('button');
       btn.className = 'btn btn-primary';
       btn.textContent = 'Open App';
-      btn.addEventListener('click', openApp);
+      btn.addEventListener('click', function() { window.location.href = 'vaktim://'; });
       content.appendChild(btn);
       var fb = document.createElement('p');
       fb.className = 'fallback';
@@ -160,11 +163,24 @@
       a.textContent = 'you can download it here';
       fb.appendChild(a);
       content.appendChild(fb);
-      setTimeout(function() { tryOpenApp(); }, 500);
+      setTimeout(function() { window.location.href = 'vaktim://'; }, 800);
     }
 
-    function tryOpenApp() {
-      window.location.href = APP_SCHEME;
+    function showAppHandled() {
+      spinner.style.display = 'none';
+      content.textContent = '';
+      content.appendChild(createIcon('success'));
+      var h = document.createElement('h1');
+      h.textContent = 'App Opened';
+      content.appendChild(h);
+      var p = document.createElement('p');
+      p.textContent = 'Verification is completing in the app. You can return to it now.';
+      content.appendChild(p);
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-primary';
+      btn.textContent = 'Return to App';
+      btn.addEventListener('click', function() { window.location.href = 'vaktim://'; });
+      content.appendChild(btn);
     }
 
     function showError(errorMessage) {
@@ -184,36 +200,53 @@
       content.appendChild(btn);
     }
 
-    function openApp() {
-      window.location.href = APP_SCHEME;
-    }
-
-    async function verifyEmail() {
-      if (!token) {
-        showError('Verification token not found. Please click the link in your email again.');
-        return;
-      }
+    async function verifyOnWeb() {
+      if (webVerifyStarted) return;
+      webVerifyStarted = true;
       try {
         const response = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token: token })
         });
         if (response.ok) {
-          showSuccess();
+          showWebSuccess();
         } else {
           if (response.status === 404) showError('Verification link is invalid or already used. Please request a new link.');
           else if (response.status === 410) showError('Verification link has expired. Please request a new link from the app.');
           else if (response.status === 400) showError('This verification link has already been used.');
           else showError('An error occurred during verification. Please try again later.');
         }
-      } catch (error) {
-        console.error('Verification error:', error);
+      } catch (err) {
         showError('Connection error. Please check your internet connection and try again.');
       }
     }
 
-    verifyEmail();
+    function init() {
+      if (!token) {
+        showError('Verification token not found. Please click the link in your email again.');
+        return;
+      }
+
+      window.location.href = 'vaktim://verify-email?token=' + encodeURIComponent(token);
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          appOpenedSignal = true;
+          clearTimeout(fallbackTimer);
+        } else if (appOpenedSignal && !webVerifyStarted) {
+          showAppHandled();
+        }
+      });
+
+      fallbackTimer = setTimeout(function() {
+        if (!appOpenedSignal) {
+          verifyOnWeb();
+        }
+      }, 1500);
+    }
+
+    init();
   </script>
 <script src="/js/language-switcher.js"></script>
 </body>

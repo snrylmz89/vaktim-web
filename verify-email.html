@@ -115,17 +115,19 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const rawToken = urlParams.get('token');
-    const token = (rawToken && /^[A-Za-z0-9._~+\/-]+=*$/.test(rawToken) && rawToken.length <= 4096) ? rawToken : null;
-    // pref + ak are embedded by the Edge Function so the web fallback always routes
-    // to the correct Supabase instance (dev vs prod). Falls back to prod if absent.
+    // UUID v4 format — matches server-side validation in verify-email-token Edge Function
+    const token = (rawToken && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawToken)) ? rawToken : null;
     const pref = urlParams.get('pref');
     const ak = urlParams.get('ak');
     const EDGE_FUNCTION_URL = pref ? 'https://' + pref + '.supabase.co/functions/v1/verify-email-token' : PROD_EDGE_URL;
     const SUPABASE_ANON_KEY = ak || PROD_ANON_KEY;
-    const APP_SCHEME = 'vaktim://?emailVerified=true';
 
     const spinner = document.getElementById('spinner');
     const content = document.getElementById('content');
+
+    let appOpenedSignal = false;
+    let webVerifyStarted = false;
+    let fallbackTimer = null;
 
     function createIcon(type) {
       var div = document.createElement('div');
@@ -139,7 +141,8 @@
       return div;
     }
 
-    function showSuccess() {
+    function showWebSuccess() {
+      // Token was consumed by web — open app home (no token needed)
       spinner.style.display = 'none';
       content.textContent = '';
       content.appendChild(createIcon('success'));
@@ -152,7 +155,7 @@
       var btn = document.createElement('button');
       btn.className = 'btn btn-primary';
       btn.textContent = 'Uygulamayı Aç';
-      btn.addEventListener('click', openApp);
+      btn.addEventListener('click', function() { window.location.href = 'vaktim://'; });
       content.appendChild(btn);
       var fb = document.createElement('p');
       fb.className = 'fallback';
@@ -162,11 +165,26 @@
       a.textContent = 'buradan indirebilirsiniz';
       fb.appendChild(a);
       content.appendChild(fb);
-      setTimeout(function() { tryOpenApp(); }, 500);
+      // Auto-open app
+      setTimeout(function() { window.location.href = 'vaktim://'; }, 800);
     }
 
-    function tryOpenApp() {
-      window.location.href = APP_SCHEME;
+    function showAppHandled() {
+      // App opened via URL scheme — it will handle verification natively
+      spinner.style.display = 'none';
+      content.textContent = '';
+      content.appendChild(createIcon('success'));
+      var h = document.createElement('h1');
+      h.textContent = 'Uygulama Açıldı';
+      content.appendChild(h);
+      var p = document.createElement('p');
+      p.textContent = 'Doğrulama uygulamada tamamlanıyor. Uygulamaya dönebilirsiniz.';
+      content.appendChild(p);
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-primary';
+      btn.textContent = 'Uygulamaya Dön';
+      btn.addEventListener('click', function() { window.location.href = 'vaktim://'; });
+      content.appendChild(btn);
     }
 
     function showError(errorMessage) {
@@ -186,36 +204,58 @@
       content.appendChild(btn);
     }
 
-    function openApp() {
-      window.location.href = APP_SCHEME;
-    }
-
-    async function verifyEmail() {
-      if (!token) {
-        showError('Doğrulama kodu bulunamadı. Lütfen email\'inizdeki linke tekrar tıklayın.');
-        return;
-      }
+    async function verifyOnWeb() {
+      if (webVerifyStarted) return;
+      webVerifyStarted = true;
       try {
         const response = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token: token })
         });
         if (response.ok) {
-          showSuccess();
+          showWebSuccess();
         } else {
           if (response.status === 404) showError('Doğrulama linki geçersiz veya kullanılmış. Lütfen yeni bir link isteyin.');
           else if (response.status === 410) showError('Doğrulama linkinin süresi dolmuş. Lütfen uygulamadan yeni bir link isteyin.');
           else if (response.status === 400) showError('Bu doğrulama linki daha önce kullanılmış.');
           else showError('Doğrulama sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
         }
-      } catch (error) {
-        console.error('Verification error:', error);
+      } catch (err) {
         showError('Bağlantı hatası. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.');
       }
     }
 
-    verifyEmail();
+    function init() {
+      if (!token) {
+        showError('Doğrulama kodu bulunamadı. Lütfen emailinizdeki linke tekrar tıklayın.');
+        return;
+      }
+
+      // Step 1: Hand off to app — app handles verification natively via app/verify-email screen
+      window.location.href = 'vaktim://verify-email?token=' + encodeURIComponent(token);
+
+      // Step 2: Detect if app opened via page visibility change
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          // Page went to background — app opened successfully
+          appOpenedSignal = true;
+          clearTimeout(fallbackTimer);
+        } else if (appOpenedSignal && !webVerifyStarted) {
+          // User navigated back to browser after app opened
+          showAppHandled();
+        }
+      });
+
+      // Step 3: Fallback — if app is not installed, verify on web after 1.5s
+      fallbackTimer = setTimeout(function() {
+        if (!appOpenedSignal) {
+          verifyOnWeb();
+        }
+      }, 1500);
+    }
+
+    init();
   </script>
 <script src="/js/language-switcher.js"></script>
 </body>
