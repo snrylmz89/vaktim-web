@@ -163,7 +163,6 @@
       a.textContent = 'يمكنك تنزيله من هنا';
       fb.appendChild(a);
       content.appendChild(fb);
-      setTimeout(function() { window.location.href = 'vaktim://'; }, 800);
     }
 
     function showAppHandled() {
@@ -181,6 +180,37 @@
       btn.textContent = 'العودة إلى التطبيق';
       btn.addEventListener('click', function() { window.location.href = 'vaktim://'; });
       content.appendChild(btn);
+    }
+
+    function showFallbackChoice() {
+      spinner.style.display = 'none';
+      content.textContent = '';
+      var h = document.createElement('h1');
+      h.textContent = 'لم يفتح التطبيق';
+      content.appendChild(h);
+      var p = document.createElement('p');
+      p.textContent = 'إذا كان التطبيق مثبتًا، أكّد مربع الحوار "فتح" أعلاه. وإلا، يمكنك التحقق هنا عبر الويب.';
+      content.appendChild(p);
+      var btnApp = document.createElement('button');
+      btnApp.className = 'btn btn-secondary';
+      btnApp.textContent = 'حاول فتح التطبيق مجددًا';
+      btnApp.addEventListener('click', function() {
+        window.location.href = 'vaktim://verify-email?token=' + encodeURIComponent(token);
+      });
+      content.appendChild(btnApp);
+      var btnWeb = document.createElement('button');
+      btnWeb.className = 'btn btn-primary';
+      btnWeb.textContent = 'التحقق هنا';
+      btnWeb.addEventListener('click', verifyOnWeb);
+      content.appendChild(btnWeb);
+      var fb = document.createElement('p');
+      fb.className = 'fallback';
+      fb.textContent = 'إذا لم يكن التطبيق لديك، ';
+      var a = document.createElement('a');
+      a.href = 'https://vaktim.app';
+      a.textContent = 'يمكنك تنزيله من هنا';
+      fb.appendChild(a);
+      content.appendChild(fb);
     }
 
     function showError(errorMessage) {
@@ -203,6 +233,12 @@
     async function verifyOnWeb() {
       if (webVerifyStarted) return;
       webVerifyStarted = true;
+      spinner.style.display = 'block';
+      content.textContent = '';
+      content.appendChild(spinner);
+      var loadingH = document.createElement('h1');
+      loadingH.textContent = 'جارٍ التحقق...';
+      content.appendChild(loadingH);
       try {
         const response = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
@@ -241,9 +277,9 @@
 
       fallbackTimer = setTimeout(function() {
         if (!appOpenedSignal) {
-          verifyOnWeb();
+          showFallbackChoice();
         }
-      }, 1500);
+      }, 2000);
     }
 
     init();

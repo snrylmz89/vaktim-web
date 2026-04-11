@@ -142,7 +142,6 @@
     }
 
     function showWebSuccess() {
-      // Token was consumed by web — open app home (no token needed)
       spinner.style.display = 'none';
       content.textContent = '';
       content.appendChild(createIcon('success'));
@@ -165,12 +164,9 @@
       a.textContent = 'buradan indirebilirsiniz';
       fb.appendChild(a);
       content.appendChild(fb);
-      // Auto-open app
-      setTimeout(function() { window.location.href = 'vaktim://'; }, 800);
     }
 
     function showAppHandled() {
-      // App opened via URL scheme — it will handle verification natively
       spinner.style.display = 'none';
       content.textContent = '';
       content.appendChild(createIcon('success'));
@@ -185,6 +181,39 @@
       btn.textContent = 'Uygulamaya Dön';
       btn.addEventListener('click', function() { window.location.href = 'vaktim://'; });
       content.appendChild(btn);
+    }
+
+    // Shown after timeout when app did not open — user chooses explicitly.
+    // No automatic web verification to prevent race condition with iOS URL scheme dialog.
+    function showFallbackChoice() {
+      spinner.style.display = 'none';
+      content.textContent = '';
+      var h = document.createElement('h1');
+      h.textContent = 'Uygulama Açılmadı';
+      content.appendChild(h);
+      var p = document.createElement('p');
+      p.textContent = 'Uygulamanız yüklüyse yukarıdaki "Aç" iletişim kutusunu onaylayın. Yüklü değilse web üzerinden doğrulayabilirsiniz.';
+      content.appendChild(p);
+      var btnApp = document.createElement('button');
+      btnApp.className = 'btn btn-secondary';
+      btnApp.textContent = 'Uygulamayı Tekrar Aç';
+      btnApp.addEventListener('click', function() {
+        window.location.href = 'vaktim://verify-email?token=' + encodeURIComponent(token);
+      });
+      content.appendChild(btnApp);
+      var btnWeb = document.createElement('button');
+      btnWeb.className = 'btn btn-primary';
+      btnWeb.textContent = 'Web\'de Doğrula';
+      btnWeb.addEventListener('click', verifyOnWeb);
+      content.appendChild(btnWeb);
+      var fb = document.createElement('p');
+      fb.className = 'fallback';
+      fb.textContent = 'Uygulamanız yoksa ';
+      var a = document.createElement('a');
+      a.href = 'https://vaktim.app';
+      a.textContent = 'buradan indirebilirsiniz';
+      fb.appendChild(a);
+      content.appendChild(fb);
     }
 
     function showError(errorMessage) {
@@ -207,6 +236,13 @@
     async function verifyOnWeb() {
       if (webVerifyStarted) return;
       webVerifyStarted = true;
+      spinner.style.display = 'block';
+      content.textContent = '';
+      content.appendChild(spinner);
+      var loadingH = document.createElement('h1');
+      loadingH.id = 'title';
+      loadingH.textContent = 'Doğrulanıyor...';
+      content.appendChild(loadingH);
       try {
         const response = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
@@ -232,27 +268,26 @@
         return;
       }
 
-      // Step 1: Hand off to app — app handles verification natively via app/verify-email screen
+      // Try to hand off to app — app handles verification natively
       window.location.href = 'vaktim://verify-email?token=' + encodeURIComponent(token);
 
-      // Step 2: Detect if app opened via page visibility change
+      // If page goes to background, app opened successfully
       document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
-          // Page went to background — app opened successfully
           appOpenedSignal = true;
           clearTimeout(fallbackTimer);
         } else if (appOpenedSignal && !webVerifyStarted) {
-          // User navigated back to browser after app opened
           showAppHandled();
         }
       });
 
-      // Step 3: Fallback — if app is not installed, verify on web after 1.5s
+      // After 2s, if app did NOT open (visibilitychange never fired hidden),
+      // show explicit choice — never auto-verify to avoid race with iOS URL scheme dialog.
       fallbackTimer = setTimeout(function() {
         if (!appOpenedSignal) {
-          verifyOnWeb();
+          showFallbackChoice();
         }
-      }, 1500);
+      }, 2000);
     }
 
     init();
