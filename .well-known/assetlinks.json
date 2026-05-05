@@ -2,9 +2,10 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.vaktim.app",
+    "package_name": "com.vaktim.app.android",
     "sha256_cert_fingerprints": [
-      "82:A1:6F:E9:49:12:41:9F:FA:D8:DD:C3:5B:C0:76:EA:98:AA:07:2E:69:60:3F:78:AF:71:B0:68:3A:45:96:01"
+      "82:A1:6F:E9:49:12:41:9F:FA:D8:DD:C3:5B:C0:76:EA:98:AA:07:2E:69:60:3F:78:AF:71:B0:68:3A:45:96:01",
+      "16:96:31:12:D1:E4:6F:64:CC:38:CF:99:27:CD:8A:FC:5A:F6:55:F9:77:B4:C1:0B:69:77:40:7C:1D:41:83:DF"
     ]
   }
 }]
