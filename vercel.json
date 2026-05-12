@@ -2,6 +2,12 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/ayah", "destination": "/open/index.html" },
+    { "source": "/ayah/:path*", "destination": "/open/index.html" },
+    { "source": "/surah", "destination": "/open/index.html" },
+    { "source": "/surah/:path*", "destination": "/open/index.html" },
+    { "source": "/prayer-times", "destination": "/open/index.html" },
+    { "source": "/prayer-times/:path*", "destination": "/open/index.html" },
     { "source": "/davet", "destination": "/api/davet" },
     { "source": "/davet/", "destination": "/api/davet" },
     { "source": "/davet/:path*", "destination": "/api/davet" }
