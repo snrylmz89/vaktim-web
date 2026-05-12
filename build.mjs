@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Vercel Build Output API: copy static files to .vercel/output/static
- * and write config with davet rewrites. Fixes 404 on /davet and /davet/CODE.
+ * and write config with deep-link fallback rewrites.
  */
 import fs from 'fs';
 import path from 'path';
@@ -43,6 +43,12 @@ if (fs.existsSync(davetSrc)) {
     path.join(davetSrc, 'index.html'),
     path.join(davetDest, 'index.html')
   );
+}
+
+// Copy deep-link fallback page
+const openSrc = path.join(root, 'open');
+if (fs.existsSync(openSrc)) {
+  copyRecursive(openSrc, path.join(staticDir, 'open'));
 }
 
 // Copy destek folder
@@ -87,11 +93,17 @@ if (fs.existsSync(wellKnownSrc)) {
   copyRecursive(wellKnownSrc, path.join(staticDir, '.well-known'));
 }
 
-// config.json: rewrite phase first so /davet/CODE is rewritten before filesystem 404
+// config.json: rewrite phase first so dynamic deep-link paths are rewritten before filesystem 404
 const config = {
   version: 3,
   routes: [
     { handle: 'rewrite' },
+    { src: '/ayah', dest: '/open/index.html' },
+    { src: '/ayah/(.*)', dest: '/open/index.html' },
+    { src: '/surah', dest: '/open/index.html' },
+    { src: '/surah/(.*)', dest: '/open/index.html' },
+    { src: '/prayer-times', dest: '/open/index.html' },
+    { src: '/prayer-times/(.*)', dest: '/open/index.html' },
     { src: '/davet', dest: '/davet/index.html' },
     { src: '/davet/', dest: '/davet/index.html' },
     { src: '/davet/(.*)', dest: '/davet/index.html' }

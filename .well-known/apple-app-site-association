@@ -9,6 +9,10 @@
         "components": [
           { "/": "/davet", "comment": "Invite links open in app" },
           { "/": "/davet/*", "comment": "Invite links open in app" },
+          { "/": "/ayah/*", "comment": "Quran ayah links open in app" },
+          { "/": "/surah/*", "comment": "Quran surah links open in app" },
+          { "/": "/prayer-times", "comment": "Prayer time links open in app" },
+          { "/": "/prayer-times/*", "comment": "Prayer time links open in app" },
           { "/": "/verify-email", "comment": "Email verification opens in app" },
           { "/": "/verify-email/*", "comment": "Email verification opens in app" }
         ]
