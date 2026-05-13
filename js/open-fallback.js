@@ -2363,8 +2363,31 @@
     error.hidden = !message;
   }
 
+  function getPrayerDisplayName(entry, language) {
+    var turkishNames = {
+      imsak: "İmsak",
+      fajr: "Sabah",
+      sunrise: "Güneş",
+      dhuhr: "Öğle",
+      asr: "İkindi",
+      maghrib: "Akşam",
+      isha: "Yatsı",
+    };
+
+    if (language === "tr" && turkishNames[entry.key]) {
+      return turkishNames[entry.key];
+    }
+
+    return entry.name || entry.key || "Vakit";
+  }
+
   function renderPrayerSchedule(data) {
-    var schedule = Array.isArray(data.schedule) ? data.schedule : [];
+    var language = getCurrentLanguage();
+    var schedule = Array.isArray(data.schedule)
+      ? data.schedule.filter(function (entry) {
+        return entry && entry.key !== "midnight";
+      })
+      : [];
     var scheduleElement = document.getElementById("prayerSchedule");
     if (!scheduleElement) return;
 
@@ -2385,7 +2408,7 @@
       card.className = "prayer-time-card";
 
       var name = document.createElement("span");
-      name.textContent = entry.name || entry.key || "Vakit";
+      name.textContent = getPrayerDisplayName(entry, language);
 
       var time = document.createElement("strong");
       time.textContent = entry.time || "--:--";
