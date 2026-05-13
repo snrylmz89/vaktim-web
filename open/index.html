@@ -7,6 +7,7 @@
     <meta name="description" content="Vaktim bağlantısı ile ilgili ayeti, sureyi veya namaz vakitlerini uygulamada açın.">
     <meta name="robots" content="noindex, follow">
     <meta name="theme-color" content="#060B13">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://mcp.vaktim.app https://api.vaktim.app https://api.quran.com; media-src 'self' https://verses.quran.foundation https://verses.quran.com https://audio.qurancdn.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
     <link rel="stylesheet" href="/fonts.css">
     <style>
         :root {
@@ -363,6 +364,16 @@
             display: flex;
         }
 
+        .reader.is-prayer-mode .reader-controls {
+            display: none;
+        }
+
+        .reader.is-prayer-mode .status {
+            flex-basis: 100%;
+            color: #f6dfa1;
+            font-weight: 800;
+        }
+
         .spinner {
             width: 24px;
             height: 24px;
@@ -385,6 +396,204 @@
 
         .content-panel.is-visible {
             display: grid;
+        }
+
+        .prayer-panel {
+            gap: 18px;
+        }
+
+        .prayer-form {
+            display: grid;
+            grid-template-columns: minmax(160px, 0.8fr) minmax(200px, 1.2fr) minmax(150px, 0.75fr) auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .prayer-field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .prayer-label {
+            color: var(--soft);
+            font-size: 0.76rem;
+            font-weight: 900;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .prayer-input {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 16px;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 18px;
+            color: var(--text);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+                rgba(4,9,16,0.88);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 16px 36px rgba(0,0,0,0.14);
+            font: 800 0.94rem "Plus Jakarta Sans", system-ui, sans-serif;
+            outline: none;
+            transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+        }
+
+        .prayer-select {
+            appearance: none;
+            cursor: pointer;
+            padding-right: 42px;
+            background:
+                linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.78) 50%) calc(100% - 22px) 21px / 7px 7px no-repeat,
+                linear-gradient(135deg, rgba(255,255,255,0.78) 50%, transparent 50%) calc(100% - 17px) 21px / 7px 7px no-repeat,
+                linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+                rgba(4,9,16,0.88);
+        }
+
+        .prayer-input:disabled {
+            cursor: wait;
+            opacity: 0.68;
+        }
+
+        .prayer-helper {
+            color: rgba(237,243,238,0.52);
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
+        .prayer-input:hover,
+        .prayer-input:focus {
+            border-color: rgba(255,215,0,0.45);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 0 0 4px rgba(255,215,0,0.08),
+                0 18px 38px rgba(0,0,0,0.18);
+        }
+
+        .prayer-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .prayer-button {
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 17px;
+            border: 1px solid rgba(255,215,0,0.28);
+            border-radius: 18px;
+            color: #211603;
+            background: linear-gradient(135deg, var(--gold-a), var(--gold-b));
+            font: 900 0.88rem "Plus Jakarta Sans", system-ui, sans-serif;
+            cursor: pointer;
+            box-shadow: 0 16px 34px rgba(255,165,0,0.12);
+            transition: transform 180ms var(--ease), border-color 180ms var(--ease);
+            white-space: nowrap;
+        }
+
+        .prayer-button.secondary {
+            min-width: 48px;
+            padding: 0 14px;
+            color: var(--text);
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.055);
+            box-shadow: none;
+        }
+
+        .prayer-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,215,0,0.46);
+        }
+
+        .prayer-summary {
+            display: grid;
+            gap: 18px;
+        }
+
+        .prayer-summary-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .prayer-location {
+            display: grid;
+            gap: 5px;
+        }
+
+        .prayer-location strong {
+            font-family: "Amiri", serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.05;
+            letter-spacing: -0.025em;
+        }
+
+        .prayer-location span,
+        .prayer-meta {
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        .prayer-date-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            padding: 0 14px;
+            border: 1px solid rgba(255,215,0,0.22);
+            border-radius: 999px;
+            color: #f6dfa1;
+            background: rgba(255,215,0,0.06);
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .prayer-time-card {
+            display: grid;
+            gap: 8px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 20% 0%, rgba(255,215,0,0.09), transparent 46%),
+                rgba(255,255,255,0.04);
+        }
+
+        .prayer-time-card span {
+            color: var(--soft);
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .prayer-time-card strong {
+            color: var(--text);
+            font-size: 1.55rem;
+            letter-spacing: -0.03em;
+        }
+
+        .prayer-error {
+            padding: 16px;
+            border: 1px solid rgba(255,88,88,0.28);
+            border-radius: 18px;
+            color: rgba(255,235,235,0.92);
+            background: rgba(255,88,88,0.08);
+            line-height: 1.7;
         }
 
         .text-block {
@@ -891,6 +1100,10 @@
             .control-field { width: 100%; min-width: 0; flex-basis: auto; }
             .language-select,
             .reader-select { width: 100%; }
+            .prayer-form { grid-template-columns: 1fr; }
+            .prayer-actions { justify-content: stretch; }
+            .prayer-button { flex: 1; }
+            .prayer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
             .mini-player {
                 bottom: 9px;
@@ -1039,6 +1252,48 @@
                                 </div>
                                 <div class="tajweed-legend" id="surahTajweedLegend" hidden></div>
                                 <div class="verse-list" id="verseList"></div>
+                            </div>
+                        </div>
+
+                        <div class="content-panel prayer-panel" id="prayerPanel">
+                            <div class="text-block">
+                                <h2>Vakitleri düzenle</h2>
+                                <form class="prayer-form" id="prayerForm" autocomplete="off">
+                                    <label class="prayer-field">
+                                        <span class="prayer-label">Ülke</span>
+                                        <select class="prayer-input prayer-select" id="prayerCountryInput" name="country" required>
+                                            <option value="TR">Türkiye</option>
+                                        </select>
+                                    </label>
+                                    <label class="prayer-field">
+                                        <span class="prayer-label">Şehir</span>
+                                        <input class="prayer-input" id="prayerCityInput" name="city" type="text" maxlength="80" list="prayerCityList" placeholder="İstanbul" required>
+                                        <datalist id="prayerCityList"></datalist>
+                                        <span class="prayer-helper" id="prayerCityHelp">Şehir listesi hazırlanıyor...</span>
+                                    </label>
+                                    <label class="prayer-field">
+                                        <span class="prayer-label">Tarih</span>
+                                        <input class="prayer-input" id="prayerDateInput" name="date" type="date">
+                                    </label>
+                                    <div class="prayer-actions" aria-label="Tarih işlemleri">
+                                        <button class="prayer-button secondary" id="prayerPrevDate" type="button" aria-label="Önceki gün">‹</button>
+                                        <button class="prayer-button" type="submit">Vakitleri getir</button>
+                                        <button class="prayer-button secondary" id="prayerNextDate" type="button" aria-label="Sonraki gün">›</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="text-block prayer-summary">
+                                <div class="prayer-summary-head">
+                                    <div class="prayer-location">
+                                        <strong id="prayerLocationTitle">Namaz vakitleri</strong>
+                                        <span id="prayerLocationMeta">Şehir ve tarih seçildiğinde vakitler burada görünecek.</span>
+                                    </div>
+                                    <span class="prayer-date-chip" id="prayerDateChip">Bugün</span>
+                                </div>
+                                <div class="prayer-grid" id="prayerSchedule"></div>
+                                <div class="prayer-meta" id="prayerProviderText"></div>
+                                <div class="prayer-error" id="prayerError" hidden></div>
                             </div>
                         </div>
                     </div>
