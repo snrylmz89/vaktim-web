@@ -218,6 +218,12 @@
 
     var data = await fetchApiJson("/api/quran/ayah/" + split[0] + "/" + split[1], params);
 
+    if (data.surahName && data.verseKey) {
+      document.title = data.surahName + " " + data.verseKey + " | Vaktim";
+      setText("pageTitle", data.surahName + " " + data.verseKey);
+      setText("leadText", "Arapça metin, meal ve kısa açıklamayı tek ekranda sakin bir okuma düzeniyle görebilirsin.");
+    }
+
     setContentText("arabicText", data.arabicText, "Arapça metin şu anda alınamadı.");
     setContentText("translationText", data.translationText || data.translation, "Bu dil için meal şu anda alınamadı.");
     setContentText("translationSource", data.translationSource ? "Kaynak: " + data.translationSource : "");
@@ -246,7 +252,7 @@
 
       var translation = document.createElement("div");
       translation.className = "translation-text";
-      translation.textContent = verse.translationText || "";
+      translation.textContent = verse.translationText || verse.translation || "";
 
       item.appendChild(key);
       if (arabic.textContent) item.appendChild(arabic);
@@ -270,6 +276,13 @@
     setPanelVisible("surahPanel", false);
 
     var data = await fetchApiJson("/api/quran/surah/" + surah[0], params);
+
+    if (data.surah && data.surah.name) {
+      document.title = data.surah.name + " Suresi | Vaktim";
+      setText("pageTitle", data.surah.name + " Suresi");
+      setText("leadText", data.surah.verseCount + " ayeti Arapça metin ve meal ile birlikte okuyabilirsin.");
+    }
+
     renderVerseList(data.verses || []);
     setStatus(data.surah && data.surah.name ? data.surah.name + " - " + data.surah.verseCount + " ayet" : context.target);
     setPanelVisible("surahPanel", true);
@@ -307,6 +320,12 @@
     return appPath + joiner + "source=" + encodeURIComponent(source);
   }
 
+  function buildQuranUrl(language) {
+    var url = new URL("/quran", window.location.origin);
+    url.searchParams.set("lang", normalizeLanguage(language));
+    return url.toString();
+  }
+
   function applyContext() {
     var context = getContext();
     var params = new URLSearchParams(window.location.search);
@@ -318,6 +337,7 @@
     setHref("appLink", appLink);
     setHref("landingLink", landingUrl);
     setHref("headerHomeLink", landingUrl);
+    setHref("quranLink", buildQuranUrl(language));
 
     if (languageSelect) {
       languageSelect.value = language;
@@ -326,6 +346,7 @@
         var nextUrl = new URL(window.location.href);
         nextUrl.searchParams.set("lang", nextLanguage);
         window.history.replaceState(null, "", nextUrl.toString());
+        setHref("quranLink", buildQuranUrl(nextLanguage));
         loadDynamicContent(context, nextLanguage);
       });
     }
@@ -335,9 +356,6 @@
       setText("kicker", "Kur'an bağlantısı");
       setText("pageTitle", context.title);
       setText("leadText", "Bu ayeti Vaktim uygulamasında meal, notlar ve manevi okuma akışıyla açabilirsin.");
-      setText("typeText", "Ayet bağlantısı");
-      setText("targetText", context.target);
-      setText("detailText", "Uygulama yüklüyse doğrudan ayet ekranı açılır; değilse Vaktim web sayfasından uygulamayı keşfedebilirsin.");
       loadDynamicContent(context, language);
       return;
     }
@@ -347,9 +365,6 @@
       setText("kicker", "Sure bağlantısı");
       setText("pageTitle", context.title);
       setText("leadText", "Bu sureyi Vaktim uygulamasında düzenli okuma ve takip deneyimiyle açabilirsin.");
-      setText("typeText", "Sure bağlantısı");
-      setText("targetText", context.target);
-      setText("detailText", "Uygulama yüklüyse doğrudan sure ekranı açılır; web fallback her zaman güvenli şekilde çalışır.");
       loadDynamicContent(context, language);
       return;
     }
@@ -359,9 +374,6 @@
       setText("kicker", "Namaz vakti bağlantısı");
       setText("pageTitle", context.title);
       setText("leadText", "Seçili şehir için namaz vakitlerini Vaktim uygulamasında takip edebilirsin.");
-      setText("typeText", "Namaz vakitleri");
-      setText("targetText", context.target);
-      setText("detailText", "Uygulama yüklüyse vakit ekranı açılır; değilse Vaktim'i keşfet bağlantısı web sayfasına döner.");
       return;
     }
   }
