@@ -51,6 +51,12 @@ if (fs.existsSync(openSrc)) {
   copyRecursive(openSrc, path.join(staticDir, 'open'));
 }
 
+// Copy Quran index page
+const quranSrc = path.join(root, 'quran');
+if (fs.existsSync(quranSrc)) {
+  copyRecursive(quranSrc, path.join(staticDir, 'quran'));
+}
+
 // Copy destek folder
 const destekSrc = path.join(root, 'destek');
 if (fs.existsSync(destekSrc)) {
@@ -104,6 +110,8 @@ const config = {
     { src: '/surah/(.*)', dest: '/open' },
     { src: '/prayer-times', dest: '/open' },
     { src: '/prayer-times/(.*)', dest: '/open' },
+    { src: '/quran', dest: '/quran/index.html' },
+    { src: '/quran/', dest: '/quran/index.html' },
     { src: '/davet', dest: '/davet/index.html' },
     { src: '/davet/', dest: '/davet/index.html' },
     { src: '/davet/(.*)', dest: '/davet/index.html' }

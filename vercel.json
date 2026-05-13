@@ -8,6 +8,8 @@
     { "source": "/surah/:path*", "destination": "/open" },
     { "source": "/prayer-times", "destination": "/open" },
     { "source": "/prayer-times/:path*", "destination": "/open" },
+    { "source": "/quran", "destination": "/quran/index.html" },
+    { "source": "/quran/", "destination": "/quran/index.html" },
     { "source": "/davet", "destination": "/api/davet" },
     { "source": "/davet/", "destination": "/api/davet" },
     { "source": "/davet/:path*", "destination": "/api/davet" }
