@@ -100,7 +100,7 @@ const securityHeaders = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'X-DNS-Prefetch-Control': 'off',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://gercipqmupxuvyhsvqyo.supabase.co https://api.vaktim.app https://mcp.vaktim.app https://api.quran.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://gercipqmupxuvyhsvqyo.supabase.co https://api.vaktim.app https://mcp.vaktim.app https://api.quran.com; media-src 'self' https://verses.quran.foundation https://verses.quran.com https://audio.qurancdn.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 };
 
 // Copy .well-known
