@@ -504,6 +504,21 @@
     return /^\d{1,3}:\d{1,3}$/.test(text) ? text : "";
   }
 
+  function splitVerseKey(verseKey) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    if (!normalizedKey) return null;
+    var parts = normalizedKey.split(":").map(function (part) {
+      return Number(part);
+    });
+    if (parts.length !== 2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) return null;
+    if (parts[0] <= 0 || parts[0] > 114 || parts[1] <= 0) return null;
+    return {
+      verseKey: normalizedKey,
+      surahNumber: parts[0],
+      ayahNumber: parts[1],
+    };
+  }
+
   function verseKeyBelongsToSurah(verseKey, surahNumber) {
     var normalizedKey = normalizeVerseKey(verseKey);
     var normalizedSurah = Number(surahNumber || 0);
@@ -525,6 +540,43 @@
     } catch (error) {
       return "";
     }
+  }
+
+  function buildAudioEntryFromVerseKey(verseKey) {
+    var parsed = splitVerseKey(verseKey);
+    if (!parsed) return null;
+    if (audioCacheByVerseKey[parsed.verseKey]) return audioCacheByVerseKey[parsed.verseKey];
+
+    var path = "Alafasy/mp3/"
+      + String(parsed.surahNumber).padStart(3, "0")
+      + String(parsed.ayahNumber).padStart(3, "0")
+      + ".mp3";
+    var audioUrl = resolveAudioUrl(path);
+    if (!audioUrl) return null;
+
+    var entry = {
+      verseKey: parsed.verseKey,
+      url: audioUrl,
+      duration: 0,
+    };
+    audioCacheByVerseKey[parsed.verseKey] = entry;
+    return entry;
+  }
+
+  function buildAudioQueueFromVerses(surahNumber, verses) {
+    var key = String(surahNumber || "");
+    if (!/^\d{1,3}$/.test(key)) throw new Error("Ses için sure numarası geçersiz.");
+    if (audioCacheBySurah[key]) return audioCacheBySurah[key];
+
+    var queue = (verses || []).map(function (verse) {
+      var verseKey = normalizeVerseKey(verse && verse.verseKey);
+      if (!verseKey || !verseKeyBelongsToSurah(verseKey, surahNumber)) return null;
+      return buildAudioEntryFromVerseKey(verseKey);
+    }).filter(Boolean);
+
+    if (!queue.length) throw new Error("Sure sesi şu anda alınamadı.");
+    audioCacheBySurah[key] = queue;
+    return queue;
   }
 
   function formatDuration(value) {
@@ -788,7 +840,8 @@
     var request = beginAudioRequest();
     setAudioLoading(scope === "surah" ? "surah" : "ayah", true, "Ses hazırlanıyor...");
     try {
-      var entry = await fetchAyahAudio(normalizedKey, request);
+      var entry = buildAudioEntryFromVerseKey(normalizedKey);
+      if (!entry) throw new Error("Ses dosyası şu anda alınamadı.");
       if (!isCurrentAudioRequest(request)) return;
       await toggleAudio(entry, scope || "ayah", [entry], 0, false, request);
     } catch (error) {
@@ -807,19 +860,8 @@
     var request = beginAudioRequest();
     setAudioLoading("surah", true, "Sure sesi hazırlanıyor...");
     try {
-      var entries = await fetchSurahAudio(surahNumber, request);
+      var queue = buildAudioQueueFromVerses(surahNumber, verses);
       if (!isCurrentAudioRequest(request)) return;
-      var verseKeys = (verses || []).map(function (verse) {
-        return normalizeVerseKey(verse.verseKey);
-      }).filter(Boolean);
-      var byKey = {};
-      entries.forEach(function (entry) {
-        byKey[entry.verseKey] = entry;
-      });
-      var queue = verseKeys.map(function (verseKey) {
-        return byKey[verseKey];
-      }).filter(Boolean);
-      if (!queue.length) queue = entries;
       var startIndex = startVerseKey
         ? Math.max(0, queue.findIndex(function (entry) { return entry.verseKey === startVerseKey; }))
         : 0;
