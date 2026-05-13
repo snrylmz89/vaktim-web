@@ -39,7 +39,7 @@
   };
   var TAFSIR_RESOURCES = {
     tr: [
-      { id: "vaktim-tr-summary", source: "Vaktim kısa açıklama", local: true },
+      { id: "vaktim-tr-summary", source: "Elmalılı Hamdi Yazır özeti", local: true },
     ],
     en: [
       { id: 169, source: "Ibn Kathir (Abridged)" },
@@ -447,9 +447,40 @@
     return translations.length ? { translations: translations, source: resource.source } : null;
   }
 
+  function parseVerseKey(verseKey) {
+    var split = String(verseKey || "").split(":");
+    return {
+      surah: split[0] || "",
+      ayah: split[1] || "",
+    };
+  }
+
+  async function fetchLocalTafsirForAyah(verseKey, resource, localExplanation) {
+    if (localExplanation) {
+      return { text: localExplanation, source: resource.source };
+    }
+
+    var parsed = parseVerseKey(verseKey);
+    if (!/^\d{1,3}$/.test(parsed.surah) || !/^\d{1,3}$/.test(parsed.ayah)) return null;
+
+    var params = new URLSearchParams(window.location.search);
+    params.set("lang", "tr");
+    params.set("source", cleanText(params.get("source"), "web_fallback"));
+
+    var data = await fetchApiJson("/api/quran/explanation/" + parsed.surah + "/" + parsed.ayah, params);
+    var text = data.explanation || data.explanationSummary || "";
+    var source = data.sourceLabel || resource.source;
+
+    return text ? { text: text, source: source } : null;
+  }
+
   async function fetchTafsirForAyah(verseKey, resource, localExplanation) {
     if (resource && resource.local && localExplanation) {
       return { text: localExplanation, source: resource.source };
+    }
+
+    if (resource && resource.local) {
+      return fetchLocalTafsirForAyah(verseKey, resource, localExplanation);
     }
 
     if (!resource || !resource.id) return null;
@@ -466,7 +497,27 @@
 
   async function fetchTafsirsForSurah(surahNumber, resource) {
     if (!resource || !resource.id) return null;
-    if (resource.local) return null;
+    if (resource.local) {
+      var params = new URLSearchParams(window.location.search);
+      params.set("lang", "tr");
+      params.set("source", cleanText(params.get("source"), "web_fallback"));
+
+      var localData = await fetchApiJson("/api/quran/explanations/" + surahNumber, params);
+      var localByVerseKey = {};
+
+      (localData.explanations || []).forEach(function (entry) {
+        if (entry.verseKey && entry.explanation) {
+          localByVerseKey[entry.verseKey] = entry.explanation;
+        }
+      });
+
+      return Object.keys(localByVerseKey).length
+        ? {
+            byVerseKey: localByVerseKey,
+            source: localData.source && localData.source.label ? localData.source.label : resource.source,
+          }
+        : null;
+    }
 
     var payload = await fetchExternalJson(
       quranApiUrl("/tafsirs/" + resource.id + "/by_chapter/" + surahNumber, { per_page: 300 })

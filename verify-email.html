@@ -117,10 +117,9 @@
     const rawToken = urlParams.get('token');
     // UUID v4 format — matches server-side validation in verify-email-token Edge Function
     const token = (rawToken && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawToken)) ? rawToken : null;
-    const pref = urlParams.get('pref');
-    const ak = urlParams.get('ak');
-    const EDGE_FUNCTION_URL = pref ? 'https://' + pref + '.supabase.co/functions/v1/verify-email-token' : PROD_EDGE_URL;
-    const SUPABASE_ANON_KEY = ak || PROD_ANON_KEY;
+    // Security invariant: user-controlled URLs must never choose the auth backend or API key.
+    const EDGE_FUNCTION_URL = PROD_EDGE_URL;
+    const SUPABASE_ANON_KEY = PROD_ANON_KEY;
 
     const spinner = document.getElementById('spinner');
     const content = document.getElementById('content');
