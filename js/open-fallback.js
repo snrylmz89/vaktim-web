@@ -1,5 +1,7 @@
 (function () {
   var MAX_FIELD_LENGTH = 80;
+  var API_BASE_URL = "https://api.vaktim.app";
+  var SUPPORTED_LANGUAGES = ["tr", "en", "de", "fr", "ar", "id", "ms"];
 
   function safeDecode(value) {
     try {
@@ -17,6 +19,11 @@
 
     if (!text) return fallback;
     return text.slice(0, MAX_FIELD_LENGTH);
+  }
+
+  function normalizeLanguage(value) {
+    var language = cleanText(value, "tr").toLowerCase().split(/[-_]/)[0];
+    return SUPPORTED_LANGUAGES.indexOf(language) === -1 ? "tr" : language;
   }
 
   function normalizeDate(value) {
@@ -115,6 +122,11 @@
     };
   }
 
+  function getCurrentLanguage() {
+    var params = new URLSearchParams(window.location.search);
+    return normalizeLanguage(params.get("lang") || params.get("language") || "tr");
+  }
+
   function setText(id, value) {
     var element = document.getElementById(id);
     if (element) element.textContent = value;
@@ -123,6 +135,149 @@
   function setHref(id, href) {
     var element = document.getElementById(id);
     if (element) element.setAttribute("href", href);
+  }
+
+  function showElement(id, visible) {
+    var element = document.getElementById(id);
+    if (element) element.hidden = !visible;
+  }
+
+  function setPanelVisible(id, visible) {
+    var element = document.getElementById(id);
+    if (!element) return;
+    if (visible) {
+      element.classList.add("is-visible");
+    } else {
+      element.classList.remove("is-visible");
+    }
+  }
+
+  function setStatus(value) {
+    setText("statusText", value);
+  }
+
+  function requestUrl(path, params) {
+    var url = new URL(path, API_BASE_URL);
+    params.forEach(function (value, key) {
+      url.searchParams.set(key, value);
+    });
+    return url.toString();
+  }
+
+  async function fetchJson(url) {
+    var response = await fetch(url, {
+      headers: { accept: "application/json" },
+    });
+    var payload = await response.json().catch(function () {
+      return null;
+    });
+
+    if (!response.ok || !payload || payload.success !== true) {
+      var message = payload && payload.error && payload.error.message
+        ? payload.error.message
+        : "İçerik şu anda alınamadı.";
+      throw new Error(message);
+    }
+
+    return payload.data;
+  }
+
+  function setContentText(id, value, fallback) {
+    setText(id, value || fallback || "");
+  }
+
+  async function loadAyahContent(context, language) {
+    var split = context.target.split(":");
+    if (split.length !== 2 || !/^\d{1,3}$/.test(split[0]) || !/^\d{1,3}$/.test(split[1])) {
+      throw new Error("Ayet bağlantısı geçersiz.");
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    params.set("lang", language);
+    if (language === "tr") params.set("includeExplanation", "true");
+    if (language !== "tr") params.delete("includeExplanation");
+    params.set("source", cleanText(params.get("source"), "web_fallback"));
+
+    setStatus("Ayet içeriği yükleniyor...");
+    setPanelVisible("surahPanel", false);
+    setPanelVisible("ayahPanel", false);
+
+    var data = await fetchJson(requestUrl("/api/quran/ayah/" + split[0] + "/" + split[1], params));
+
+    setContentText("arabicText", data.arabicText, "Arapça metin şu anda alınamadı.");
+    setContentText("translationText", data.translationText || data.translation, "Bu dil için meal şu anda alınamadı.");
+    setContentText("translationSource", data.translationSource ? "Kaynak: " + data.translationSource : "");
+    setContentText("explanationText", data.explanationSummary || "");
+    showElement("explanationBlock", !!data.explanationSummary);
+    setStatus(data.surahName ? data.surahName + " " + data.verseKey : data.verseKey);
+    setPanelVisible("ayahPanel", true);
+  }
+
+  function renderVerseList(verses) {
+    var list = document.getElementById("verseList");
+    if (!list) return;
+    list.textContent = "";
+
+    verses.forEach(function (verse) {
+      var item = document.createElement("div");
+      item.className = "verse-item";
+
+      var key = document.createElement("div");
+      key.className = "verse-key";
+      key.textContent = verse.verseKey || "";
+
+      var arabic = document.createElement("div");
+      arabic.className = "arabic-text";
+      arabic.textContent = verse.arabicText || "";
+
+      var translation = document.createElement("div");
+      translation.className = "translation-text";
+      translation.textContent = verse.translationText || "";
+
+      item.appendChild(key);
+      if (arabic.textContent) item.appendChild(arabic);
+      if (translation.textContent) item.appendChild(translation);
+      list.appendChild(item);
+    });
+  }
+
+  async function loadSurahContent(context, language) {
+    var surah = context.target.match(/\d+/);
+    if (!surah) {
+      throw new Error("Sure bağlantısı geçersiz.");
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    params.set("lang", language);
+    params.set("source", cleanText(params.get("source"), "web_fallback"));
+
+    setStatus("Sure içeriği yükleniyor...");
+    setPanelVisible("ayahPanel", false);
+    setPanelVisible("surahPanel", false);
+
+    var data = await fetchJson(requestUrl("/api/quran/surah/" + surah[0], params));
+    renderVerseList(data.verses || []);
+    setStatus(data.surah && data.surah.name ? data.surah.name + " - " + data.surah.verseCount + " ayet" : context.target);
+    setPanelVisible("surahPanel", true);
+  }
+
+  async function loadDynamicContent(context, language) {
+    var reader = document.getElementById("reader");
+    if (!reader || (context.kind !== "ayah" && context.kind !== "surah")) return;
+
+    reader.hidden = false;
+
+    try {
+      if (context.kind === "ayah") {
+        await loadAyahContent(context, language);
+      } else {
+        await loadSurahContent(context, language);
+      }
+    } catch (error) {
+      setStatus(error && error.message ? error.message : "İçerik şu anda alınamadı.");
+      setPanelVisible("ayahPanel", false);
+      setPanelVisible("surahPanel", false);
+    }
   }
 
   function buildLandingUrl(params) {
@@ -141,12 +296,25 @@
   function applyContext() {
     var context = getContext();
     var params = new URLSearchParams(window.location.search);
+    var language = getCurrentLanguage();
     var landingUrl = buildLandingUrl(params);
     var appLink = withSource(context.appPath, params);
+    var languageSelect = document.getElementById("languageSelect");
 
     setHref("appLink", appLink);
     setHref("landingLink", landingUrl);
     setHref("headerHomeLink", landingUrl);
+
+    if (languageSelect) {
+      languageSelect.value = language;
+      languageSelect.addEventListener("change", function () {
+        var nextLanguage = normalizeLanguage(languageSelect.value);
+        var nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set("lang", nextLanguage);
+        window.history.replaceState(null, "", nextUrl.toString());
+        loadDynamicContent(context, nextLanguage);
+      });
+    }
 
     if (context.kind === "ayah") {
       document.title = context.target + " | Vaktim'de Aç";
@@ -156,6 +324,7 @@
       setText("typeText", "Ayet bağlantısı");
       setText("targetText", context.target);
       setText("detailText", "Uygulama yüklüyse doğrudan ayet ekranı açılır; değilse Vaktim web sayfasından uygulamayı keşfedebilirsin.");
+      loadDynamicContent(context, language);
       return;
     }
 
@@ -167,6 +336,7 @@
       setText("typeText", "Sure bağlantısı");
       setText("targetText", context.target);
       setText("detailText", "Uygulama yüklüyse doğrudan sure ekranı açılır; web fallback her zaman güvenli şekilde çalışır.");
+      loadDynamicContent(context, language);
       return;
     }
 
