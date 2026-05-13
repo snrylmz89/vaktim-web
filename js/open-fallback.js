@@ -72,6 +72,7 @@
     queueIndex: -1,
     autoAdvance: false,
     loading: false,
+    lastScrolledKey: "",
     requestId: 0,
     abortController: null,
   };
@@ -623,10 +624,80 @@
     }
   }
 
+  function setMiniPlayerVisible(visible) {
+    var miniPlayer = document.getElementById("audioMiniPlayer");
+    if (!miniPlayer) return;
+    if (visible) {
+      miniPlayer.dataset.visible = "true";
+      miniPlayer.hidden = false;
+      window.requestAnimationFrame(function () {
+        if (miniPlayer.dataset.visible === "true") miniPlayer.classList.add("is-visible");
+      });
+    } else {
+      miniPlayer.dataset.visible = "false";
+      miniPlayer.classList.remove("is-visible");
+      miniPlayer.hidden = true;
+    }
+    document.body.classList.toggle("has-mini-player", Boolean(visible));
+  }
+
+  function updateMiniPlayer() {
+    var hasAudio = Boolean(audioState.currentKey && getAudioElement().src);
+    setMiniPlayerVisible(hasAudio);
+    if (!hasAudio) return;
+
+    var audio = getAudioElement();
+    var playing = isAudioPlaying();
+    var isSurahQueue = audioState.currentScope === "surah" && audioState.queue.length > 0;
+    setText("miniAudioTitle", isSurahQueue ? audioState.currentKey : audioState.currentKey + " ayet sesi");
+    setText("miniAudioMeta", DEFAULT_RECITATION.name + " - " + DEFAULT_RECITATION.source);
+    setText("miniAudioStatus", audio.paused ? audioState.currentKey + " duraklatıldı." : audioState.currentKey + " oynatılıyor.");
+    setAudioProgress("miniAudioProgress", audio.currentTime, audio.duration);
+
+    var toggleButton = document.getElementById("miniAudioToggle");
+    if (toggleButton) {
+      toggleButton.disabled = audioState.loading;
+      toggleButton.textContent = playing ? "Duraklat" : "Devam et";
+    }
+
+    var previousButton = document.getElementById("miniAudioPrev");
+    var nextButton = document.getElementById("miniAudioNext");
+    if (previousButton) previousButton.disabled = audioState.loading || !isSurahQueue || audioState.queueIndex <= 0;
+    if (nextButton) nextButton.disabled = audioState.loading || !isSurahQueue || audioState.queueIndex >= audioState.queue.length - 1;
+  }
+
+  function scrollActiveVerseIntoView(verseKey) {
+    if (audioState.currentScope !== "surah" || !verseKey || audioState.lastScrolledKey === verseKey) return;
+    var activeItem = null;
+    document.querySelectorAll(".verse-item").forEach(function (item) {
+      if (item.dataset.verseKey === verseKey) activeItem = item;
+    });
+    if (!activeItem) return;
+
+    var rect = activeItem.getBoundingClientRect();
+    var topSafeArea = 108;
+    var bottomSafeArea = 160;
+    var alreadyComfortable = rect.top >= topSafeArea && rect.bottom <= window.innerHeight - bottomSafeArea;
+    if (alreadyComfortable) {
+      audioState.lastScrolledKey = verseKey;
+      return;
+    }
+
+    audioState.lastScrolledKey = verseKey;
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(function () {
+      activeItem.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "center",
+      });
+    }, 80);
+  }
+
   function updateAudioProgress() {
     var audio = getAudioElement();
     setAudioProgress("ayahAudioProgress", audio.currentTime, audio.duration);
     setAudioProgress("surahAudioProgress", audio.currentTime, audio.duration);
+    setAudioProgress("miniAudioProgress", audio.currentTime, audio.duration);
   }
 
   function setAudioLoading(scope, loading, message) {
@@ -683,6 +754,8 @@
     document.querySelectorAll(".verse-item").forEach(function (item) {
       item.classList.toggle("is-audio-active", item.dataset.verseKey === currentKey && playing);
     });
+
+    updateMiniPlayer();
   }
 
   function setCurrentAudioText(entry) {
@@ -706,8 +779,10 @@
     audioState.queueIndex = -1;
     audioState.autoAdvance = false;
     audioState.loading = false;
+    audioState.lastScrolledKey = "";
     setAudioProgress("ayahAudioProgress", 0, 0);
     setAudioProgress("surahAudioProgress", 0, 0);
+    setAudioProgress("miniAudioProgress", 0, 0);
     setAudioStatus("ayahAudioStatus", "Dinlemek için ayet sesini başlat.");
     setAudioStatus("surahAudioStatus", "Dinlemek için sure sesini başlat.");
     updateAudioButtons();
@@ -797,6 +872,7 @@
     try {
       await audio.play();
       if (request && !isCurrentAudioRequest(request)) return;
+      scrollActiveVerseIntoView(entry.verseKey);
       setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " oynatılıyor.");
     } catch (error) {
       if (request && !isCurrentAudioRequest(request)) return;
@@ -822,6 +898,7 @@
           setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Tarayıcı oynatmayı başlatamadı. Lütfen tekrar deneyin.");
         });
         if (!audio.paused) {
+          scrollActiveVerseIntoView(entry.verseKey);
           setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " oynatılıyor.");
         }
       } else {
@@ -915,6 +992,46 @@
   function handleAudioError() {
     setAudioStatus(audioState.currentScope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Ses oynatılırken bir sorun oluştu.");
     updateAudioButtons();
+  }
+
+  function getCurrentAudioEntry() {
+    if (audioState.queueIndex >= 0 && audioState.queue[audioState.queueIndex]) return audioState.queue[audioState.queueIndex];
+    return audioState.currentKey ? audioCacheByVerseKey[audioState.currentKey] : null;
+  }
+
+  function configureMiniPlayerControls() {
+    var toggleButton = document.getElementById("miniAudioToggle");
+    var previousButton = document.getElementById("miniAudioPrev");
+    var nextButton = document.getElementById("miniAudioNext");
+
+    if (toggleButton && !toggleButton.dataset.bound) {
+      toggleButton.dataset.bound = "true";
+      toggleButton.onclick = function () {
+        var entry = getCurrentAudioEntry();
+        if (!entry) return;
+        toggleAudio(
+          entry,
+          audioState.currentScope || "ayah",
+          audioState.queue.length ? audioState.queue : [entry],
+          audioState.queueIndex >= 0 ? audioState.queueIndex : 0,
+          audioState.autoAdvance
+        );
+      };
+    }
+
+    if (previousButton && !previousButton.dataset.bound) {
+      previousButton.dataset.bound = "true";
+      previousButton.onclick = function () {
+        playSurahRelative(-1);
+      };
+    }
+
+    if (nextButton && !nextButton.dataset.bound) {
+      nextButton.dataset.bound = "true";
+      nextButton.onclick = function () {
+        playSurahRelative(1);
+      };
+    }
   }
 
   function configureAyahAudio(verseKey) {
@@ -1617,6 +1734,7 @@
     var resourceSelect = document.getElementById("resourceSelect");
     var selectedResource = populateResourceSelect(language, contentMode);
 
+    configureMiniPlayerControls();
     setHref("appLink", appLink);
     setHref("landingLink", landingUrl);
     setHref("headerHomeLink", landingUrl);

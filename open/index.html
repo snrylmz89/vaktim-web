@@ -532,6 +532,7 @@
             display: grid;
             gap: 12px;
             padding: clamp(18px, 3vw, 28px);
+            scroll-margin: 112px 0 150px;
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 24px;
             background: rgba(255,255,255,0.035);
@@ -686,6 +687,128 @@
             font-weight: 800;
         }
 
+        body.has-mini-player {
+            padding-bottom: 126px;
+        }
+
+        .mini-player {
+            position: fixed;
+            left: 50%;
+            bottom: clamp(14px, 3vw, 28px);
+            z-index: 80;
+            width: min(940px, calc(100vw - 28px));
+            transform: translate(-50%, 18px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+        }
+
+        .mini-player.is-visible {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mini-player[hidden] {
+            display: none;
+        }
+
+        .mini-player-surface {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px 18px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 12% 10%, rgba(255,215,0,0.16), transparent 34%),
+                linear-gradient(135deg, rgba(18,24,28,0.94), rgba(8,15,18,0.92));
+            box-shadow: 0 24px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08);
+            backdrop-filter: blur(22px);
+        }
+
+        .mini-player-copy {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .mini-player-eyebrow {
+            color: #f7dc8a;
+            font: 900 0.68rem "Plus Jakarta Sans", system-ui, sans-serif;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .mini-player-copy strong {
+            overflow: hidden;
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .mini-player-copy span:last-child,
+        .mini-player-status {
+            color: var(--soft);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .mini-player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .mini-player-button {
+            appearance: none;
+            min-height: 40px;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 999px;
+            color: var(--text);
+            background: rgba(255,255,255,0.06);
+            font: 900 0.78rem "Plus Jakarta Sans", system-ui, sans-serif;
+            cursor: pointer;
+            transition: transform 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease), opacity 180ms var(--ease);
+        }
+
+        .mini-player-button.primary {
+            min-width: 112px;
+            padding: 0 18px;
+            color: #211603;
+            border-color: rgba(255,215,0,0.38);
+            background: linear-gradient(135deg, var(--gold-a), var(--gold-b));
+            box-shadow: 0 16px 34px rgba(255,165,0,0.14);
+        }
+
+        .mini-player-button.secondary {
+            min-width: 88px;
+            padding: 0 14px;
+        }
+
+        .mini-player-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,215,0,0.42);
+        }
+
+        .mini-player-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.48;
+            transform: none;
+        }
+
+        .mini-progress,
+        .mini-player-status {
+            grid-column: 1 / -1;
+        }
+
+        .mini-progress {
+            margin-top: -2px;
+        }
+
         .footer {
             padding: 22px 0 30px;
             color: var(--soft);
@@ -705,6 +828,30 @@
             .control-field { width: 100%; min-width: 0; flex-basis: auto; }
             .language-select,
             .reader-select { width: 100%; }
+
+            .mini-player {
+                bottom: 9px;
+                width: min(560px, calc(100vw - 18px));
+            }
+
+            .mini-player-surface {
+                grid-template-columns: 1fr;
+                padding: 14px;
+                border-radius: 24px;
+            }
+
+            .mini-player-controls {
+                display: grid;
+                grid-template-columns: 1fr 1.2fr 1fr;
+                justify-content: stretch;
+            }
+
+            .mini-player-button.primary,
+            .mini-player-button.secondary {
+                width: 100%;
+                min-width: 0;
+                padding: 0 10px;
+            }
         }
     </style>
 </head>
@@ -849,6 +996,26 @@
         <footer class="footer">
             &copy; 2026 Vaktim. Tüm hakları saklıdır.
         </footer>
+    </div>
+
+    <div class="mini-player" id="audioMiniPlayer" hidden aria-live="polite">
+        <div class="mini-player-surface">
+            <div class="mini-player-copy">
+                <span class="mini-player-eyebrow">Şu an dinleniyor</span>
+                <strong id="miniAudioTitle">Ayet sesi</strong>
+                <span id="miniAudioMeta">Ses kaynağı hazırlanıyor.</span>
+            </div>
+            <div class="mini-player-controls">
+                <button class="mini-player-button secondary" id="miniAudioPrev" type="button" disabled>Önceki</button>
+                <button class="mini-player-button primary" id="miniAudioToggle" type="button" disabled>Oynat</button>
+                <button class="mini-player-button secondary" id="miniAudioNext" type="button" disabled>Sonraki</button>
+            </div>
+            <div class="audio-progress mini-progress" id="miniAudioProgress" aria-hidden="true">
+                <span class="audio-bar"><span class="audio-bar-fill"></span></span>
+                <span class="audio-time">0:00</span>
+            </div>
+            <div class="mini-player-status" id="miniAudioStatus" role="status">Dinlemek için sesi başlat.</div>
+        </div>
     </div>
 
     <script src="/js/open-fallback.js" defer></script>
