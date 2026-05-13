@@ -257,6 +257,11 @@
             flex: 0 0 150px;
         }
 
+        .script-field {
+            min-width: 180px;
+            flex: 0 1 180px;
+        }
+
         .source-field {
             min-width: min(320px, 100%);
             flex: 1 1 320px;
@@ -343,6 +348,36 @@
             min-width: 180px;
         }
 
+        .reader-loading {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 20px;
+            color: var(--muted);
+            background: rgba(255,255,255,0.035);
+        }
+
+        .reader-loading.is-visible {
+            display: flex;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            border: 3px solid rgba(247,243,232,0.14);
+            border-top-color: var(--gold-a);
+            border-right-color: rgba(255,165,0,0.72);
+            animation: spin 880ms linear infinite;
+            flex: 0 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .content-panel {
             display: none;
             gap: 18px;
@@ -373,6 +408,101 @@
             font-size: clamp(2rem, 5vw, 3.45rem);
             line-height: 2.1;
             text-align: right;
+        }
+
+        .arabic-text.has-tajweed {
+            letter-spacing: 0.01em;
+        }
+
+        .tajweed-rule {
+            transition: color 160ms var(--ease), text-shadow 160ms var(--ease);
+        }
+
+        .tajweed-ham_wasl,
+        .tajweed-slnt {
+            color: rgba(247,243,232,0.52);
+        }
+
+        .tajweed-laam_shamsiyah,
+        .tajweed-idgh_ghn,
+        .tajweed-idgh_w_ghn,
+        .tajweed-idgh_mus,
+        .tajweed-idghm_shfw {
+            color: #76d7ff;
+            text-shadow: 0 0 18px rgba(118,215,255,0.16);
+        }
+
+        .tajweed-madda_normal,
+        .tajweed-madda_permissible,
+        .tajweed-madda_necessary,
+        .tajweed-madda_obligatory {
+            color: #ff9bd2;
+            text-shadow: 0 0 18px rgba(255,155,210,0.18);
+        }
+
+        .tajweed-ikhf,
+        .tajweed-ikhf_shfw,
+        .tajweed-iqlb,
+        .tajweed-ghn {
+            color: #8df0a8;
+            text-shadow: 0 0 18px rgba(141,240,168,0.16);
+        }
+
+        .tajweed-qlq {
+            color: #ffc46b;
+            text-shadow: 0 0 18px rgba(255,196,107,0.18);
+        }
+
+        .arabic-text .tajweed-end {
+            display: inline-grid;
+            place-items: center;
+            min-width: 1.7em;
+            min-height: 1.7em;
+            margin-inline-start: 0.18em;
+            border: 1px solid rgba(246,223,161,0.42);
+            border-radius: 999px;
+            color: #f6dfa1;
+            font-size: 0.55em;
+            line-height: 1;
+            vertical-align: middle;
+            background: rgba(246,223,161,0.08);
+        }
+
+        .tajweed-chip.tajweed-end {
+            color: #f6dfa1;
+        }
+
+        .tajweed-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .tajweed-legend[hidden] {
+            display: none;
+        }
+
+        .tajweed-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 999px;
+            color: var(--muted);
+            background: rgba(255,255,255,0.04);
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .tajweed-chip::before {
+            content: "";
+            width: 9px;
+            height: 9px;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 16px currentColor;
         }
 
         .translation-text,
@@ -502,6 +632,15 @@
                                         </select>
                                     </span>
                                 </label>
+                                <label class="control-field script-field">
+                                    <span class="control-label">Yazım</span>
+                                    <span class="select-shell">
+                                        <select class="reader-select" id="scriptSelect" aria-label="Arapça yazım türü">
+                                            <option value="uthmani">Standart</option>
+                                            <option value="tajweed">Tajweed renkli</option>
+                                        </select>
+                                    </span>
+                                </label>
                                 <label class="control-field source-field" id="resourceField">
                                     <span class="control-label" id="resourceLabel">Meal kaynağı</span>
                                     <span class="select-shell">
@@ -510,11 +649,16 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="reader-loading" id="readerLoading" role="status" aria-live="polite">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <span>İçerik hazırlanıyor...</span>
+                        </div>
 
                         <div class="content-panel" id="ayahPanel">
                             <div class="text-block">
                                 <h2>Arapça</h2>
                                 <div class="arabic-text" id="arabicText"></div>
+                                <div class="tajweed-legend" id="tajweedLegend" hidden></div>
                             </div>
                             <div class="text-block">
                                 <h2>Meal</h2>
@@ -535,6 +679,7 @@
                         <div class="content-panel" id="surahPanel">
                             <div class="text-block">
                                 <h2>Sure ayetleri</h2>
+                                <div class="tajweed-legend" id="surahTajweedLegend" hidden></div>
                                 <div class="verse-list" id="verseList"></div>
                             </div>
                         </div>

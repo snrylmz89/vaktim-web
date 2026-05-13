@@ -54,6 +54,25 @@
       { id: 90, source: "Al-Qurtubi" },
     ],
   };
+  var TAJWEED_RULE_NAMES = {
+    end: "Ayet sonu",
+    ham_wasl: "Hemzetu'l vasl",
+    ikhf: "İhfa",
+    ikhf_shfw: "İhfa şefevî",
+    iqlb: "İklab",
+    idgh_ghn: "Ğunneli idğam",
+    idgh_w_ghn: "Ğunnesiz idğam",
+    idgh_mus: "İdğam",
+    idghm_shfw: "İdğam şefevî",
+    laam_shamsiyah: "Şemsî lam",
+    madda_necessary: "Meddi lazım",
+    madda_obligatory: "Meddi vacip",
+    madda_permissible: "Meddi caiz",
+    madda_normal: "Tabii med",
+    qlq: "Kalkale",
+    slnt: "Okunmayan harf",
+    ghn: "Ğunne",
+  };
 
   function safeDecode(value) {
     try {
@@ -76,6 +95,10 @@
   function normalizeLanguage(value) {
     var language = cleanText(value, "tr").toLowerCase().split(/[-_]/)[0];
     return SUPPORTED_LANGUAGES.indexOf(language) === -1 ? "tr" : language;
+  }
+
+  function normalizeScript(value) {
+    return String(value || "").toLowerCase() === "tajweed" ? "tajweed" : "uthmani";
   }
 
   function normalizeDate(value) {
@@ -184,6 +207,11 @@
     return params.get("mode") === "tafsir" ? "tafsir" : "translation";
   }
 
+  function getCurrentQuranScript() {
+    var params = new URLSearchParams(window.location.search);
+    return normalizeScript(params.get("script"));
+  }
+
   function getResourceList(language, mode) {
     var source = mode === "tafsir" ? TAFSIR_RESOURCES : TRANSLATION_RESOURCES;
     return source[language] || [];
@@ -216,6 +244,15 @@
 
     if (!resource || resource.local || !resource.id) return;
     url.searchParams.set(mode === "tafsir" ? "tafsir" : "translation", String(resource.id));
+  }
+
+  function updateScriptParam(url, script) {
+    var normalized = normalizeScript(script);
+    if (normalized === "tajweed") {
+      url.searchParams.set("script", normalized);
+    } else {
+      url.searchParams.delete("script");
+    }
   }
 
   function populateResourceSelect(language, mode) {
@@ -282,6 +319,14 @@
 
   function setStatus(value) {
     setText("statusText", value);
+  }
+
+  function setLoading(visible, message) {
+    var loader = document.getElementById("readerLoading");
+    if (!loader) return;
+    var label = loader.querySelector("span");
+    if (label && message) label.textContent = message;
+    loader.classList.toggle("is-visible", Boolean(visible));
   }
 
   function requestUrl(baseUrl, path, params) {
@@ -356,6 +401,149 @@
     return (element.textContent || "").replace(/\s+/g, " ").trim();
   }
 
+  function decodeEntities(value) {
+    return String(value || "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, "\"")
+      .replace(/&#39;/g, "'");
+  }
+
+  function stripMarkup(value) {
+    return decodeEntities(value).replace(/<[^>]*>/g, "");
+  }
+
+  function tajweedRuleName(rule) {
+    if (TAJWEED_RULE_NAMES[rule]) return TAJWEED_RULE_NAMES[rule];
+    return String(rule || "")
+      .split(/[_-]+/)
+      .filter(Boolean)
+      .map(function (part) {
+        return part.charAt(0).toUpperCase() + part.slice(1);
+      })
+      .join(" ");
+  }
+
+  function normalizeTajweedRule(value) {
+    var firstClass = String(value || "").split(/\s+/)[0] || "";
+    return firstClass.toLowerCase().replace(/[^a-z0-9_-]/g, "") || "plain";
+  }
+
+  function pushTajweedSegment(segments, text, rule) {
+    if (!text) return;
+    var last = segments[segments.length - 1];
+    if (last && last.rule === rule) {
+      last.text += text;
+      return;
+    }
+    segments.push({
+      text: text,
+      rule: rule,
+      ruleName: tajweedRuleName(rule),
+    });
+  }
+
+  function parseTajweedMarkup(markup) {
+    if (!markup) return null;
+    var regex = /<(tajweed|span)\b[^>]*\bclass=(?:"([^"]+)"|'([^']+)'|([^\s>]+))[^>]*>([\s\S]*?)<\/\1>/gi;
+    var segments = [];
+    var match = null;
+    var cursor = 0;
+
+    while ((match = regex.exec(String(markup))) !== null) {
+      pushTajweedSegment(segments, stripMarkup(String(markup).slice(cursor, match.index)), "plain");
+      pushTajweedSegment(segments, stripMarkup(match[5] || ""), normalizeTajweedRule(match[2] || match[3] || match[4]));
+      cursor = match.index + match[0].length;
+    }
+
+    pushTajweedSegment(segments, stripMarkup(String(markup).slice(cursor)), "plain");
+    segments = segments.filter(function (segment) {
+      return segment.text;
+    });
+
+    var seen = {};
+    var legend = segments.filter(function (segment) {
+      if (segment.rule === "plain" || seen[segment.rule]) return false;
+      seen[segment.rule] = true;
+      return true;
+    }).map(function (segment) {
+      return { rule: segment.rule, ruleName: segment.ruleName };
+    });
+
+    var plainText = segments.map(function (segment) {
+      return segment.text;
+    }).join("").replace(/\s+/g, " ").trim();
+
+    if (!plainText) return null;
+    return {
+      script: "tajweed",
+      source: "quran.com",
+      sourceLabel: "Quran.com Uthmani Tajweed",
+      plainText: plainText,
+      segments: segments,
+      legend: legend,
+    };
+  }
+
+  function getTajweedText(data) {
+    if (!data || !data.tajweedText || !Array.isArray(data.tajweedText.segments)) return null;
+    return data.tajweedText;
+  }
+
+  function renderArabicElement(element, verse, script) {
+    if (!element) return;
+    element.textContent = "";
+    element.classList.remove("has-tajweed");
+
+    var tajweedText = script === "tajweed" ? getTajweedText(verse) : null;
+    if (!tajweedText) {
+      element.textContent = (verse && verse.arabicText) || "";
+      return;
+    }
+
+    element.classList.add("has-tajweed");
+    tajweedText.segments.forEach(function (segment) {
+      var span = document.createElement("span");
+      span.textContent = segment.text || "";
+      if (segment.rule && segment.rule !== "plain") {
+        span.className = "tajweed-rule tajweed-" + normalizeTajweedRule(segment.rule);
+        span.title = segment.ruleName || tajweedRuleName(segment.rule);
+      }
+      element.appendChild(span);
+    });
+  }
+
+  function renderTajweedLegend(id, verses, script) {
+    var legendElement = document.getElementById(id);
+    if (!legendElement) return;
+    legendElement.textContent = "";
+
+    if (script !== "tajweed") {
+      legendElement.hidden = true;
+      return;
+    }
+
+    var byRule = {};
+    (Array.isArray(verses) ? verses : [verses]).forEach(function (verse) {
+      var tajweedText = getTajweedText(verse);
+      if (!tajweedText) return;
+      (tajweedText.legend || []).forEach(function (item) {
+        if (item && item.rule && !byRule[item.rule]) byRule[item.rule] = item.ruleName || tajweedRuleName(item.rule);
+      });
+    });
+
+    Object.keys(byRule).slice(0, 8).forEach(function (rule) {
+      var chip = document.createElement("span");
+      chip.className = "tajweed-chip tajweed-" + normalizeTajweedRule(rule);
+      chip.textContent = byRule[rule];
+      legendElement.appendChild(chip);
+    });
+
+    legendElement.hidden = !legendElement.children.length;
+  }
+
   function quranChapterLanguage(language) {
     return language === "de" || language === "ar" ? "en" : language;
   }
@@ -367,24 +555,39 @@
     return payload.chapter || {};
   }
 
-  async function fetchQuranArabicAyah(verseKey) {
+  async function fetchQuranArabicAyah(verseKey, script) {
+    var endpoint = normalizeScript(script) === "tajweed"
+      ? "/quran/verses/uthmani_tajweed"
+      : "/quran/verses/uthmani";
     var payload = await fetchExternalJson(
-      quranApiUrl("/quran/verses/uthmani", { verse_key: verseKey })
+      quranApiUrl(endpoint, { verse_key: verseKey })
     );
-    return payload.verses && payload.verses[0] ? payload.verses[0].text_uthmani : "";
+    var verse = payload.verses && payload.verses[0] ? payload.verses[0] : null;
+    if (!verse) return { arabicText: "" };
+    var tajweedText = normalizeScript(script) === "tajweed"
+      ? parseTajweedMarkup(verse.text_uthmani_tajweed)
+      : null;
+    return {
+      arabicText: tajweedText ? tajweedText.plainText : (verse.text_uthmani || ""),
+      script: normalizeScript(script),
+      tajweedText: tajweedText || undefined,
+    };
   }
 
-  async function fetchQuranArabicSurah(surahNumber) {
+  async function fetchQuranArabicSurah(surahNumber, script) {
+    var endpoint = normalizeScript(script) === "tajweed"
+      ? "/quran/verses/uthmani_tajweed"
+      : "/quran/verses/uthmani";
     var payload = await fetchExternalJson(
-      quranApiUrl("/quran/verses/uthmani", { chapter_number: surahNumber })
+      quranApiUrl(endpoint, { chapter_number: surahNumber })
     );
     return payload.verses || [];
   }
 
-  async function fetchQuranAyahBase(surahNumber, ayahNumber, language) {
+  async function fetchQuranAyahBase(surahNumber, ayahNumber, language, script) {
     var verseKey = surahNumber + ":" + ayahNumber;
     var chapter = await fetchQuranChapter(surahNumber, language);
-    var arabicText = await fetchQuranArabicAyah(verseKey);
+    var arabic = await fetchQuranArabicAyah(verseKey, script);
 
     return {
       verseKey: verseKey,
@@ -393,16 +596,19 @@
       surahNameArabic: chapter.name_arabic || "",
       ayahNumber: Number(ayahNumber),
       language: language,
-      arabicText: arabicText,
+      script: normalizeScript(script),
+      arabicText: arabic.arabicText,
+      tajweedText: arabic.tajweedText,
     };
   }
 
-  async function fetchQuranSurahBase(surahNumber, language) {
+  async function fetchQuranSurahBase(surahNumber, language, script) {
     var chapter = await fetchQuranChapter(surahNumber, language);
-    var arabicVerses = await fetchQuranArabicSurah(surahNumber);
+    var arabicVerses = await fetchQuranArabicSurah(surahNumber, script);
 
     return {
       language: language,
+      script: normalizeScript(script),
       surah: {
         number: Number(surahNumber),
         name: chapter.translated_name && chapter.translated_name.name ? chapter.translated_name.name : chapter.name_simple,
@@ -411,11 +617,16 @@
       },
       verses: arabicVerses.map(function (verse) {
         var split = String(verse.verse_key || "").split(":");
+        var tajweedText = normalizeScript(script) === "tajweed"
+          ? parseTajweedMarkup(verse.text_uthmani_tajweed)
+          : null;
         return {
           verseKey: verse.verse_key,
           surahNumber: Number(split[0] || surahNumber),
           ayahNumber: Number(split[1] || 0),
-          arabicText: verse.text_uthmani || "",
+          script: normalizeScript(script),
+          arabicText: tajweedText ? tajweedText.plainText : (verse.text_uthmani || ""),
+          tajweedText: tajweedText || undefined,
         };
       }),
     };
@@ -545,7 +756,7 @@
     return "Surah " + name;
   }
 
-  async function loadAyahContent(context, language, mode, resource) {
+  async function loadAyahContent(context, language, mode, resource, script) {
     var split = context.target.split(":");
     if (split.length !== 2 || !/^\d{1,3}$/.test(split[0]) || !/^\d{1,3}$/.test(split[1])) {
       throw new Error("Ayet bağlantısı geçersiz.");
@@ -555,6 +766,7 @@
     params.set("lang", language);
     if (language === "tr") params.set("includeExplanation", "true");
     if (language !== "tr") params.delete("includeExplanation");
+    updateScriptParam({ searchParams: params }, script);
     params.set("source", cleanText(params.get("source"), "web_fallback"));
 
     setStatus("Ayet içeriği yükleniyor...");
@@ -565,7 +777,7 @@
     try {
       data = await fetchApiJson("/api/quran/ayah/" + split[0] + "/" + split[1], params);
     } catch (error) {
-      data = await fetchQuranAyahBase(split[0], split[1], language);
+      data = await fetchQuranAyahBase(split[0], split[1], language, script);
     }
     var translationText = data.translationText || data.translation || "";
     var translationSource = data.translationSource || "";
@@ -589,7 +801,12 @@
       setText("leadText", "Arapça metin, meal ve kısa açıklamayı tek ekranda sakin bir okuma düzeniyle görebilirsin.");
     }
 
-    setContentText("arabicText", data.arabicText, "Arapça metin şu anda alınamadı.");
+    renderArabicElement(document.getElementById("arabicText"), data, script);
+    if (!document.getElementById("arabicText")?.textContent) {
+      setContentText("arabicText", "", "Arapça metin şu anda alınamadı.");
+    }
+    renderTajweedLegend("tajweedLegend", data, script);
+    renderTajweedLegend("surahTajweedLegend", [], "uthmani");
     setContentText("translationText", translationText, language === "ar" ? "Arapça orijinal metin yukarıda yer alıyor. Meal için başka bir dil seçebilirsin." : "Bu dil için meal şu anda alınamadı.");
     setContentText("translationSource", translationSource ? "Kaynak: " + translationSource : "");
 
@@ -639,6 +856,7 @@
     var list = document.getElementById("verseList");
     var mode = options && options.mode === "tafsir" ? "tafsir" : "translation";
     var source = options && options.source ? options.source : "";
+    var script = options && options.script ? options.script : "uthmani";
     if (!list) return;
     list.textContent = "";
 
@@ -652,7 +870,7 @@
 
       var arabic = document.createElement("div");
       arabic.className = "arabic-text";
-      arabic.textContent = verse.arabicText || "";
+      renderArabicElement(arabic, verse, script);
 
       var translation = document.createElement("div");
       translation.className = mode === "tafsir" ? "explanation-text" : "translation-text";
@@ -672,7 +890,7 @@
     });
   }
 
-  async function loadSurahContent(context, language, mode, resource) {
+  async function loadSurahContent(context, language, mode, resource, script) {
     var surah = context.target.match(/\d+/);
     if (!surah) {
       throw new Error("Sure bağlantısı geçersiz.");
@@ -680,6 +898,7 @@
 
     var params = new URLSearchParams(window.location.search);
     params.set("lang", language);
+    updateScriptParam({ searchParams: params }, script);
     params.set("source", cleanText(params.get("source"), "web_fallback"));
 
     setStatus("Sure içeriği yükleniyor...");
@@ -690,7 +909,7 @@
     try {
       data = await fetchApiJson("/api/quran/surah/" + surah[0], params);
     } catch (error) {
-      data = await fetchQuranSurahBase(surah[0], language);
+      data = await fetchQuranSurahBase(surah[0], language, script);
     }
     var verses = data.verses || [];
     var contentSource = "";
@@ -713,6 +932,7 @@
 
       if (!tafsirPack) {
         renderVerseNotice("Bu dil için sure seviyesinde tefsir şu anda webde hazır değil. Meal sekmesine dönebilir veya ayeti Vaktim uygulamasında açabilirsin.");
+        renderTajweedLegend("surahTajweedLegend", [], "uthmani");
         setStatus(data.surah && data.surah.name ? data.surah.name + " - tefsir hazırlanıyor" : context.target);
         setPanelVisible("surahPanel", true);
         return;
@@ -740,28 +960,34 @@
       contentSource = "Vaktim / Diyanet İşleri Başkanlığı";
     }
 
-    renderVerseList(verses, { mode: mode, source: contentSource });
+    renderTajweedLegend("tajweedLegend", [], "uthmani");
+    renderTajweedLegend("surahTajweedLegend", verses, script);
+    renderVerseList(verses, { mode: mode, source: contentSource, script: script });
     setStatus(data.surah && data.surah.name ? data.surah.name + " - " + data.surah.verseCount + " ayet" : context.target);
     setPanelVisible("surahPanel", true);
   }
 
-  async function loadDynamicContent(context, language, mode, resource) {
+  async function loadDynamicContent(context, language, mode, resource, script) {
     var reader = document.getElementById("reader");
     if (!reader || (context.kind !== "ayah" && context.kind !== "surah")) return;
 
     reader.hidden = false;
     var selectedResource = resource || getCurrentResource(language, mode);
+    var selectedScript = normalizeScript(script || getCurrentQuranScript());
+    setLoading(true, context.kind === "ayah" ? "Ayet hazırlanıyor..." : "Sure hazırlanıyor...");
 
     try {
       if (context.kind === "ayah") {
-        await loadAyahContent(context, language, mode, selectedResource);
+        await loadAyahContent(context, language, mode, selectedResource, selectedScript);
       } else {
-        await loadSurahContent(context, language, mode, selectedResource);
+        await loadSurahContent(context, language, mode, selectedResource, selectedScript);
       }
     } catch (error) {
       setStatus(error && error.message ? error.message : "İçerik şu anda alınamadı.");
       setPanelVisible("ayahPanel", false);
       setPanelVisible("surahPanel", false);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -778,9 +1004,10 @@
     return appPath + joiner + "source=" + encodeURIComponent(source);
   }
 
-  function buildQuranUrl(language) {
+  function buildQuranUrl(language, script) {
     var url = new URL("/quran", window.location.origin);
     url.searchParams.set("lang", normalizeLanguage(language));
+    updateScriptParam(url, script);
     return url.toString();
   }
 
@@ -789,17 +1016,19 @@
     var params = new URLSearchParams(window.location.search);
     var language = getCurrentLanguage();
     var contentMode = getCurrentContentMode();
+    var quranScript = getCurrentQuranScript();
     var landingUrl = buildLandingUrl(params);
     var appLink = withSource(context.appPath, params);
     var languageSelect = document.getElementById("languageSelect");
     var contentModeSelect = document.getElementById("contentModeSelect");
+    var scriptSelect = document.getElementById("scriptSelect");
     var resourceSelect = document.getElementById("resourceSelect");
     var selectedResource = populateResourceSelect(language, contentMode);
 
     setHref("appLink", appLink);
     setHref("landingLink", landingUrl);
     setHref("headerHomeLink", landingUrl);
-    setHref("quranLink", buildQuranUrl(language));
+    setHref("quranLink", buildQuranUrl(language, quranScript));
 
     if (languageSelect) {
       languageSelect.value = language;
@@ -810,10 +1039,11 @@
         var nextUrl = new URL(window.location.href);
         nextUrl.searchParams.set("lang", nextLanguage);
         updateResourceParam(nextUrl, nextMode, nextResource);
+        updateScriptParam(nextUrl, getCurrentQuranScript());
         window.history.replaceState(null, "", nextUrl.toString());
-        setHref("quranLink", buildQuranUrl(nextLanguage));
+        setHref("quranLink", buildQuranUrl(nextLanguage, getCurrentQuranScript()));
         populateResourceSelect(nextLanguage, nextMode);
-        loadDynamicContent(context, nextLanguage, nextMode, nextResource);
+        loadDynamicContent(context, nextLanguage, nextMode, nextResource, getCurrentQuranScript());
       });
     }
 
@@ -829,9 +1059,22 @@
         }
         var nextResource = getDefaultResource(getCurrentLanguage(), nextMode);
         updateResourceParam(nextUrl, nextMode, nextResource);
+        updateScriptParam(nextUrl, getCurrentQuranScript());
         window.history.replaceState(null, "", nextUrl.toString());
         populateResourceSelect(getCurrentLanguage(), nextMode);
-        loadDynamicContent(context, getCurrentLanguage(), nextMode, nextResource);
+        loadDynamicContent(context, getCurrentLanguage(), nextMode, nextResource, getCurrentQuranScript());
+      });
+    }
+
+    if (scriptSelect) {
+      scriptSelect.value = quranScript;
+      scriptSelect.addEventListener("change", function () {
+        var nextScript = normalizeScript(scriptSelect.value);
+        var nextUrl = new URL(window.location.href);
+        updateScriptParam(nextUrl, nextScript);
+        window.history.replaceState(null, "", nextUrl.toString());
+        setHref("quranLink", buildQuranUrl(getCurrentLanguage(), nextScript));
+        loadDynamicContent(context, getCurrentLanguage(), getCurrentContentMode(), getCurrentResource(getCurrentLanguage(), getCurrentContentMode()), nextScript);
       });
     }
 
@@ -842,9 +1085,10 @@
         var nextResource = findResource(languageForResource, mode, resourceSelect.value);
         var nextUrl = new URL(window.location.href);
         updateResourceParam(nextUrl, mode, nextResource);
+        updateScriptParam(nextUrl, getCurrentQuranScript());
         window.history.replaceState(null, "", nextUrl.toString());
         populateResourceSelect(languageForResource, mode);
-        loadDynamicContent(context, languageForResource, mode, nextResource);
+        loadDynamicContent(context, languageForResource, mode, nextResource, getCurrentQuranScript());
       });
     }
 
@@ -853,7 +1097,7 @@
       setText("kicker", "Kur'an bağlantısı");
       setText("pageTitle", context.title);
       setText("leadText", "Bu ayeti Vaktim uygulamasında meal, notlar ve manevi okuma akışıyla açabilirsin.");
-      loadDynamicContent(context, language, contentMode, selectedResource);
+      loadDynamicContent(context, language, contentMode, selectedResource, quranScript);
       return;
     }
 
@@ -862,7 +1106,7 @@
       setText("kicker", "Sure bağlantısı");
       setText("pageTitle", context.title);
       setText("leadText", "Bu sureyi Vaktim uygulamasında düzenli okuma ve takip deneyimiyle açabilirsin.");
-      loadDynamicContent(context, language, contentMode, selectedResource);
+      loadDynamicContent(context, language, contentMode, selectedResource, quranScript);
       return;
     }
 
