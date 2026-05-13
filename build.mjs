@@ -98,12 +98,12 @@ const config = {
   version: 3,
   routes: [
     { handle: 'rewrite' },
-    { src: '/ayah', dest: '/open/index.html' },
-    { src: '/ayah/(.*)', dest: '/open/index.html' },
-    { src: '/surah', dest: '/open/index.html' },
-    { src: '/surah/(.*)', dest: '/open/index.html' },
-    { src: '/prayer-times', dest: '/open/index.html' },
-    { src: '/prayer-times/(.*)', dest: '/open/index.html' },
+    { src: '/ayah', dest: '/open' },
+    { src: '/ayah/(.*)', dest: '/open' },
+    { src: '/surah', dest: '/open' },
+    { src: '/surah/(.*)', dest: '/open' },
+    { src: '/prayer-times', dest: '/open' },
+    { src: '/prayer-times/(.*)', dest: '/open' },
     { src: '/davet', dest: '/davet/index.html' },
     { src: '/davet/', dest: '/davet/index.html' },
     { src: '/davet/(.*)', dest: '/davet/index.html' }
