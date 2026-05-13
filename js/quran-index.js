@@ -119,7 +119,7 @@
 
   var state = {
     language: "tr",
-    script: "uthmani",
+    script: "tajweed",
     query: "",
     ascending: true,
   };
@@ -130,7 +130,8 @@
   }
 
   function normalizeScript(value) {
-    return String(value || "").toLowerCase() === "tajweed" ? "tajweed" : "uthmani";
+    var script = String(value || "").toLowerCase();
+    return script === "uthmani" ? "uthmani" : "tajweed";
   }
 
   function fold(value) {
@@ -156,7 +157,7 @@
     var url = new URL("/surah/" + number, window.location.origin);
     url.searchParams.set("source", "web");
     url.searchParams.set("lang", selectedLanguage());
-    if (state.script === "tajweed") url.searchParams.set("script", "tajweed");
+    url.searchParams.set("script", normalizeScript(state.script));
     return url.toString();
   }
 
@@ -264,11 +265,7 @@
       scriptSelect.addEventListener("change", function () {
         state.script = normalizeScript(scriptSelect.value);
         var nextUrl = new URL(window.location.href);
-        if (state.script === "tajweed") {
-          nextUrl.searchParams.set("script", "tajweed");
-        } else {
-          nextUrl.searchParams.delete("script");
-        }
+        nextUrl.searchParams.set("script", state.script);
         window.history.replaceState(null, "", nextUrl.toString());
         render();
       });

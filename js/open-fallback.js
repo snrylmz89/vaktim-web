@@ -124,7 +124,8 @@
   }
 
   function normalizeScript(value) {
-    return String(value || "").toLowerCase() === "tajweed" ? "tajweed" : "uthmani";
+    var script = String(value || "").toLowerCase();
+    return script === "uthmani" ? "uthmani" : "tajweed";
   }
 
   function normalizeDate(value) {
@@ -274,11 +275,7 @@
 
   function updateScriptParam(url, script) {
     var normalized = normalizeScript(script);
-    if (normalized === "tajweed") {
-      url.searchParams.set("script", normalized);
-    } else {
-      url.searchParams.delete("script");
-    }
+    url.searchParams.set("script", normalized);
   }
 
   function populateResourceSelect(language, mode) {
