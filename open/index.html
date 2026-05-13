@@ -219,6 +219,115 @@
             line-height: 1.7;
         }
 
+        .reader {
+            margin-top: 28px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .reader-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .language-select {
+            min-height: 42px;
+            padding: 0 14px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            color: var(--text);
+            background: rgba(4,9,16,0.82);
+            font: 800 0.9rem "Plus Jakarta Sans", system-ui, sans-serif;
+        }
+
+        .status {
+            color: var(--soft);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .content-panel {
+            display: none;
+            gap: 14px;
+        }
+
+        .content-panel.is-visible {
+            display: grid;
+        }
+
+        .text-block {
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            background: rgba(255,255,255,0.045);
+        }
+
+        .text-block h2 {
+            margin: 0 0 10px;
+            color: #f6dfa1;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .arabic-text {
+            direction: rtl;
+            font-family: "Amiri", serif;
+            font-size: clamp(1.6rem, 4vw, 2.35rem);
+            line-height: 2.1;
+            text-align: right;
+        }
+
+        .translation-text,
+        .explanation-text,
+        .verse-list {
+            color: rgba(247,243,232,0.86);
+            font-size: 1rem;
+            line-height: 1.85;
+        }
+
+        .source-text {
+            margin-top: 10px;
+            color: var(--soft);
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+
+        .verse-list {
+            display: grid;
+            gap: 12px;
+            max-height: 420px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .verse-item {
+            display: grid;
+            gap: 6px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .verse-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .verse-key {
+            color: #f6dfa1;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .audio-placeholder {
+            color: var(--soft);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
         .preview {
             align-self: stretch;
             display: grid;
@@ -269,6 +378,8 @@
             .main { padding-top: 22px; }
             .actions { display: grid; }
             .btn { width: 100%; }
+            .reader-head { display: grid; }
+            .language-select { width: 100%; }
         }
     </style>
 </head>
@@ -295,6 +406,51 @@
                     </div>
 
                     <p class="note" id="noteText">Uygulama yüklü değilse Vaktim'i keşfet bağlantısından web sayfasına dönebilirsin.</p>
+
+                    <div class="reader" id="reader" hidden>
+                        <div class="reader-head">
+                            <div class="status" id="statusText">İçerik hazırlanıyor...</div>
+                            <label>
+                                <span class="status">Dil</span>
+                                <select class="language-select" id="languageSelect" aria-label="Meal dili">
+                                    <option value="tr">Türkçe</option>
+                                    <option value="en">English</option>
+                                    <option value="de">Deutsch</option>
+                                    <option value="fr">Français</option>
+                                    <option value="ar">العربية</option>
+                                    <option value="id">Indonesia</option>
+                                    <option value="ms">Malay</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="content-panel" id="ayahPanel">
+                            <div class="text-block">
+                                <h2>Arapça</h2>
+                                <div class="arabic-text" id="arabicText"></div>
+                            </div>
+                            <div class="text-block">
+                                <h2>Meal</h2>
+                                <div class="translation-text" id="translationText"></div>
+                                <div class="source-text" id="translationSource"></div>
+                            </div>
+                            <div class="text-block" id="explanationBlock" hidden>
+                                <h2>Kısa açıklama</h2>
+                                <div class="explanation-text" id="explanationText"></div>
+                            </div>
+                            <div class="text-block">
+                                <h2>Dinleme</h2>
+                                <div class="audio-placeholder" id="audioText">Ses kaynağı lisansı netleşince bu bölümde dinleme aktif olacak.</div>
+                            </div>
+                        </div>
+
+                        <div class="content-panel" id="surahPanel">
+                            <div class="text-block">
+                                <h2>Sure ayetleri</h2>
+                                <div class="verse-list" id="verseList"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <aside class="preview" aria-label="Bağlantı özeti">
