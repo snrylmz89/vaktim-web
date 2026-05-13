@@ -225,16 +225,61 @@
         .control-card {
             display: grid;
             align-content: space-between;
-            gap: 20px;
+            gap: 22px;
             width: 100%;
             min-width: 0;
-            padding: 24px;
-            border-radius: 30px;
+            padding: 26px;
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 12% 4%, rgba(255,215,0,0.12), transparent 32%),
+                linear-gradient(145deg, rgba(255,255,255,0.086), rgba(255,255,255,0.026)),
+                var(--panel-strong);
+        }
+
+        .control-card::before {
+            content: "";
+            position: absolute;
+            width: 170px;
+            height: 170px;
+            right: -80px;
+            top: -86px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(26,107,71,0.32), transparent 68%);
+            pointer-events: none;
+        }
+
+        .control-intro,
+        .filters {
+            position: relative;
+            z-index: 1;
         }
 
         .control-card h2 {
-            font-size: 1.15rem;
+            margin-top: 12px;
+            font-size: 1.25rem;
             line-height: 1.45;
+            letter-spacing: -0.02em;
+        }
+
+        .control-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            width: fit-content;
+            color: #f6dfa1;
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .control-badge::before {
+            content: "";
+            width: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,215,0,0.08), rgba(255,165,0,0.9));
         }
 
         .control-card p {
@@ -246,23 +291,86 @@
 
         .filters {
             display: grid;
-            gap: 12px;
+            gap: 14px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field-label {
+            color: var(--soft);
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .input-shell,
+        .select-shell {
+            position: relative;
+            display: block;
+        }
+
+        .input-shell::before {
+            content: "";
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            width: 13px;
+            height: 13px;
+            border: 2px solid rgba(247,243,232,0.48);
+            border-radius: 999px;
+            transform: translateY(-58%);
+            pointer-events: none;
+        }
+
+        .input-shell::after {
+            content: "";
+            position: absolute;
+            left: 31px;
+            top: 50%;
+            width: 8px;
+            height: 2px;
+            border-radius: 999px;
+            background: rgba(247,243,232,0.48);
+            transform: translateY(6px) rotate(45deg);
+            pointer-events: none;
+        }
+
+        .select-shell::after {
+            content: "";
+            position: absolute;
+            right: 17px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid rgba(247,243,232,0.92);
+            border-bottom: 2px solid rgba(247,243,232,0.92);
+            transform: translateY(-66%) rotate(45deg);
+            pointer-events: none;
         }
 
         .input,
         .select,
         .sort-button {
+            appearance: none;
             width: 100%;
-            min-height: 48px;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 999px;
+            min-height: 52px;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 18px;
             color: var(--text);
-            background: rgba(4,9,16,0.76);
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.018)),
+                rgba(4,9,16,0.82);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
             font: 800 0.92rem "Plus Jakarta Sans", system-ui, sans-serif;
+            transition: border-color 190ms var(--ease), box-shadow 190ms var(--ease), transform 190ms var(--ease), background 190ms var(--ease);
         }
 
         .input {
-            padding: 0 18px;
+            padding: 0 18px 0 48px;
         }
 
         .input::placeholder {
@@ -270,18 +378,53 @@
         }
 
         .select {
-            padding: 0 14px;
+            padding: 0 44px 0 16px;
+        }
+
+        .input:hover,
+        .select:hover,
+        .sort-button:hover,
+        .input:focus,
+        .select:focus,
+        .sort-button:focus-visible {
+            border-color: rgba(255,215,0,0.36);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 0 0 4px rgba(255,215,0,0.08);
+            outline: none;
         }
 
         .sort-button {
             cursor: pointer;
-            transition: transform 220ms var(--ease), border-color 220ms var(--ease), background 220ms var(--ease);
+            border-radius: 18px;
+            background:
+                linear-gradient(135deg, rgba(255,215,0,0.12), rgba(26,107,71,0.08)),
+                rgba(4,9,16,0.82);
         }
 
         .sort-button:hover {
             transform: translateY(-1px);
-            border-color: rgba(255,215,0,0.28);
             background: rgba(255,255,255,0.06);
+        }
+
+        .quick-hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .hint-pill {
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            padding: 0 11px;
+            border: 1px solid rgba(255,215,0,0.16);
+            border-radius: 999px;
+            color: rgba(247,243,232,0.72);
+            background: rgba(255,255,255,0.04);
+            font-size: 0.78rem;
+            font-weight: 800;
         }
 
         .toolbar {
@@ -393,6 +536,50 @@
             display: block;
         }
 
+        .loading-state {
+            display: grid;
+            place-items: center;
+            gap: 14px;
+            margin: 4px 0 26px;
+            padding: 34px 22px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 26px;
+            color: var(--muted);
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.024)),
+                rgba(7,13,22,0.76);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .loading-state[hidden] {
+            display: none;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 3px solid rgba(247,243,232,0.14);
+            border-top-color: var(--gold-a);
+            border-right-color: rgba(255,165,0,0.72);
+            animation: spin 880ms linear infinite;
+        }
+
+        .loading-state strong {
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .loading-state span {
+            color: var(--soft);
+            font-size: 0.9rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .footer {
             padding: 0 0 30px;
             color: var(--soft);
@@ -487,22 +674,38 @@
                 </div>
 
                 <aside class="control-card" aria-label="Sure filtreleri">
-                    <div>
+                    <div class="control-intro">
+                        <div class="control-badge">Okuma filtresi</div>
                         <h2>Sureleri hızlıca bul</h2>
                         <p>İsim, sıra numarası veya anlamla ara. Seçtiğin dil, açılan sure sayfasındaki meal dilini belirler.</p>
+                        <div class="quick-hints" aria-label="Popüler arama örnekleri">
+                            <span class="hint-pill">Fâtiha</span>
+                            <span class="hint-pill">Mülk</span>
+                            <span class="hint-pill">Yâsîn</span>
+                        </div>
                     </div>
 
                     <div class="filters">
-                        <input class="input" id="searchInput" type="search" placeholder="Fâtiha, Mülk, 67..." autocomplete="off">
-                        <select class="select" id="languageSelect" aria-label="Meal dili">
-                            <option value="tr">Türkçe</option>
-                            <option value="en">English</option>
-                            <option value="de">Deutsch</option>
-                            <option value="fr">Français</option>
-                            <option value="ar">العربية</option>
-                            <option value="id">Indonesia</option>
-                            <option value="ms">Malay</option>
-                        </select>
+                        <label class="field">
+                            <span class="field-label">Ara</span>
+                            <span class="input-shell">
+                                <input class="input" id="searchInput" type="search" placeholder="Fâtiha, Mülk, 67..." autocomplete="off">
+                            </span>
+                        </label>
+                        <label class="field">
+                            <span class="field-label">Meal dili</span>
+                            <span class="select-shell">
+                                <select class="select" id="languageSelect" aria-label="Meal dili">
+                                    <option value="tr">Türkçe</option>
+                                    <option value="en">English</option>
+                                    <option value="de">Deutsch</option>
+                                    <option value="fr">Français</option>
+                                    <option value="ar">العربية</option>
+                                    <option value="id">Indonesia</option>
+                                    <option value="ms">Malay</option>
+                                </select>
+                            </span>
+                        </label>
                         <button class="sort-button" id="sortButton" type="button">Sıralama: Artan</button>
                     </div>
                 </aside>
@@ -512,7 +715,12 @@
                 <div class="result-count" id="resultCount">114 sure</div>
             </div>
 
-            <section class="surah-grid" id="surahGrid" aria-label="Sure listesi"></section>
+            <div class="loading-state" id="loadingState" role="status" aria-live="polite">
+                <div class="spinner" aria-hidden="true"></div>
+                <strong>Sureler hazırlanıyor...</strong>
+                <span>Liste ve filtreler birkaç saniye içinde hazır olacak.</span>
+            </div>
+            <section class="surah-grid" id="surahGrid" aria-label="Sure listesi" hidden></section>
             <div class="empty-state" id="emptyState">Bu arama için sure bulunamadı. Daha kısa bir kelime veya sure numarası deneyebilirsin.</div>
         </main>
 
