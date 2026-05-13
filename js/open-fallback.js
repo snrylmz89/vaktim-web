@@ -2,6 +2,14 @@
   var MAX_FIELD_LENGTH = 80;
   var API_BASE_URLS = ["https://mcp.vaktim.app", "https://api.vaktim.app"];
   var QURAN_API_BASE_URL = "https://api.quran.com/api/v4";
+  var AUDIO_CDN_BASE_URL = "https://verses.quran.foundation/";
+  var AUDIO_ALLOWED_HOSTS = ["verses.quran.foundation", "verses.quran.com", "audio.qurancdn.com"];
+  var AUDIO_FETCH_TIMEOUT_MS = 10000;
+  var DEFAULT_RECITATION = {
+    id: 7,
+    name: "Mishari Rashid al-Afasy",
+    source: "Vaktim.app / Quran Foundation Audio",
+  };
   var SUPPORTED_LANGUAGES = ["tr", "en", "de", "fr", "ar", "id", "ms"];
   var TRANSLATION_RESOURCES = {
     tr: [
@@ -53,6 +61,19 @@
       { id: 91, source: "Tafsir As-Sa'di" },
       { id: 90, source: "Al-Qurtubi" },
     ],
+  };
+  var audioCacheByVerseKey = {};
+  var audioCacheBySurah = {};
+  var audioState = {
+    element: null,
+    currentKey: "",
+    currentScope: "",
+    queue: [],
+    queueIndex: -1,
+    autoAdvance: false,
+    loading: false,
+    requestId: 0,
+    abortController: null,
   };
   var TAJWEED_RULE_NAMES = {
     end: "Ayet sonu",
@@ -369,13 +390,64 @@
     throw lastError || new Error("İçerik şu anda alınamadı.");
   }
 
-  async function fetchExternalJson(url) {
-    var response = await fetch(url, {
+  async function fetchExternalJson(url, options) {
+    var requestOptions = options || {};
+    var fetchOptions = {
       headers: { accept: "application/json" },
-    });
-    var payload = await response.json().catch(function () {
-      return null;
-    });
+    };
+    var controller = null;
+    var timeoutId = null;
+    var relayAbort = null;
+    var timedOut = false;
+
+    if ((requestOptions.timeoutMs || requestOptions.signal) && typeof AbortController !== "undefined") {
+      controller = new AbortController();
+      fetchOptions.signal = controller.signal;
+
+      if (requestOptions.signal) {
+        if (requestOptions.signal.aborted) {
+          controller.abort();
+        } else {
+          relayAbort = function () {
+            controller.abort();
+          };
+          requestOptions.signal.addEventListener("abort", relayAbort, { once: true });
+        }
+      }
+
+      if (requestOptions.timeoutMs) {
+        timeoutId = setTimeout(function () {
+          timedOut = true;
+          controller.abort();
+        }, requestOptions.timeoutMs);
+      }
+    } else if (requestOptions.signal) {
+      fetchOptions.signal = requestOptions.signal;
+    }
+
+    var response;
+    var payload;
+    try {
+      response = await fetch(url, fetchOptions);
+      payload = await response.json().catch(function () {
+        return null;
+      });
+    } catch (error) {
+      if (timedOut) {
+        throw new Error(requestOptions.timeoutMessage || "Harici içerik zaman aşımına uğradı.");
+      }
+      if (requestOptions.signal && requestOptions.signal.aborted) {
+        var abortError = new Error("İstek iptal edildi.");
+        abortError.name = "AbortError";
+        throw abortError;
+      }
+      throw error;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (relayAbort && requestOptions.signal) {
+        requestOptions.signal.removeEventListener("abort", relayAbort);
+      }
+    }
 
     if (!response.ok || !payload) {
       throw new Error("Harici içerik şu anda alınamadı.");
@@ -390,6 +462,463 @@
       if (params[key]) url.searchParams.set(key, params[key]);
     });
     return url.toString();
+  }
+
+  function abortAudioRequest() {
+    if (audioState.abortController) {
+      audioState.abortController.abort();
+      audioState.abortController = null;
+    }
+  }
+
+  function cancelAudioRequest() {
+    abortAudioRequest();
+    audioState.requestId += 1;
+  }
+
+  function beginAudioRequest() {
+    abortAudioRequest();
+    audioState.requestId += 1;
+    audioState.abortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+    return {
+      id: audioState.requestId,
+      signal: audioState.abortController ? audioState.abortController.signal : null,
+    };
+  }
+
+  function isCurrentAudioRequest(request) {
+    return Boolean(request && request.id === audioState.requestId && !(request.signal && request.signal.aborted));
+  }
+
+  function finishAudioRequest(request) {
+    if (!isCurrentAudioRequest(request)) return;
+    audioState.abortController = null;
+  }
+
+  function isAbortError(error) {
+    return Boolean(error && (error.name === "AbortError" || error.message === "İstek iptal edildi."));
+  }
+
+  function normalizeVerseKey(value) {
+    var text = String(value || "").trim();
+    return /^\d{1,3}:\d{1,3}$/.test(text) ? text : "";
+  }
+
+  function verseKeyBelongsToSurah(verseKey, surahNumber) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    var normalizedSurah = Number(surahNumber || 0);
+    if (!normalizedKey || !Number.isFinite(normalizedSurah) || normalizedSurah <= 0) return false;
+    return normalizedKey.split(":")[0] === String(normalizedSurah);
+  }
+
+  function resolveAudioUrl(value) {
+    if (!value) return "";
+    try {
+      var raw = String(value).trim();
+      var url = /^https:\/\//i.test(raw)
+        ? new URL(raw)
+        : new URL(raw.replace(/^\/+/, ""), AUDIO_CDN_BASE_URL);
+
+      if (url.protocol !== "https:") return "";
+      if (AUDIO_ALLOWED_HOSTS.indexOf(url.hostname) === -1) return "";
+      return url.toString();
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function formatDuration(value) {
+    var seconds = Number(value || 0);
+    if (!Number.isFinite(seconds) || seconds <= 0) return "";
+    var minutes = Math.floor(seconds / 60);
+    var rest = Math.floor(seconds % 60);
+    return minutes + ":" + String(rest).padStart(2, "0");
+  }
+
+  function getAudioElement() {
+    if (audioState.element) return audioState.element;
+
+    var audio = new Audio();
+    audio.preload = "none";
+    audio.addEventListener("timeupdate", updateAudioProgress);
+    audio.addEventListener("ended", handleAudioEnded);
+    audio.addEventListener("error", handleAudioError);
+    audioState.element = audio;
+    return audio;
+  }
+
+  function isAudioPlaying() {
+    var audio = getAudioElement();
+    return Boolean(audio.src && !audio.paused && !audio.ended);
+  }
+
+  function setAudioStatus(id, value) {
+    setText(id, value || "");
+  }
+
+  function setAudioProgress(id, current, duration) {
+    var element = document.getElementById(id);
+    if (!element) return;
+
+    var percent = duration > 0 ? Math.max(0, Math.min(100, (current / duration) * 100)) : 0;
+    var fill = element.querySelector(".audio-bar-fill");
+    var time = element.querySelector(".audio-time");
+    if (fill) fill.style.width = percent + "%";
+    if (time) {
+      var currentText = formatDuration(current);
+      var durationText = formatDuration(duration);
+      time.textContent = durationText ? currentText + " / " + durationText : currentText;
+    }
+  }
+
+  function updateAudioProgress() {
+    var audio = getAudioElement();
+    setAudioProgress("ayahAudioProgress", audio.currentTime, audio.duration);
+    setAudioProgress("surahAudioProgress", audio.currentTime, audio.duration);
+  }
+
+  function setAudioLoading(scope, loading, message) {
+    audioState.loading = Boolean(loading);
+    var buttonId = scope === "surah" ? "surahAudioButton" : "ayahAudioButton";
+    var button = document.getElementById(buttonId);
+    if (button) {
+      button.disabled = Boolean(loading);
+      if (message) button.textContent = message;
+    }
+
+    document.querySelectorAll(".verse-audio-button").forEach(function (verseButton) {
+      verseButton.disabled = Boolean(loading);
+    });
+
+    if (message) {
+      setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", message);
+    }
+  }
+
+  function updateAudioButtons() {
+    var playing = isAudioPlaying();
+    var currentKey = audioState.currentKey;
+
+    var ayahButton = document.getElementById("ayahAudioButton");
+    if (ayahButton && ayahButton.dataset.verseKey) {
+      var ayahIsCurrent = currentKey === ayahButton.dataset.verseKey;
+      ayahButton.disabled = audioState.loading;
+      ayahButton.setAttribute("aria-pressed", ayahIsCurrent && playing ? "true" : "false");
+      ayahButton.textContent = ayahIsCurrent ? (playing ? "Duraklat" : "Devam et") : "Ayeti dinle";
+    }
+
+    var surahButton = document.getElementById("surahAudioButton");
+    if (surahButton && surahButton.dataset.surahNumber) {
+      var surahIsCurrent = audioState.currentScope === "surah" && audioState.queue.length > 0;
+      surahButton.disabled = audioState.loading;
+      surahButton.setAttribute("aria-pressed", surahIsCurrent && playing ? "true" : "false");
+      surahButton.textContent = surahIsCurrent ? (playing ? "Duraklat" : "Devam et") : "Sureyi dinle";
+    }
+
+    var previousButton = document.getElementById("surahAudioPrev");
+    var nextButton = document.getElementById("surahAudioNext");
+    if (previousButton) previousButton.disabled = audioState.loading || audioState.queueIndex <= 0 || audioState.currentScope !== "surah";
+    if (nextButton) nextButton.disabled = audioState.loading || audioState.queueIndex < 0 || audioState.queueIndex >= audioState.queue.length - 1 || audioState.currentScope !== "surah";
+
+    document.querySelectorAll(".verse-audio-button").forEach(function (button) {
+      var active = currentKey && button.dataset.verseKey === currentKey;
+      button.disabled = audioState.loading;
+      button.classList.toggle("is-active", Boolean(active && playing));
+      button.setAttribute("aria-pressed", active && playing ? "true" : "false");
+      button.textContent = active ? (playing ? "Duraklat" : "Devam et") : "Dinle";
+    });
+
+    document.querySelectorAll(".verse-item").forEach(function (item) {
+      item.classList.toggle("is-audio-active", item.dataset.verseKey === currentKey && playing);
+    });
+  }
+
+  function setCurrentAudioText(entry) {
+    var title = entry && entry.verseKey ? entry.verseKey : "Dinleme";
+    var meta = DEFAULT_RECITATION.name + " - " + DEFAULT_RECITATION.source;
+    setText("ayahAudioTitle", title);
+    setText("ayahAudioMeta", meta);
+    setText("surahAudioTitle", audioState.currentScope === "surah" ? title + " oynatılıyor" : "Sure dinleme");
+    setText("surahAudioMeta", meta);
+  }
+
+  function resetAudioUi() {
+    cancelAudioRequest();
+    var audio = getAudioElement();
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+    audioState.currentKey = "";
+    audioState.currentScope = "";
+    audioState.queue = [];
+    audioState.queueIndex = -1;
+    audioState.autoAdvance = false;
+    audioState.loading = false;
+    setAudioProgress("ayahAudioProgress", 0, 0);
+    setAudioProgress("surahAudioProgress", 0, 0);
+    setAudioStatus("ayahAudioStatus", "Dinlemek için ayet sesini başlat.");
+    setAudioStatus("surahAudioStatus", "Dinlemek için sure sesini başlat.");
+    updateAudioButtons();
+  }
+
+  function normalizedAudioEntry(entry) {
+    var verseKey = normalizeVerseKey(entry && entry.verse_key ? entry.verse_key : entry && entry.verseKey);
+    var audioUrl = resolveAudioUrl(entry && entry.url);
+    if (!verseKey || !audioUrl) return null;
+    return {
+      verseKey: verseKey,
+      url: audioUrl,
+      duration: Number(entry.duration || 0),
+    };
+  }
+
+  async function fetchAyahAudio(verseKey, request) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    if (!normalizedKey) throw new Error("Ses için ayet referansı geçersiz.");
+    if (audioCacheByVerseKey[normalizedKey]) return audioCacheByVerseKey[normalizedKey];
+
+    var audioUrl = quranApiUrl("/recitations/" + DEFAULT_RECITATION.id + "/by_ayah/" + encodeURIComponent(normalizedKey), {
+      fields: "verse_key,url,duration",
+      per_page: "1",
+    });
+    var payload = await fetchExternalJson(audioUrl, {
+      signal: request && request.signal,
+      timeoutMs: AUDIO_FETCH_TIMEOUT_MS,
+      timeoutMessage: "Ses isteği zaman aşımına uğradı. Lütfen tekrar deneyin.",
+    });
+    var entry = normalizedAudioEntry(payload.audio_files && payload.audio_files[0]);
+    if (!entry) throw new Error("Ses dosyası şu anda alınamadı.");
+    audioCacheByVerseKey[normalizedKey] = entry;
+    return entry;
+  }
+
+  async function fetchSurahAudio(surahNumber, request) {
+    var key = String(surahNumber || "");
+    if (!/^\d{1,3}$/.test(key)) throw new Error("Ses için sure numarası geçersiz.");
+    if (audioCacheBySurah[key]) return audioCacheBySurah[key];
+
+    var page = 1;
+    var entries = [];
+    var guard = 0;
+    do {
+      var audioUrl = quranApiUrl("/recitations/" + DEFAULT_RECITATION.id + "/by_chapter/" + key, {
+        fields: "verse_key,url,duration",
+        per_page: "50",
+        page: String(page),
+      });
+      var payload = await fetchExternalJson(audioUrl, {
+        signal: request && request.signal,
+        timeoutMs: AUDIO_FETCH_TIMEOUT_MS,
+        timeoutMessage: "Sure sesi zaman aşımına uğradı. Lütfen tekrar deneyin.",
+      });
+      (payload.audio_files || []).forEach(function (entry) {
+        var normalized = normalizedAudioEntry(entry);
+        if (normalized) {
+          entries.push(normalized);
+          audioCacheByVerseKey[normalized.verseKey] = normalized;
+        }
+      });
+      page = payload.pagination && payload.pagination.next_page ? Number(payload.pagination.next_page) : null;
+      guard += 1;
+    } while (page && guard < 10);
+
+    if (!entries.length) throw new Error("Sure sesi şu anda alınamadı.");
+    audioCacheBySurah[key] = entries;
+    return entries;
+  }
+
+  async function playAudioEntry(entry, scope, queue, queueIndex, autoAdvance, request) {
+    if (request && !isCurrentAudioRequest(request)) return;
+    var audio = getAudioElement();
+    audioState.currentKey = entry.verseKey;
+    audioState.currentScope = scope;
+    audioState.queue = queue || [entry];
+    audioState.queueIndex = Number.isFinite(queueIndex) ? queueIndex : 0;
+    audioState.autoAdvance = Boolean(autoAdvance);
+    setCurrentAudioText(entry);
+    setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " yükleniyor...");
+    updateAudioButtons();
+
+    audio.src = entry.url;
+    audio.load();
+
+    try {
+      await audio.play();
+      if (request && !isCurrentAudioRequest(request)) return;
+      setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " oynatılıyor.");
+    } catch (error) {
+      if (request && !isCurrentAudioRequest(request)) return;
+      setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Tarayıcı oynatmayı başlatamadı. Lütfen tekrar deneyin.");
+    } finally {
+      updateAudioButtons();
+    }
+  }
+
+  async function toggleAudio(entry, scope, queue, queueIndex, autoAdvance, request) {
+    if (request && !isCurrentAudioRequest(request)) return;
+    var audio = getAudioElement();
+    var requestedQueueLength = Array.isArray(queue) ? queue.length : 1;
+    var samePlayback = audioState.currentKey === entry.verseKey
+      && audio.src
+      && audioState.currentScope === scope
+      && audioState.autoAdvance === Boolean(autoAdvance)
+      && audioState.queue.length === requestedQueueLength;
+
+    if (samePlayback) {
+      if (audio.paused) {
+        await audio.play().catch(function () {
+          setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Tarayıcı oynatmayı başlatamadı. Lütfen tekrar deneyin.");
+        });
+        if (!audio.paused) {
+          setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " oynatılıyor.");
+        }
+      } else {
+        audio.pause();
+        setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " duraklatıldı.");
+      }
+      updateAudioButtons();
+      return;
+    }
+    await playAudioEntry(entry, scope, queue, queueIndex, autoAdvance, request);
+  }
+
+  async function playSingleVerse(verseKey, scope) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    if (!normalizedKey) return;
+    var request = beginAudioRequest();
+    setAudioLoading(scope === "surah" ? "surah" : "ayah", true, "Ses hazırlanıyor...");
+    try {
+      var entry = await fetchAyahAudio(normalizedKey, request);
+      if (!isCurrentAudioRequest(request)) return;
+      await toggleAudio(entry, scope || "ayah", [entry], 0, false, request);
+    } catch (error) {
+      if (!isCurrentAudioRequest(request) || isAbortError(error)) return;
+      setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", error && error.message ? error.message : "Ses şu anda alınamadı.");
+    } finally {
+      if (isCurrentAudioRequest(request)) {
+        finishAudioRequest(request);
+        setAudioLoading(scope === "surah" ? "surah" : "ayah", false);
+        updateAudioButtons();
+      }
+    }
+  }
+
+  async function playSurahQueue(surahNumber, verses, startVerseKey) {
+    var request = beginAudioRequest();
+    setAudioLoading("surah", true, "Sure sesi hazırlanıyor...");
+    try {
+      var entries = await fetchSurahAudio(surahNumber, request);
+      if (!isCurrentAudioRequest(request)) return;
+      var verseKeys = (verses || []).map(function (verse) {
+        return normalizeVerseKey(verse.verseKey);
+      }).filter(Boolean);
+      var byKey = {};
+      entries.forEach(function (entry) {
+        byKey[entry.verseKey] = entry;
+      });
+      var queue = verseKeys.map(function (verseKey) {
+        return byKey[verseKey];
+      }).filter(Boolean);
+      if (!queue.length) queue = entries;
+      var startIndex = startVerseKey
+        ? Math.max(0, queue.findIndex(function (entry) { return entry.verseKey === startVerseKey; }))
+        : 0;
+      if (!isCurrentAudioRequest(request)) return;
+      await toggleAudio(queue[startIndex], "surah", queue, startIndex, true, request);
+    } catch (error) {
+      if (!isCurrentAudioRequest(request) || isAbortError(error)) return;
+      setAudioStatus("surahAudioStatus", error && error.message ? error.message : "Sure sesi şu anda alınamadı.");
+    } finally {
+      if (isCurrentAudioRequest(request)) {
+        finishAudioRequest(request);
+        setAudioLoading("surah", false);
+        updateAudioButtons();
+      }
+    }
+  }
+
+  function playSurahRelative(offset) {
+    var nextIndex = audioState.queueIndex + offset;
+    if (nextIndex < 0 || nextIndex >= audioState.queue.length) return;
+    playAudioEntry(audioState.queue[nextIndex], "surah", audioState.queue, nextIndex, true);
+  }
+
+  async function toggleCurrentSurahQueue(surahNumber, verses) {
+    var currentEntry = audioState.queue[audioState.queueIndex];
+    var sameSurahQueue = audioState.currentScope === "surah"
+      && currentEntry
+      && verseKeyBelongsToSurah(currentEntry.verseKey, surahNumber);
+
+    if (sameSurahQueue) {
+      await toggleAudio(currentEntry, "surah", audioState.queue, audioState.queueIndex, true);
+      return;
+    }
+
+    await playSurahQueue(surahNumber, verses);
+  }
+
+  function handleAudioEnded() {
+    if (audioState.autoAdvance && audioState.queueIndex < audioState.queue.length - 1) {
+      playSurahRelative(1);
+      return;
+    }
+    setAudioStatus(audioState.currentScope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Dinleme tamamlandı.");
+    audioState.currentKey = "";
+    audioState.currentScope = "";
+    audioState.queueIndex = -1;
+    audioState.autoAdvance = false;
+    updateAudioButtons();
+  }
+
+  function handleAudioError() {
+    setAudioStatus(audioState.currentScope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Ses oynatılırken bir sorun oluştu.");
+    updateAudioButtons();
+  }
+
+  function configureAyahAudio(verseKey) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    var button = document.getElementById("ayahAudioButton");
+    if (!button) return;
+    button.dataset.verseKey = normalizedKey;
+    button.disabled = !normalizedKey;
+    button.textContent = normalizedKey ? "Ayeti dinle" : "Ses hazır değil";
+    button.onclick = function () {
+      playSingleVerse(normalizedKey, "ayah");
+    };
+    setText("ayahAudioTitle", normalizedKey ? normalizedKey + " ayet sesi" : "Ayet sesi");
+    setText("ayahAudioMeta", DEFAULT_RECITATION.name + " - " + DEFAULT_RECITATION.source);
+    setAudioStatus("ayahAudioStatus", normalizedKey ? "Dinlemek için ayet sesini başlat." : "Ses şu anda hazır değil.");
+    updateAudioButtons();
+  }
+
+  function configureSurahAudio(surahNumber, verses) {
+    var button = document.getElementById("surahAudioButton");
+    var previousButton = document.getElementById("surahAudioPrev");
+    var nextButton = document.getElementById("surahAudioNext");
+    if (!button) return;
+
+    button.dataset.surahNumber = String(surahNumber || "");
+    button.disabled = !verses || !verses.length;
+    button.textContent = "Sureyi dinle";
+    button.onclick = function () {
+      toggleCurrentSurahQueue(surahNumber, verses);
+    };
+
+    if (previousButton) {
+      previousButton.onclick = function () {
+        playSurahRelative(-1);
+      };
+    }
+    if (nextButton) {
+      nextButton.onclick = function () {
+        playSurahRelative(1);
+      };
+    }
+
+    setText("surahAudioTitle", "Sure dinleme");
+    setText("surahAudioMeta", DEFAULT_RECITATION.name + " - " + DEFAULT_RECITATION.source);
+    setAudioStatus("surahAudioStatus", verses && verses.length ? "Dinlemek için sure sesini başlat." : "Ses şu anda hazır değil.");
+    updateAudioButtons();
   }
 
   function htmlToText(value) {
@@ -809,6 +1338,7 @@
     renderTajweedLegend("surahTajweedLegend", [], "uthmani");
     setContentText("translationText", translationText, language === "ar" ? "Arapça orijinal metin yukarıda yer alıyor. Meal için başka bir dil seçebilirsin." : "Bu dil için meal şu anda alınamadı.");
     setContentText("translationSource", translationSource ? "Kaynak: " + translationSource : "");
+    configureAyahAudio(data.verseKey);
 
     if (mode === "tafsir") {
       var tafsirResult = null;
@@ -863,10 +1393,26 @@
     verses.forEach(function (verse) {
       var item = document.createElement("div");
       item.className = "verse-item";
+      item.dataset.verseKey = verse.verseKey || "";
 
       var key = document.createElement("div");
       key.className = "verse-key";
       key.textContent = verse.verseKey || "";
+
+      var actions = document.createElement("div");
+      actions.className = "verse-actions";
+      if (verse.verseKey) {
+        var listenButton = document.createElement("button");
+        listenButton.className = "verse-audio-button";
+        listenButton.type = "button";
+        listenButton.dataset.verseKey = verse.verseKey;
+        listenButton.setAttribute("aria-pressed", "false");
+        listenButton.textContent = "Dinle";
+        listenButton.addEventListener("click", function () {
+          playSingleVerse(verse.verseKey, "surah");
+        });
+        actions.appendChild(listenButton);
+      }
 
       var arabic = document.createElement("div");
       arabic.className = "arabic-text";
@@ -883,6 +1429,7 @@
       sourceText.textContent = source ? "Kaynak: " + source : "";
 
       item.appendChild(key);
+      if (actions.children.length) item.appendChild(actions);
       if (arabic.textContent) item.appendChild(arabic);
       if (translation.textContent) item.appendChild(translation);
       if (translation.textContent && sourceText.textContent) item.appendChild(sourceText);
@@ -933,6 +1480,7 @@
       if (!tafsirPack) {
         renderVerseNotice("Bu dil için sure seviyesinde tefsir şu anda webde hazır değil. Meal sekmesine dönebilir veya ayeti Vaktim uygulamasında açabilirsin.");
         renderTajweedLegend("surahTajweedLegend", [], "uthmani");
+        configureSurahAudio(surah[0], verses);
         setStatus(data.surah && data.surah.name ? data.surah.name + " - tefsir hazırlanıyor" : context.target);
         setPanelVisible("surahPanel", true);
         return;
@@ -963,6 +1511,7 @@
     renderTajweedLegend("tajweedLegend", [], "uthmani");
     renderTajweedLegend("surahTajweedLegend", verses, script);
     renderVerseList(verses, { mode: mode, source: contentSource, script: script });
+    configureSurahAudio(surah[0], verses);
     setStatus(data.surah && data.surah.name ? data.surah.name + " - " + data.surah.verseCount + " ayet" : context.target);
     setPanelVisible("surahPanel", true);
   }
@@ -974,6 +1523,7 @@
     reader.hidden = false;
     var selectedResource = resource || getCurrentResource(language, mode);
     var selectedScript = normalizeScript(script || getCurrentQuranScript());
+    resetAudioUi();
     setLoading(true, context.kind === "ayah" ? "Ayet hazırlanıyor..." : "Sure hazırlanıyor...");
 
     try {

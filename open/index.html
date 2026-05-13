@@ -535,6 +535,13 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 24px;
             background: rgba(255,255,255,0.035);
+            transition: border-color 180ms var(--ease), background 180ms var(--ease), box-shadow 180ms var(--ease);
+        }
+
+        .verse-item.is-audio-active {
+            border-color: rgba(255,215,0,0.34);
+            background: rgba(255,215,0,0.055);
+            box-shadow: 0 18px 44px rgba(255,165,0,0.08);
         }
 
         .verse-item:last-child {
@@ -548,14 +555,135 @@
             font-size: 0.9rem;
         }
 
+        .verse-actions {
+            display: flex;
+            justify-content: flex-start;
+        }
+
         .verse-item .arabic-text {
             font-size: clamp(1.75rem, 4vw, 2.85rem);
         }
 
-        .audio-placeholder {
+        .audio-player,
+        .surah-audio {
+            display: grid;
+            gap: 14px;
+        }
+
+        .audio-control-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .audio-button,
+        .verse-audio-button {
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            border: 1px solid rgba(255,215,0,0.24);
+            border-radius: 999px;
+            color: #211603;
+            background: linear-gradient(135deg, var(--gold-a), var(--gold-b));
+            box-shadow: 0 14px 30px rgba(255,165,0,0.12);
+            font: 900 0.88rem "Plus Jakarta Sans", system-ui, sans-serif;
+            cursor: pointer;
+            transition: transform 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease), opacity 180ms var(--ease);
+        }
+
+        .audio-button {
+            min-width: 136px;
+            padding: 0 18px;
+        }
+
+        .audio-button.secondary,
+        .verse-audio-button {
+            color: var(--text);
+            background: rgba(255,255,255,0.055);
+            border-color: rgba(255,255,255,0.12);
+            box-shadow: none;
+        }
+
+        .audio-button.small {
+            min-width: 96px;
+            min-height: 38px;
+            padding: 0 14px;
+            font-size: 0.8rem;
+        }
+
+        .verse-audio-button {
+            min-height: 34px;
+            padding: 0 13px;
+            font-size: 0.78rem;
+        }
+
+        .audio-button:hover,
+        .verse-audio-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,215,0,0.42);
+        }
+
+        .audio-button:disabled,
+        .verse-audio-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.62;
+            transform: none;
+        }
+
+        .audio-button[aria-pressed="true"],
+        .verse-audio-button.is-active {
+            color: #211603;
+            background: linear-gradient(135deg, #ffe27a, #ffb22e);
+            border-color: rgba(255,215,0,0.5);
+        }
+
+        .audio-copy {
+            display: grid;
+            gap: 4px;
+            min-width: min(320px, 100%);
+            flex: 1 1 260px;
+        }
+
+        .audio-copy strong {
+            color: var(--text);
+            font-size: 0.96rem;
+        }
+
+        .audio-copy span,
+        .audio-status {
             color: var(--soft);
-            font-size: 0.92rem;
-            line-height: 1.7;
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+
+        .audio-progress {
+            display: grid;
+            gap: 8px;
+        }
+
+        .audio-bar {
+            height: 7px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(247,243,232,0.1);
+        }
+
+        .audio-bar-fill {
+            display: block;
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--gold-a), var(--gold-b));
+            transition: width 120ms linear;
+        }
+
+        .audio-time {
+            color: var(--soft);
+            font-size: 0.78rem;
+            font-weight: 800;
         }
 
         .footer {
@@ -672,13 +800,42 @@
                             </div>
                             <div class="text-block">
                                 <h2>Dinleme</h2>
-                                <div class="audio-placeholder" id="audioText">Ses kaynağı lisansı netleşince bu bölümde dinleme aktif olacak.</div>
+                                <div class="audio-player" id="ayahAudioBlock">
+                                    <div class="audio-control-row">
+                                        <button class="audio-button" id="ayahAudioButton" type="button" disabled aria-pressed="false">Ayeti dinle</button>
+                                        <div class="audio-copy">
+                                            <strong id="ayahAudioTitle">Ayet sesi</strong>
+                                            <span id="ayahAudioMeta">Ses kaynağı hazırlanıyor.</span>
+                                        </div>
+                                    </div>
+                                    <div class="audio-progress" id="ayahAudioProgress" aria-hidden="true">
+                                        <span class="audio-bar"><span class="audio-bar-fill"></span></span>
+                                        <span class="audio-time">0:00</span>
+                                    </div>
+                                    <div class="audio-status" id="ayahAudioStatus" role="status" aria-live="polite">Dinlemek için ayet sesini başlat.</div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="content-panel" id="surahPanel">
                             <div class="text-block">
                                 <h2>Sure ayetleri</h2>
+                                <div class="surah-audio" id="surahAudioBlock">
+                                    <div class="audio-control-row">
+                                        <button class="audio-button" id="surahAudioButton" type="button" disabled aria-pressed="false">Sureyi dinle</button>
+                                        <button class="audio-button secondary small" id="surahAudioPrev" type="button" disabled>Önceki</button>
+                                        <button class="audio-button secondary small" id="surahAudioNext" type="button" disabled>Sonraki</button>
+                                        <div class="audio-copy">
+                                            <strong id="surahAudioTitle">Sure dinleme</strong>
+                                            <span id="surahAudioMeta">Ses kaynağı hazırlanıyor.</span>
+                                        </div>
+                                    </div>
+                                    <div class="audio-progress" id="surahAudioProgress" aria-hidden="true">
+                                        <span class="audio-bar"><span class="audio-bar-fill"></span></span>
+                                        <span class="audio-time">0:00</span>
+                                    </div>
+                                    <div class="audio-status" id="surahAudioStatus" role="status" aria-live="polite">Dinlemek için sure sesini başlat.</div>
+                                </div>
                                 <div class="tajweed-legend" id="surahTajweedLegend" hidden></div>
                                 <div class="verse-list" id="verseList"></div>
                             </div>
