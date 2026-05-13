@@ -93,6 +93,16 @@ if (fs.existsSync(imgSrc)) {
   }
 }
 
+const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'X-DNS-Prefetch-Control': 'off',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://*.supabase.co https://api.vaktim.app https://mcp.vaktim.app https://api.quran.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+};
+
 // Copy .well-known
 const wellKnownSrc = path.join(root, '.well-known');
 if (fs.existsSync(wellKnownSrc)) {
@@ -103,6 +113,7 @@ if (fs.existsSync(wellKnownSrc)) {
 const config = {
   version: 3,
   routes: [
+    { src: '/(.*)', headers: securityHeaders, continue: true },
     { handle: 'rewrite' },
     { src: '/ayah', dest: '/open' },
     { src: '/ayah/(.*)', dest: '/open' },

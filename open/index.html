@@ -230,28 +230,117 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 14px;
+            gap: 18px;
             flex-wrap: wrap;
-            padding: 14px 16px;
+            padding: 16px;
             border: 1px solid rgba(255,255,255,0.09);
-            border-radius: 22px;
-            background: rgba(255,255,255,0.035);
+            border-radius: 24px;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.026)),
+                rgba(255,255,255,0.035);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
 
+        .reader-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex: 1 1 640px;
+        }
+
+        .control-field {
+            display: grid;
+            gap: 7px;
+            min-width: 150px;
+            flex: 0 0 150px;
+        }
+
+        .source-field {
+            min-width: min(320px, 100%);
+            flex: 1 1 320px;
+        }
+
+        .control-field.is-disabled {
+            opacity: 0.72;
+        }
+
+        .control-label {
+            color: var(--soft);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+        }
+
+        .select-shell {
+            position: relative;
+            display: block;
+        }
+
+        .select-shell::after {
+            content: "";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid rgba(247,243,232,0.92);
+            border-bottom: 2px solid rgba(247,243,232,0.92);
+            transform: translateY(-65%) rotate(45deg);
+            pointer-events: none;
+        }
+
+        .reader-select,
         .language-select {
-            min-height: 42px;
-            padding: 0 14px;
-            border: 1px solid rgba(255,255,255,0.12);
+            appearance: none;
+            width: 100%;
+            min-height: 46px;
+            padding: 0 44px 0 16px;
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 999px;
             color: var(--text);
-            background: rgba(4,9,16,0.82);
-            font: 800 0.9rem "Plus Jakarta Sans", system-ui, sans-serif;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+                rgba(4,9,16,0.9);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 16px 36px rgba(0,0,0,0.18);
+            font: 800 0.92rem "Plus Jakarta Sans", system-ui, sans-serif;
+            cursor: pointer;
+            transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease), transform 180ms var(--ease);
+        }
+
+        .reader-select:hover,
+        .language-select:hover,
+        .reader-select:focus,
+        .language-select:focus {
+            border-color: rgba(255,215,0,0.45);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 0 0 4px rgba(255,215,0,0.08),
+                0 18px 38px rgba(0,0,0,0.2);
+            outline: none;
+        }
+
+        .reader-select:disabled {
+            cursor: not-allowed;
+            color: var(--soft);
+        }
+
+        .reader-select option,
+        .language-select option {
+            color: #08111c;
+            background: #f7f3e8;
         }
 
         .status {
             color: var(--soft);
             font-size: 0.9rem;
             line-height: 1.6;
+            flex: 1 1 220px;
+            min-width: 180px;
         }
 
         .content-panel {
@@ -354,7 +443,10 @@
             .actions { display: grid; }
             .btn { width: 100%; }
             .reader-head { display: grid; }
-            .language-select { width: 100%; }
+            .reader-controls { justify-content: stretch; }
+            .control-field { width: 100%; min-width: 0; flex-basis: auto; }
+            .language-select,
+            .reader-select { width: 100%; }
         }
     </style>
 </head>
@@ -386,18 +478,37 @@
                     <div class="reader" id="reader" hidden>
                         <div class="reader-head">
                             <div class="status" id="statusText">İçerik hazırlanıyor...</div>
-                            <label>
-                                <span class="status">Dil</span>
-                                <select class="language-select" id="languageSelect" aria-label="Meal dili">
-                                    <option value="tr">Türkçe</option>
-                                    <option value="en">English</option>
-                                    <option value="de">Deutsch</option>
-                                    <option value="fr">Français</option>
-                                    <option value="ar">العربية</option>
-                                    <option value="id">Indonesia</option>
-                                    <option value="ms">Malay</option>
-                                </select>
-                            </label>
+                            <div class="reader-controls">
+                                <label class="control-field">
+                                    <span class="control-label">Dil</span>
+                                    <span class="select-shell">
+                                        <select class="reader-select language-select" id="languageSelect" aria-label="Meal dili">
+                                            <option value="tr">Türkçe</option>
+                                            <option value="en">English</option>
+                                            <option value="de">Deutsch</option>
+                                            <option value="fr">Français</option>
+                                            <option value="ar">العربية</option>
+                                            <option value="id">Indonesia</option>
+                                            <option value="ms">Malay</option>
+                                        </select>
+                                    </span>
+                                </label>
+                                <label class="control-field">
+                                    <span class="control-label">İçerik</span>
+                                    <span class="select-shell">
+                                        <select class="reader-select" id="contentModeSelect" aria-label="İçerik türü">
+                                            <option value="translation">Meal</option>
+                                            <option value="tafsir">Tefsir</option>
+                                        </select>
+                                    </span>
+                                </label>
+                                <label class="control-field source-field" id="resourceField">
+                                    <span class="control-label" id="resourceLabel">Meal kaynağı</span>
+                                    <span class="select-shell">
+                                        <select class="reader-select" id="resourceSelect" aria-label="Meal kaynağı"></select>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="content-panel" id="ayahPanel">
@@ -411,8 +522,9 @@
                                 <div class="source-text" id="translationSource"></div>
                             </div>
                             <div class="text-block" id="explanationBlock" hidden>
-                                <h2>Kısa açıklama</h2>
+                                <h2 id="explanationTitle">Tefsir</h2>
                                 <div class="explanation-text" id="explanationText"></div>
+                                <div class="source-text" id="explanationSource"></div>
                             </div>
                             <div class="text-block">
                                 <h2>Dinleme</h2>
