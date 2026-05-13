@@ -64,14 +64,19 @@
   };
   var audioCacheByVerseKey = {};
   var audioCacheBySurah = {};
+  var audioSegmentsByVerseKey = {};
+  var audioSegmentRequestsByVerseKey = {};
   var audioState = {
     element: null,
     currentKey: "",
+    currentWordKey: "",
+    currentWordPosition: 0,
     currentScope: "",
     queue: [],
     queueIndex: -1,
     autoAdvance: false,
     loading: false,
+    lastScrolledKey: "",
     requestId: 0,
     abortController: null,
   };
@@ -119,7 +124,8 @@
   }
 
   function normalizeScript(value) {
-    return String(value || "").toLowerCase() === "tajweed" ? "tajweed" : "uthmani";
+    var script = String(value || "").toLowerCase();
+    return script === "uthmani" ? "uthmani" : "tajweed";
   }
 
   function normalizeDate(value) {
@@ -269,11 +275,7 @@
 
   function updateScriptParam(url, script) {
     var normalized = normalizeScript(script);
-    if (normalized === "tajweed") {
-      url.searchParams.set("script", normalized);
-    } else {
-      url.searchParams.delete("script");
-    }
+    url.searchParams.set("script", normalized);
   }
 
   function populateResourceSelect(language, mode) {
@@ -579,6 +581,59 @@
     return queue;
   }
 
+  function normalizeAudioSegments(payload) {
+    var file = payload && Array.isArray(payload.audio_files) ? payload.audio_files[0] : null;
+    return (file && Array.isArray(file.segments) ? file.segments : []).map(function (segment) {
+      if (!Array.isArray(segment) || segment.length < 4) return null;
+      var wordPosition = Number(segment[1]);
+      var startMs = Number(segment[2]);
+      var endMs = Number(segment[3]);
+      if (!Number.isFinite(wordPosition) || !Number.isFinite(startMs) || !Number.isFinite(endMs)) return null;
+      if (wordPosition <= 0 || startMs < 0 || endMs < startMs) return null;
+      return {
+        wordPosition: wordPosition,
+        startMs: startMs,
+        endMs: endMs,
+      };
+    }).filter(Boolean);
+  }
+
+  async function fetchAyahAudioSegments(verseKey) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    if (!normalizedKey) return [];
+    if (audioSegmentsByVerseKey[normalizedKey]) return audioSegmentsByVerseKey[normalizedKey];
+    if (audioSegmentRequestsByVerseKey[normalizedKey]) return audioSegmentRequestsByVerseKey[normalizedKey];
+
+    var url = quranApiUrl("/recitations/" + DEFAULT_RECITATION.id + "/by_ayah/" + encodeURIComponent(normalizedKey), {
+      fields: "verse_key,segments",
+      per_page: "1",
+    });
+
+    audioSegmentRequestsByVerseKey[normalizedKey] = fetchExternalJson(url, {
+      timeoutMs: AUDIO_FETCH_TIMEOUT_MS,
+      timeoutMessage: "Kelime zamanlamasi su anda alinamadi.",
+    }).then(function (payload) {
+      var segments = normalizeAudioSegments(payload);
+      audioSegmentsByVerseKey[normalizedKey] = segments;
+      return segments;
+    }).catch(function () {
+      audioSegmentsByVerseKey[normalizedKey] = [];
+      return [];
+    }).finally(function () {
+      delete audioSegmentRequestsByVerseKey[normalizedKey];
+    });
+
+    return audioSegmentRequestsByVerseKey[normalizedKey];
+  }
+
+  function ensureAudioSegments(verseKey) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    if (!normalizedKey) return;
+    fetchAyahAudioSegments(normalizedKey).then(function () {
+      if (audioState.currentKey === normalizedKey) updateActiveWordHighlight();
+    });
+  }
+
   function formatDuration(value) {
     var seconds = Number(value || 0);
     if (!Number.isFinite(seconds) || seconds <= 0) return "";
@@ -623,10 +678,148 @@
     }
   }
 
+  function setMiniPlayerVisible(visible) {
+    var miniPlayer = document.getElementById("audioMiniPlayer");
+    if (!miniPlayer) return;
+    if (visible) {
+      miniPlayer.dataset.visible = "true";
+      miniPlayer.hidden = false;
+      window.requestAnimationFrame(function () {
+        if (miniPlayer.dataset.visible === "true") miniPlayer.classList.add("is-visible");
+      });
+    } else {
+      miniPlayer.dataset.visible = "false";
+      miniPlayer.classList.remove("is-visible");
+      miniPlayer.hidden = true;
+    }
+    document.body.classList.toggle("has-mini-player", Boolean(visible));
+  }
+
+  function updateMiniPlayer() {
+    var hasAudio = Boolean(audioState.currentKey && getAudioElement().src);
+    setMiniPlayerVisible(hasAudio);
+    if (!hasAudio) return;
+
+    var audio = getAudioElement();
+    var playing = isAudioPlaying();
+    var isSurahQueue = audioState.currentScope === "surah" && audioState.queue.length > 0;
+    setText("miniAudioTitle", isSurahQueue ? audioState.currentKey : audioState.currentKey + " ayet sesi");
+    setText("miniAudioMeta", DEFAULT_RECITATION.name + " - " + DEFAULT_RECITATION.source);
+    setText("miniAudioStatus", audio.paused ? audioState.currentKey + " duraklatıldı." : audioState.currentKey + " oynatılıyor.");
+    setAudioProgress("miniAudioProgress", audio.currentTime, audio.duration);
+
+    var toggleButton = document.getElementById("miniAudioToggle");
+    if (toggleButton) {
+      toggleButton.disabled = audioState.loading;
+      toggleButton.classList.toggle("is-playing", playing);
+      toggleButton.setAttribute("aria-label", playing ? "Duraklat" : "Devam et");
+      toggleButton.title = playing ? "Duraklat" : "Devam et";
+      setText("miniAudioToggleLabel", playing ? "Duraklat" : "Devam et");
+    }
+
+    var previousButton = document.getElementById("miniAudioPrev");
+    var nextButton = document.getElementById("miniAudioNext");
+    if (previousButton) previousButton.disabled = audioState.loading || !isSurahQueue || audioState.queueIndex <= 0;
+    if (nextButton) nextButton.disabled = audioState.loading || !isSurahQueue || audioState.queueIndex >= audioState.queue.length - 1;
+  }
+
+  function scrollActiveVerseIntoView(verseKey) {
+    if (audioState.currentScope !== "surah" || !verseKey || audioState.lastScrolledKey === verseKey) return;
+    var activeItem = null;
+    document.querySelectorAll(".verse-item").forEach(function (item) {
+      if (item.dataset.verseKey === verseKey) activeItem = item;
+    });
+    if (!activeItem) return;
+
+    var rect = activeItem.getBoundingClientRect();
+    var topSafeArea = 108;
+    var bottomSafeArea = 160;
+    var alreadyComfortable = rect.top >= topSafeArea && rect.bottom <= window.innerHeight - bottomSafeArea;
+    if (alreadyComfortable) {
+      audioState.lastScrolledKey = verseKey;
+      return;
+    }
+
+    audioState.lastScrolledKey = verseKey;
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(function () {
+      activeItem.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "center",
+      });
+    }, 80);
+  }
+
+  function clearActiveWordHighlight() {
+    document.querySelectorAll(".arabic-word.is-word-active").forEach(function (word) {
+      word.classList.remove("is-word-active");
+    });
+    audioState.currentWordKey = "";
+    audioState.currentWordPosition = 0;
+  }
+
+  function setActiveWordHighlight(verseKey, wordPosition) {
+    var normalizedKey = normalizeVerseKey(verseKey);
+    var normalizedPosition = Number(wordPosition || 0);
+    if (!normalizedKey || !Number.isFinite(normalizedPosition) || normalizedPosition <= 0) {
+      clearActiveWordHighlight();
+      return;
+    }
+
+    if (audioState.currentWordKey === normalizedKey && audioState.currentWordPosition === normalizedPosition) return;
+
+    var matches = [];
+    document.querySelectorAll(".arabic-word").forEach(function (word) {
+      if (word.dataset.verseKey === normalizedKey && Number(word.dataset.wordPosition) === normalizedPosition) {
+        matches.push(word);
+      }
+    });
+
+    clearActiveWordHighlight();
+    if (!matches.length) return;
+
+    audioState.currentWordKey = normalizedKey;
+    audioState.currentWordPosition = normalizedPosition;
+    matches.forEach(function (word) {
+      word.classList.add("is-word-active");
+    });
+  }
+
+  function updateActiveWordHighlight() {
+    var verseKey = normalizeVerseKey(audioState.currentKey);
+    if (!verseKey) {
+      clearActiveWordHighlight();
+      return;
+    }
+
+    var segments = audioSegmentsByVerseKey[verseKey];
+    if (!Array.isArray(segments) || !segments.length) return;
+
+    var audio = getAudioElement();
+    var currentMs = audio.currentTime * 1000;
+    var activeSegment = null;
+    for (var index = 0; index < segments.length; index += 1) {
+      var segment = segments[index];
+      if (currentMs >= segment.startMs && currentMs <= segment.endMs) {
+        activeSegment = segment;
+        break;
+      }
+    }
+
+    if (activeSegment) {
+      setActiveWordHighlight(verseKey, activeSegment.wordPosition);
+      return;
+    }
+
+    if (audioState.currentWordKey === verseKey) clearActiveWordHighlight();
+  }
+
   function updateAudioProgress() {
     var audio = getAudioElement();
     setAudioProgress("ayahAudioProgress", audio.currentTime, audio.duration);
     setAudioProgress("surahAudioProgress", audio.currentTime, audio.duration);
+    setAudioProgress("miniAudioProgress", audio.currentTime, audio.duration);
+    updateActiveWordHighlight();
   }
 
   function setAudioLoading(scope, loading, message) {
@@ -683,6 +876,8 @@
     document.querySelectorAll(".verse-item").forEach(function (item) {
       item.classList.toggle("is-audio-active", item.dataset.verseKey === currentKey && playing);
     });
+
+    updateMiniPlayer();
   }
 
   function setCurrentAudioText(entry) {
@@ -706,8 +901,11 @@
     audioState.queueIndex = -1;
     audioState.autoAdvance = false;
     audioState.loading = false;
+    audioState.lastScrolledKey = "";
+    clearActiveWordHighlight();
     setAudioProgress("ayahAudioProgress", 0, 0);
     setAudioProgress("surahAudioProgress", 0, 0);
+    setAudioProgress("miniAudioProgress", 0, 0);
     setAudioStatus("ayahAudioStatus", "Dinlemek için ayet sesini başlat.");
     setAudioStatus("surahAudioStatus", "Dinlemek için sure sesini başlat.");
     updateAudioButtons();
@@ -787,6 +985,8 @@
     audioState.queue = queue || [entry];
     audioState.queueIndex = Number.isFinite(queueIndex) ? queueIndex : 0;
     audioState.autoAdvance = Boolean(autoAdvance);
+    clearActiveWordHighlight();
+    ensureAudioSegments(entry.verseKey);
     setCurrentAudioText(entry);
     setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " yükleniyor...");
     updateAudioButtons();
@@ -797,6 +997,7 @@
     try {
       await audio.play();
       if (request && !isCurrentAudioRequest(request)) return;
+      scrollActiveVerseIntoView(entry.verseKey);
       setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " oynatılıyor.");
     } catch (error) {
       if (request && !isCurrentAudioRequest(request)) return;
@@ -822,6 +1023,7 @@
           setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Tarayıcı oynatmayı başlatamadı. Lütfen tekrar deneyin.");
         });
         if (!audio.paused) {
+          scrollActiveVerseIntoView(entry.verseKey);
           setAudioStatus(scope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", entry.verseKey + " oynatılıyor.");
         }
       } else {
@@ -909,12 +1111,54 @@
     audioState.currentScope = "";
     audioState.queueIndex = -1;
     audioState.autoAdvance = false;
+    clearActiveWordHighlight();
     updateAudioButtons();
   }
 
   function handleAudioError() {
+    clearActiveWordHighlight();
     setAudioStatus(audioState.currentScope === "surah" ? "surahAudioStatus" : "ayahAudioStatus", "Ses oynatılırken bir sorun oluştu.");
     updateAudioButtons();
+  }
+
+  function getCurrentAudioEntry() {
+    if (audioState.queueIndex >= 0 && audioState.queue[audioState.queueIndex]) return audioState.queue[audioState.queueIndex];
+    return audioState.currentKey ? audioCacheByVerseKey[audioState.currentKey] : null;
+  }
+
+  function configureMiniPlayerControls() {
+    var toggleButton = document.getElementById("miniAudioToggle");
+    var previousButton = document.getElementById("miniAudioPrev");
+    var nextButton = document.getElementById("miniAudioNext");
+
+    if (toggleButton && !toggleButton.dataset.bound) {
+      toggleButton.dataset.bound = "true";
+      toggleButton.onclick = function () {
+        var entry = getCurrentAudioEntry();
+        if (!entry) return;
+        toggleAudio(
+          entry,
+          audioState.currentScope || "ayah",
+          audioState.queue.length ? audioState.queue : [entry],
+          audioState.queueIndex >= 0 ? audioState.queueIndex : 0,
+          audioState.autoAdvance
+        );
+      };
+    }
+
+    if (previousButton && !previousButton.dataset.bound) {
+      previousButton.dataset.bound = "true";
+      previousButton.onclick = function () {
+        playSurahRelative(-1);
+      };
+    }
+
+    if (nextButton && !nextButton.dataset.bound) {
+      nextButton.dataset.bound = "true";
+      nextButton.onclick = function () {
+        playSurahRelative(1);
+      };
+    }
   }
 
   function configureAyahAudio(verseKey) {
@@ -1063,27 +1307,88 @@
     return data.tajweedText;
   }
 
+  function isArabicWordToken(value) {
+    return /[\u0621-\u063A\u0641-\u064A\u0671-\u06D3\u06FA-\u06FC]/.test(String(value || ""));
+  }
+
+  function createArabicWordElement(verseKey, wordPosition) {
+    var span = document.createElement("span");
+    span.className = "arabic-word";
+    if (verseKey) span.dataset.verseKey = verseKey;
+    span.dataset.wordPosition = String(wordPosition);
+    return span;
+  }
+
+  function appendPlainArabicWords(element, text, verseKey) {
+    var wordPosition = 0;
+    String(text || "").split(/(\s+)/).forEach(function (part) {
+      if (!part) return;
+      if (/^\s+$/.test(part) || !isArabicWordToken(part)) {
+        element.appendChild(document.createTextNode(part));
+        return;
+      }
+
+      wordPosition += 1;
+      var word = createArabicWordElement(verseKey, wordPosition);
+      word.textContent = part;
+      element.appendChild(word);
+    });
+  }
+
+  function appendTajweedChunk(parent, segment, text) {
+    if (!segment.rule || segment.rule === "plain") {
+      parent.appendChild(document.createTextNode(text));
+      return;
+    }
+
+    var span = document.createElement("span");
+    span.className = "tajweed-rule tajweed-" + normalizeTajweedRule(segment.rule);
+    span.title = segment.ruleName || tajweedRuleName(segment.rule);
+    span.textContent = text;
+    parent.appendChild(span);
+  }
+
+  function renderTajweedWords(element, tajweedText, verseKey) {
+    var state = {
+      currentWord: null,
+      wordPosition: 0,
+    };
+
+    tajweedText.segments.forEach(function (segment) {
+      String(segment.text || "").split(/(\s+)/).forEach(function (part) {
+        if (!part) return;
+
+        if (/^\s+$/.test(part) || !isArabicWordToken(part)) {
+          element.appendChild(document.createTextNode(part));
+          if (/^\s+$/.test(part)) state.currentWord = null;
+          return;
+        }
+
+        if (!state.currentWord) {
+          state.wordPosition += 1;
+          state.currentWord = createArabicWordElement(verseKey, state.wordPosition);
+          element.appendChild(state.currentWord);
+        }
+
+        appendTajweedChunk(state.currentWord, segment, part);
+      });
+    });
+  }
+
   function renderArabicElement(element, verse, script) {
     if (!element) return;
     element.textContent = "";
     element.classList.remove("has-tajweed");
+    var verseKey = normalizeVerseKey(verse && (verse.verseKey || verse.verse_key));
 
     var tajweedText = script === "tajweed" ? getTajweedText(verse) : null;
     if (!tajweedText) {
-      element.textContent = (verse && verse.arabicText) || "";
+      appendPlainArabicWords(element, (verse && verse.arabicText) || "", verseKey);
       return;
     }
 
     element.classList.add("has-tajweed");
-    tajweedText.segments.forEach(function (segment) {
-      var span = document.createElement("span");
-      span.textContent = segment.text || "";
-      if (segment.rule && segment.rule !== "plain") {
-        span.className = "tajweed-rule tajweed-" + normalizeTajweedRule(segment.rule);
-        span.title = segment.ruleName || tajweedRuleName(segment.rule);
-      }
-      element.appendChild(span);
-    });
+    renderTajweedWords(element, tajweedText, verseKey);
   }
 
   function renderTajweedLegend(id, verses, script) {
@@ -1617,6 +1922,7 @@
     var resourceSelect = document.getElementById("resourceSelect");
     var selectedResource = populateResourceSelect(language, contentMode);
 
+    configureMiniPlayerControls();
     setHref("appLink", appLink);
     setHref("landingLink", landingUrl);
     setHref("headerHomeLink", landingUrl);

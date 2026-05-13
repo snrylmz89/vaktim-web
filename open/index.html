@@ -418,6 +418,24 @@
             transition: color 160ms var(--ease), text-shadow 160ms var(--ease);
         }
 
+        .arabic-word {
+            display: inline;
+            border-radius: 0.2em;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            transition: background 140ms var(--ease), box-shadow 140ms var(--ease), color 140ms var(--ease);
+        }
+
+        .arabic-word.is-word-active {
+            background: linear-gradient(120deg, rgba(255,215,0,0.1), rgba(255,178,67,0.26));
+            box-shadow: 0 0 0 0.1em rgba(255,215,0,0.16), 0 0 24px rgba(255,178,67,0.18);
+            color: #fff5c7;
+        }
+
+        .arabic-text.has-tajweed .arabic-word.is-word-active {
+            color: inherit;
+        }
+
         .tajweed-ham_wasl,
         .tajweed-slnt {
             color: rgba(247,243,232,0.52);
@@ -532,6 +550,7 @@
             display: grid;
             gap: 12px;
             padding: clamp(18px, 3vw, 28px);
+            scroll-margin: 112px 0 150px;
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 24px;
             background: rgba(255,255,255,0.035);
@@ -686,6 +705,173 @@
             font-weight: 800;
         }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        body.has-mini-player {
+            padding-bottom: 126px;
+        }
+
+        .mini-player {
+            position: fixed;
+            left: 50%;
+            bottom: clamp(14px, 3vw, 28px);
+            z-index: 80;
+            width: min(940px, calc(100vw - 28px));
+            transform: translate(-50%, 18px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+        }
+
+        .mini-player.is-visible {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mini-player[hidden] {
+            display: none;
+        }
+
+        .mini-player-surface {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 14px 18px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 12% 10%, rgba(255,215,0,0.16), transparent 34%),
+                linear-gradient(135deg, rgba(18,24,28,0.94), rgba(8,15,18,0.92));
+            box-shadow: 0 24px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08);
+            backdrop-filter: blur(22px);
+        }
+
+        .mini-player-copy {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+
+        .mini-player-eyebrow {
+            color: #f7dc8a;
+            font: 900 0.68rem "Plus Jakarta Sans", system-ui, sans-serif;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .mini-player-copy strong {
+            overflow: hidden;
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .mini-player-copy span:last-child,
+        .mini-player-status {
+            color: var(--soft);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .mini-player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .mini-player-button {
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 40px;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 999px;
+            color: var(--text);
+            background: rgba(255,255,255,0.06);
+            font: 900 0.78rem "Plus Jakarta Sans", system-ui, sans-serif;
+            cursor: pointer;
+            transition: transform 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease), opacity 180ms var(--ease);
+        }
+
+        .mini-player-button.primary {
+            width: 50px;
+            min-width: 50px;
+            height: 50px;
+            min-height: 50px;
+            padding: 0;
+            color: #211603;
+            border-color: rgba(255,215,0,0.38);
+            background: linear-gradient(135deg, var(--gold-a), var(--gold-b));
+            box-shadow: 0 16px 34px rgba(255,165,0,0.14);
+        }
+
+        .mini-player-button.secondary {
+            width: 42px;
+            min-width: 42px;
+            height: 42px;
+            min-height: 42px;
+            padding: 0;
+        }
+
+        .mini-player-button svg {
+            width: 19px;
+            height: 19px;
+            flex: 0 0 auto;
+            fill: currentColor;
+        }
+
+        .mini-player-button.primary svg {
+            width: 21px;
+            height: 21px;
+        }
+
+        .mini-icon-pause {
+            display: none;
+        }
+
+        .mini-player-button.is-playing .mini-icon-play {
+            display: none;
+        }
+
+        .mini-player-button.is-playing .mini-icon-pause {
+            display: block;
+        }
+
+        .mini-player-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,215,0,0.42);
+        }
+
+        .mini-player-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.48;
+            transform: none;
+        }
+
+        .mini-progress,
+        .mini-player-status {
+            grid-column: 1 / -1;
+        }
+
+        .mini-progress {
+            margin-top: -2px;
+        }
+
         .footer {
             padding: 22px 0 30px;
             color: var(--soft);
@@ -705,6 +891,21 @@
             .control-field { width: 100%; min-width: 0; flex-basis: auto; }
             .language-select,
             .reader-select { width: 100%; }
+
+            .mini-player {
+                bottom: 9px;
+                width: min(560px, calc(100vw - 18px));
+            }
+
+            .mini-player-surface {
+                grid-template-columns: 1fr;
+                padding: 14px;
+                border-radius: 24px;
+            }
+
+            .mini-player-controls {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -728,7 +929,7 @@
                     <div class="actions">
                         <a class="btn primary" id="appLink" href="/">Uygulamada aç</a>
                         <a class="btn secondary" id="landingLink" href="/#cta">Vaktim'i keşfet</a>
-                        <a class="btn secondary" id="quranLink" href="/quran">Sure listesi</a>
+                        <a class="btn secondary" id="quranLink" href="/quran?lang=tr&script=tajweed">Sure listesi</a>
                     </div>
 
                     <p class="note" id="noteText">Uygulama yüklü değilse Vaktim'i keşfet bağlantısından web sayfasına dönebilirsin.</p>
@@ -849,6 +1050,44 @@
         <footer class="footer">
             &copy; 2026 Vaktim. Tüm hakları saklıdır.
         </footer>
+    </div>
+
+    <div class="mini-player" id="audioMiniPlayer" hidden aria-live="polite">
+        <div class="mini-player-surface">
+            <div class="mini-player-copy">
+                <span class="mini-player-eyebrow">Şu an dinleniyor</span>
+                <strong id="miniAudioTitle">Ayet sesi</strong>
+                <span id="miniAudioMeta">Ses kaynağı hazırlanıyor.</span>
+            </div>
+            <div class="mini-player-controls">
+                <button class="mini-player-button secondary" id="miniAudioPrev" type="button" disabled aria-label="Önceki ayet" title="Önceki ayet">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M7 6.75a.75.75 0 0 0-1.5 0v10.5a.75.75 0 0 0 1.5 0V13.8l8.1 4.78A1.25 1.25 0 0 0 17 17.5v-11a1.25 1.25 0 0 0-1.9-1.08L7 10.2V6.75Z"/>
+                    </svg>
+                    <span class="sr-only">Önceki ayet</span>
+                </button>
+                <button class="mini-player-button primary" id="miniAudioToggle" type="button" disabled aria-label="Oynat" title="Oynat">
+                    <svg class="mini-icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M8 5.9v12.2c0 .88.98 1.4 1.72.92l9.5-6.1a1.1 1.1 0 0 0 0-1.84l-9.5-6.1A1.1 1.1 0 0 0 8 5.9Z"/>
+                    </svg>
+                    <svg class="mini-icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M7.75 5.5A1.25 1.25 0 0 0 6.5 6.75v10.5c0 .69.56 1.25 1.25 1.25h1.5c.69 0 1.25-.56 1.25-1.25V6.75c0-.69-.56-1.25-1.25-1.25h-1.5Zm7 0a1.25 1.25 0 0 0-1.25 1.25v10.5c0 .69.56 1.25 1.25 1.25h1.5c.69 0 1.25-.56 1.25-1.25V6.75c0-.69-.56-1.25-1.25-1.25h-1.5Z"/>
+                    </svg>
+                    <span class="sr-only" id="miniAudioToggleLabel">Oynat</span>
+                </button>
+                <button class="mini-player-button secondary" id="miniAudioNext" type="button" disabled aria-label="Sonraki ayet" title="Sonraki ayet">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M17 6.75a.75.75 0 0 1 1.5 0v10.5a.75.75 0 0 1-1.5 0V13.8l-8.1 4.78A1.25 1.25 0 0 1 7 17.5v-11a1.25 1.25 0 0 1 1.9-1.08l8.1 4.78V6.75Z"/>
+                    </svg>
+                    <span class="sr-only">Sonraki ayet</span>
+                </button>
+            </div>
+            <div class="audio-progress mini-progress" id="miniAudioProgress" aria-hidden="true">
+                <span class="audio-bar"><span class="audio-bar-fill"></span></span>
+                <span class="audio-time">0:00</span>
+            </div>
+            <div class="mini-player-status" id="miniAudioStatus" role="status">Dinlemek için sesi başlat.</div>
+        </div>
     </div>
 
     <script src="/js/open-fallback.js" defer></script>
