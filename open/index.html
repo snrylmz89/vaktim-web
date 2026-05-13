@@ -404,9 +404,9 @@
 
         .prayer-form {
             display: grid;
-            grid-template-columns: minmax(160px, 0.8fr) minmax(200px, 1.2fr) minmax(150px, 0.75fr) auto;
-            gap: 12px;
-            align-items: end;
+            grid-template-columns: minmax(150px, 0.75fr) minmax(220px, 1fr) minmax(306px, 1fr) auto;
+            gap: 14px;
+            align-items: start;
         }
 
         .prayer-field {
@@ -438,6 +438,27 @@
             font: 800 0.94rem "Plus Jakarta Sans", system-ui, sans-serif;
             outline: none;
             transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+        }
+
+        .prayer-date-row {
+            display: grid;
+            grid-template-columns: 48px minmax(178px, 1fr) 48px;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .prayer-date-input {
+            color-scheme: dark;
+            padding-right: 46px;
+            background:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23f7f3e8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z'/%3E%3C/svg%3E") calc(100% - 16px) center / 18px 18px no-repeat,
+                linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+                rgba(4,9,16,0.88);
+        }
+
+        .prayer-date-input::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0;
         }
 
         .prayer-select {
@@ -473,10 +494,10 @@
         }
 
         .prayer-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            display: grid;
+            align-items: end;
             justify-content: flex-end;
+            padding-top: 25px;
         }
 
         .prayer-button {
@@ -504,6 +525,12 @@
             border-color: rgba(255,255,255,0.12);
             background: rgba(255,255,255,0.055);
             box-shadow: none;
+        }
+
+        .prayer-day-button {
+            width: 48px;
+            padding: 0;
+            font-size: 1.08rem;
         }
 
         .prayer-button:hover {
@@ -1101,7 +1128,7 @@
             .language-select,
             .reader-select { width: 100%; }
             .prayer-form { grid-template-columns: 1fr; }
-            .prayer-actions { justify-content: stretch; }
+            .prayer-actions { justify-content: stretch; padding-top: 0; }
             .prayer-button { flex: 1; }
             .prayer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -1271,14 +1298,16 @@
                                         <datalist id="prayerCityList"></datalist>
                                         <span class="prayer-helper" id="prayerCityHelp">Şehir listesi hazırlanıyor...</span>
                                     </label>
-                                    <label class="prayer-field">
+                                    <div class="prayer-field prayer-date-field">
                                         <span class="prayer-label">Tarih</span>
-                                        <input class="prayer-input" id="prayerDateInput" name="date" type="date">
-                                    </label>
-                                    <div class="prayer-actions" aria-label="Tarih işlemleri">
-                                        <button class="prayer-button secondary" id="prayerPrevDate" type="button" aria-label="Önceki gün">‹</button>
+                                        <div class="prayer-date-row" aria-label="Tarih işlemleri">
+                                            <button class="prayer-button secondary prayer-day-button" id="prayerPrevDate" type="button" aria-label="Önceki gün">‹</button>
+                                            <input class="prayer-input prayer-date-input" id="prayerDateInput" name="date" type="date">
+                                            <button class="prayer-button secondary prayer-day-button" id="prayerNextDate" type="button" aria-label="Sonraki gün">›</button>
+                                        </div>
+                                    </div>
+                                    <div class="prayer-actions">
                                         <button class="prayer-button" type="submit">Vakitleri getir</button>
-                                        <button class="prayer-button secondary" id="prayerNextDate" type="button" aria-label="Sonraki gün">›</button>
                                     </div>
                                 </form>
                             </div>
