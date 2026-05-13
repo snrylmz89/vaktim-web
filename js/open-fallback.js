@@ -657,7 +657,10 @@
     var toggleButton = document.getElementById("miniAudioToggle");
     if (toggleButton) {
       toggleButton.disabled = audioState.loading;
-      toggleButton.textContent = playing ? "Duraklat" : "Devam et";
+      toggleButton.classList.toggle("is-playing", playing);
+      toggleButton.setAttribute("aria-label", playing ? "Duraklat" : "Devam et");
+      toggleButton.title = playing ? "Duraklat" : "Devam et";
+      setText("miniAudioToggleLabel", playing ? "Duraklat" : "Devam et");
     }
 
     var previousButton = document.getElementById("miniAudioPrev");
