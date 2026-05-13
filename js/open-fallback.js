@@ -80,6 +80,47 @@
     requestId: 0,
     abortController: null,
   };
+  var prayerState = {
+    requestId: 0,
+    abortController: null,
+  };
+  var FALLBACK_PRAYER_LOCATION_CATALOG = {
+    version: "fallback-2026-05-14",
+    defaultLocationId: "tr-istanbul",
+    countries: [
+      { code: "TR", name: "Turkey", label: "Türkiye", timezone: "Europe/Istanbul", cityCount: 3 },
+      { code: "GB", name: "United Kingdom", label: "United Kingdom", timezone: "Europe/London", cityCount: 1 },
+      { code: "DE", name: "Germany", label: "Germany", timezone: "Europe/Berlin", cityCount: 1 },
+      { code: "FR", name: "France", label: "France", timezone: "Europe/Paris", cityCount: 1 },
+      { code: "ID", name: "Indonesia", label: "Indonesia", timezone: "Asia/Jakarta", cityCount: 1 },
+      { code: "MY", name: "Malaysia", label: "Malaysia", timezone: "Asia/Kuala_Lumpur", cityCount: 1 },
+      { code: "SA", name: "Saudi Arabia", label: "Saudi Arabia", timezone: "Asia/Riyadh", cityCount: 1 },
+    ],
+    locations: [
+      { id: "tr-istanbul", city: "Istanbul", cityLabel: "İstanbul", country: "Turkey", countryCode: "TR", countryLabel: "Türkiye", timezone: "Europe/Istanbul", priority: 100 },
+      { id: "tr-ankara", city: "Ankara", cityLabel: "Ankara", country: "Turkey", countryCode: "TR", countryLabel: "Türkiye", timezone: "Europe/Istanbul", priority: 90 },
+      { id: "tr-izmir", city: "Izmir", cityLabel: "İzmir", country: "Turkey", countryCode: "TR", countryLabel: "Türkiye", timezone: "Europe/Istanbul", priority: 80 },
+      { id: "gb-london", city: "London", cityLabel: "London", country: "United Kingdom", countryCode: "GB", countryLabel: "United Kingdom", timezone: "Europe/London", priority: 70 },
+      { id: "de-berlin", city: "Berlin", cityLabel: "Berlin", country: "Germany", countryCode: "DE", countryLabel: "Germany", timezone: "Europe/Berlin", priority: 65 },
+      { id: "fr-paris", city: "Paris", cityLabel: "Paris", country: "France", countryCode: "FR", countryLabel: "France", timezone: "Europe/Paris", priority: 65 },
+      { id: "id-jakarta", city: "Jakarta", cityLabel: "Jakarta", country: "Indonesia", countryCode: "ID", countryLabel: "Indonesia", timezone: "Asia/Jakarta", priority: 65 },
+      { id: "my-kuala-lumpur", city: "Kuala Lumpur", cityLabel: "Kuala Lumpur", country: "Malaysia", countryCode: "MY", countryLabel: "Malaysia", timezone: "Asia/Kuala_Lumpur", priority: 65 },
+      { id: "sa-makkah", city: "Makkah", cityLabel: "Mekke", country: "Saudi Arabia", countryCode: "SA", countryLabel: "Saudi Arabia", timezone: "Asia/Riyadh", priority: 70 },
+    ],
+  };
+  var prayerLocationState = {
+    catalog: FALLBACK_PRAYER_LOCATION_CATALOG,
+    source: "fallback",
+    loaded: false,
+    authoritative: false,
+    loading: null,
+    countries: [],
+    locations: [],
+    byId: {},
+    countriesByCode: {},
+    countriesByLookup: {},
+    locationsByCountry: {},
+  };
   var TAJWEED_RULE_NAMES = {
     end: "Ayet sonu",
     ham_wasl: "Hemzetu'l vasl",
@@ -131,6 +172,38 @@
   function normalizeDate(value) {
     var text = cleanText(value, "");
     return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : "";
+  }
+
+  function normalizeTimezone(value) {
+    return cleanText(value, "");
+  }
+
+  function getTodayInTimezone(timezone) {
+    try {
+      var resolvedTimezone = normalizeTimezone(timezone) || "Europe/Istanbul";
+      var parts = new Intl.DateTimeFormat("en", {
+        timeZone: resolvedTimezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(new Date());
+      var year = parts.find(function (part) { return part.type === "year"; })?.value;
+      var month = parts.find(function (part) { return part.type === "month"; })?.value;
+      var day = parts.find(function (part) { return part.type === "day"; })?.value;
+      if (year && month && day) return year + "-" + month + "-" + day;
+    } catch (error) {
+      // Fall back to the browser date if the timezone is not available.
+    }
+
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function addDaysToIsoDate(date, amount) {
+    var normalized = normalizeDate(date) || getTodayInTimezone("Europe/Istanbul");
+    var parts = normalized.split("-").map(function (part) { return Number(part); });
+    var candidate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    candidate.setUTCDate(candidate.getUTCDate() + amount);
+    return candidate.toISOString().slice(0, 10);
   }
 
   function appendTracking(url, params) {
@@ -188,20 +261,42 @@
   }
 
   function parsePrayer(params) {
-    var city = cleanText(params.get("city"), "Seçili şehir");
-    var country = cleanText(params.get("country"), "Turkey");
-    var date = normalizeDate(params.get("date"));
+    var locationId = cleanText(params.get("locationId"), "").toLowerCase();
+    var countryCode = normalizeCountryCode(params.get("countryCode"));
+    var location = findPrayerLocationById(locationId);
+    var city = cleanText(params.get("city"), location ? location.city : (locationId ? "" : "Istanbul"));
+    var country = cleanText(params.get("country"), location ? location.country : "Turkey");
+    var cityLabel = location ? location.cityLabel : (city || "Seçili şehir");
+    var countryLabel = location ? location.countryLabel : country;
+    if (location) {
+      city = location.city;
+      country = location.country;
+      countryCode = location.countryCode;
+    }
+    var timezone = location ? location.timezone : normalizeTimezone(params.get("timezone"));
+    var date = normalizeDate(params.get("date")) || getTodayInTimezone(timezone);
     var appUrl = new URL("vaktim://prayer-times");
 
     appUrl.searchParams.set("city", city);
     appUrl.searchParams.set("country", country);
-    if (date) appUrl.searchParams.set("date", date);
+    appUrl.searchParams.set("date", date);
+    if (countryCode) appUrl.searchParams.set("countryCode", countryCode);
+    if (locationId) appUrl.searchParams.set("locationId", locationId);
+    if (timezone) appUrl.searchParams.set("timezone", timezone);
 
     return {
       kind: "prayer",
-      title: city + " namaz vakitleri",
-      target: date ? city + " - " + date : city,
+      title: cityLabel + " namaz vakitleri",
+      target: date ? cityLabel + " - " + date : cityLabel,
       appPath: appUrl.toString(),
+      city: city,
+      cityLabel: cityLabel,
+      country: country,
+      countryCode: countryCode,
+      countryLabel: countryLabel,
+      date: date,
+      timezone: timezone,
+      locationId: locationId,
     };
   }
 
@@ -360,10 +455,15 @@
     return url.toString();
   }
 
-  async function fetchJson(url) {
-    var response = await fetch(url, {
+  async function fetchJson(url, options) {
+    var requestOptions = options || {};
+    var fetchOptions = {
       headers: { accept: "application/json" },
-    });
+    };
+    if (requestOptions.signal) {
+      fetchOptions.signal = requestOptions.signal;
+    }
+    var response = await fetch(url, fetchOptions);
     var payload = await response.json().catch(function () {
       return null;
     });
@@ -378,19 +478,205 @@
     return payload.data;
   }
 
-  async function fetchApiJson(path, params) {
+  async function fetchApiJson(path, params, options) {
     var lastError = null;
+    var requestOptions = options || {};
 
     for (var index = 0; index < API_BASE_URLS.length; index += 1) {
       try {
-        return await fetchJson(requestUrl(API_BASE_URLS[index], path, params));
+        return await fetchJson(requestUrl(API_BASE_URLS[index], path, params), requestOptions);
       } catch (error) {
+        if (requestOptions.signal && requestOptions.signal.aborted) throw error;
         lastError = error;
       }
     }
 
     throw lastError || new Error("İçerik şu anda alınamadı.");
   }
+
+  function abortPrayerRequest() {
+    if (prayerState.abortController) {
+      prayerState.abortController.abort();
+      prayerState.abortController = null;
+    }
+  }
+
+  function beginPrayerRequest() {
+    abortPrayerRequest();
+    prayerState.requestId += 1;
+    prayerState.abortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+    return {
+      id: prayerState.requestId,
+      signal: prayerState.abortController ? prayerState.abortController.signal : null,
+    };
+  }
+
+  function isCurrentPrayerRequest(request) {
+    return Boolean(request && request.id === prayerState.requestId && !(request.signal && request.signal.aborted));
+  }
+
+  function finishPrayerRequest(request) {
+    if (!isCurrentPrayerRequest(request)) return;
+    prayerState.abortController = null;
+  }
+
+  function normalizeLocationLookup(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ı/g, "i")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  function normalizeCountryCode(value) {
+    var code = cleanText(value, "").toUpperCase();
+    return /^[A-Z]{2}$/.test(code) ? code : "";
+  }
+
+  function indexPrayerLocationCatalog(catalog, source) {
+    var safeCatalog = catalog && Array.isArray(catalog.locations) ? catalog : FALLBACK_PRAYER_LOCATION_CATALOG;
+    var countries = Array.isArray(safeCatalog.countries) ? safeCatalog.countries.slice() : [];
+    var locations = safeCatalog.locations.slice();
+    var countriesByCode = {};
+    var countriesByLookup = {};
+    var locationsByCountry = {};
+    var byId = {};
+
+    locations.forEach(function (location) {
+      var code = normalizeCountryCode(location.countryCode);
+      if (!code || !location.id) return;
+      byId[String(location.id).toLowerCase()] = location;
+      if (!locationsByCountry[code]) locationsByCountry[code] = [];
+      locationsByCountry[code].push(location);
+    });
+
+    locationsByCountry = Object.keys(locationsByCountry).reduce(function (next, code) {
+      next[code] = locationsByCountry[code].slice().sort(function (left, right) {
+        var priorityDiff = (right.priority || 0) - (left.priority || 0);
+        if (priorityDiff) return priorityDiff;
+        return String(left.cityLabel || left.city).localeCompare(String(right.cityLabel || right.city), "tr");
+      });
+      return next;
+    }, {});
+
+    countries.forEach(function (country) {
+      var code = normalizeCountryCode(country.code);
+      if (!code) return;
+      var normalized = {
+        code: code,
+        name: cleanText(country.name, code),
+        label: cleanText(country.label, country.name || code),
+        timezone: normalizeTimezone(country.timezone),
+        cityCount: Number(country.cityCount || (locationsByCountry[code] || []).length || 0),
+      };
+      countriesByCode[code] = normalized;
+      countriesByLookup[normalizeLocationLookup(normalized.code)] = normalized;
+      countriesByLookup[normalizeLocationLookup(normalized.name)] = normalized;
+      countriesByLookup[normalizeLocationLookup(normalized.label)] = normalized;
+    });
+
+    Object.keys(locationsByCountry).forEach(function (code) {
+      if (countriesByCode[code]) return;
+      var sample = locationsByCountry[code][0];
+      countriesByCode[code] = {
+        code: code,
+        name: sample.country,
+        label: sample.countryLabel || sample.country,
+        timezone: sample.timezone,
+        cityCount: locationsByCountry[code].length,
+      };
+    });
+
+    prayerLocationState.catalog = safeCatalog;
+    prayerLocationState.source = source || "api";
+    prayerLocationState.loaded = true;
+    prayerLocationState.authoritative = source === "api";
+    prayerLocationState.countries = Object.keys(countriesByCode).map(function (code) {
+      return countriesByCode[code];
+    }).sort(function (left, right) {
+      if (left.code === "TR") return -1;
+      if (right.code === "TR") return 1;
+      return left.label.localeCompare(right.label, "tr");
+    });
+    prayerLocationState.locations = locations;
+    prayerLocationState.byId = byId;
+    prayerLocationState.countriesByCode = countriesByCode;
+    prayerLocationState.countriesByLookup = countriesByLookup;
+    prayerLocationState.locationsByCountry = locationsByCountry;
+  }
+
+  function loadPrayerLocationCatalog() {
+    if (prayerLocationState.loaded) return Promise.resolve(prayerLocationState.catalog);
+    if (prayerLocationState.loading) return prayerLocationState.loading;
+
+    prayerLocationState.loading = fetchApiJson("/api/prayer-locations", new URLSearchParams())
+      .then(function (catalog) {
+        indexPrayerLocationCatalog(catalog, "api");
+        return prayerLocationState.catalog;
+      })
+      .catch(function () {
+        indexPrayerLocationCatalog(FALLBACK_PRAYER_LOCATION_CATALOG, "fallback");
+        return prayerLocationState.catalog;
+      })
+      .finally(function () {
+        prayerLocationState.loading = null;
+      });
+
+    return prayerLocationState.loading;
+  }
+
+  function findPrayerLocationById(locationId) {
+    var normalized = String(locationId || "").trim().toLowerCase();
+    return normalized ? prayerLocationState.byId[normalized] : null;
+  }
+
+  function findPrayerCountry(value) {
+    var code = normalizeCountryCode(value);
+    if (code && prayerLocationState.countriesByCode[code]) return prayerLocationState.countriesByCode[code];
+    return prayerLocationState.countriesByLookup[normalizeLocationLookup(value)] || null;
+  }
+
+  function getDefaultPrayerCountry() {
+    return findPrayerCountry("TR") || prayerLocationState.countries[0] || {
+      code: "TR",
+      name: "Turkey",
+      label: "Türkiye",
+      timezone: "Europe/Istanbul",
+      cityCount: 0,
+    };
+  }
+
+  function getPrayerLocationsForCountry(countryCode) {
+    return prayerLocationState.locationsByCountry[normalizeCountryCode(countryCode)] || [];
+  }
+
+  function findPrayerLocationByCity(city, countryCode) {
+    var cityLookup = normalizeLocationLookup(city);
+    if (!cityLookup) return null;
+
+    return getPrayerLocationsForCountry(countryCode).find(function (location) {
+      return normalizeLocationLookup(location.city) === cityLookup ||
+        normalizeLocationLookup(location.cityLabel) === cityLookup;
+    }) || null;
+  }
+
+  function prayerValuesFromLocation(location, date) {
+    return {
+      city: location.city,
+      cityLabel: location.cityLabel || location.city,
+      country: location.country,
+      countryCode: location.countryCode,
+      countryLabel: location.countryLabel || location.country,
+      date: normalizeDate(date) || getTodayInTimezone(location.timezone),
+      timezone: location.timezone,
+      locationId: location.id,
+    };
+  }
+
+  indexPrayerLocationCatalog(FALLBACK_PRAYER_LOCATION_CATALOG, "fallback");
+  prayerLocationState.loaded = false;
 
   async function fetchExternalJson(url, options) {
     var requestOptions = options || {};
@@ -1868,9 +2154,11 @@
     if (!reader || (context.kind !== "ayah" && context.kind !== "surah")) return;
 
     reader.hidden = false;
+    reader.classList.remove("is-prayer-mode");
     var selectedResource = resource || getCurrentResource(language, mode);
     var selectedScript = normalizeScript(script || getCurrentQuranScript());
     resetAudioUi();
+    setPanelVisible("prayerPanel", false);
     setLoading(true, context.kind === "ayah" ? "Ayet hazırlanıyor..." : "Sure hazırlanıyor...");
 
     try {
@@ -1883,8 +2171,370 @@
       setStatus(error && error.message ? error.message : "İçerik şu anda alınamadı.");
       setPanelVisible("ayahPanel", false);
       setPanelVisible("surahPanel", false);
+      setPanelVisible("prayerPanel", false);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function setInputValue(id, value) {
+    var element = document.getElementById(id);
+    if (element) element.value = value || "";
+  }
+
+  function renderPrayerCountryOptions(context) {
+    var select = document.getElementById("prayerCountryInput");
+    if (!select) return getDefaultPrayerCountry();
+    var version = prayerLocationState.catalog && prayerLocationState.catalog.version
+      ? prayerLocationState.catalog.version
+      : "unknown";
+
+    if (select.dataset.catalogVersion !== version) {
+      select.textContent = "";
+      prayerLocationState.countries.forEach(function (country) {
+        var option = document.createElement("option");
+        option.value = country.code;
+        option.textContent = country.label || country.name || country.code;
+        select.appendChild(option);
+      });
+      select.dataset.catalogVersion = version;
+    }
+
+    var country = findPrayerCountry(context.countryCode) ||
+      findPrayerCountry(context.country) ||
+      getDefaultPrayerCountry();
+    select.value = country.code;
+    return country;
+  }
+
+  function updatePrayerCityOptions(countryCode) {
+    var datalist = document.getElementById("prayerCityList");
+    var cityInput = document.getElementById("prayerCityInput");
+    var help = document.getElementById("prayerCityHelp");
+    var locations = getPrayerLocationsForCountry(countryCode);
+
+    if (datalist) {
+      datalist.textContent = "";
+      locations.forEach(function (location) {
+        var option = document.createElement("option");
+        option.value = location.cityLabel || location.city;
+        option.label = location.city;
+        datalist.appendChild(option);
+      });
+    }
+
+    if (cityInput) {
+      cityInput.disabled = false;
+      cityInput.placeholder = locations[0] ? (locations[0].cityLabel || locations[0].city) : "Şehir yaz";
+    }
+
+    if (help) {
+      if (normalizeCountryCode(countryCode) === "TR") {
+        help.textContent = "Türkiye için şehirleri listeden seçebilirsin.";
+      } else if (locations.length) {
+        help.textContent = "Listede varsa seç; yoksa şehir adını yazabilirsin.";
+      } else {
+        help.textContent = "Bu ülke için şehir adını yazabilirsin.";
+      }
+    }
+  }
+
+  function resolvePrayerContextLocation(context) {
+    var country = findPrayerCountry(context.countryCode) ||
+      findPrayerCountry(context.country) ||
+      getDefaultPrayerCountry();
+    var location = findPrayerLocationById(context.locationId) ||
+      findPrayerLocationByCity(context.cityLabel || context.city, country.code);
+    if (!location) return;
+    applyPrayerValues(context, prayerValuesFromLocation(location, context.date));
+  }
+
+  function getPrayerFormValues(context) {
+    var cityInput = document.getElementById("prayerCityInput");
+    var countrySelect = document.getElementById("prayerCountryInput");
+    var dateInput = document.getElementById("prayerDateInput");
+    var country = findPrayerCountry(countrySelect && countrySelect.value ? countrySelect.value : context.countryCode) ||
+      findPrayerCountry(context.country) ||
+      getDefaultPrayerCountry();
+    var cityText = cleanText(
+      cityInput && cityInput.value ? cityInput.value : (context.cityLabel || context.city),
+      context.cityLabel || context.city || "İstanbul",
+    );
+    var date = normalizeDate(dateInput && dateInput.value ? dateInput.value : context.date) ||
+      getTodayInTimezone(context.timezone || country.timezone);
+    var location = findPrayerLocationByCity(cityText, country.code);
+
+    if (location) {
+      return prayerValuesFromLocation(location, date);
+    }
+
+    var locationChanged = cityText !== (context.cityLabel || context.city) || country.code !== context.countryCode;
+
+    return {
+      city: cityText,
+      cityLabel: cityText,
+      country: country.name,
+      countryCode: country.code,
+      countryLabel: country.label,
+      date: date,
+      timezone: locationChanged ? "" : normalizeTimezone(context.timezone),
+      locationId: "",
+      invalidLocationSelection: prayerLocationState.authoritative && country.code === "TR",
+    };
+  }
+
+  function buildPrayerAppPath(values) {
+    var appUrl = new URL("vaktim://prayer-times");
+    appUrl.searchParams.set("city", values.city);
+    appUrl.searchParams.set("country", values.country);
+    appUrl.searchParams.set("date", values.date);
+    if (values.countryCode) appUrl.searchParams.set("countryCode", values.countryCode);
+    if (values.locationId) appUrl.searchParams.set("locationId", values.locationId);
+    if (values.timezone) appUrl.searchParams.set("timezone", values.timezone);
+    return appUrl.toString();
+  }
+
+  function applyPrayerValues(context, values) {
+    context.city = values.city;
+    context.cityLabel = values.cityLabel || values.city;
+    context.country = values.country;
+    context.countryCode = values.countryCode || "";
+    context.countryLabel = values.countryLabel || values.country;
+    context.date = values.date;
+    context.timezone = values.timezone;
+    context.locationId = values.locationId || "";
+    context.title = (context.cityLabel || values.city) + " namaz vakitleri";
+    context.target = (context.cityLabel || values.city) + " - " + values.date;
+    context.appPath = buildPrayerAppPath(values);
+  }
+
+  function syncPrayerUrl(context, language) {
+    var nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("city", context.city);
+    nextUrl.searchParams.set("country", context.country);
+    nextUrl.searchParams.set("date", context.date);
+    if (context.timezone) {
+      nextUrl.searchParams.set("timezone", context.timezone);
+    } else {
+      nextUrl.searchParams.delete("timezone");
+    }
+    if (context.countryCode) {
+      nextUrl.searchParams.set("countryCode", context.countryCode);
+    } else {
+      nextUrl.searchParams.delete("countryCode");
+    }
+    if (context.locationId) {
+      nextUrl.searchParams.set("locationId", context.locationId);
+    } else {
+      nextUrl.searchParams.delete("locationId");
+    }
+    nextUrl.searchParams.set("lang", normalizeLanguage(language));
+    window.history.replaceState(null, "", nextUrl.toString());
+
+    var params = new URLSearchParams(window.location.search);
+    setHref("appLink", withSource(context.appPath, params));
+  }
+
+  function hydratePrayerInputs(context) {
+    var country = renderPrayerCountryOptions(context);
+    updatePrayerCityOptions(country.code);
+    setInputValue("prayerCityInput", context.cityLabel || context.city);
+    setInputValue("prayerDateInput", context.date);
+  }
+
+  function buildPrayerRequestParams(context, language) {
+    var currentParams = new URLSearchParams(window.location.search);
+    var params = new URLSearchParams();
+    params.set("city", context.city);
+    params.set("country", context.country);
+    params.set("date", context.date);
+    if (context.countryCode) params.set("countryCode", context.countryCode);
+    if (context.locationId) params.set("locationId", context.locationId);
+    if (context.timezone) params.set("timezone", context.timezone);
+    params.set("lang", normalizeLanguage(language));
+    params.set("source", cleanText(currentParams.get("source"), "web_fallback"));
+    return params;
+  }
+
+  function setPrayerError(message) {
+    var error = document.getElementById("prayerError");
+    if (!error) return;
+    error.textContent = message || "";
+    error.hidden = !message;
+  }
+
+  function renderPrayerSchedule(data) {
+    var schedule = Array.isArray(data.schedule) ? data.schedule : [];
+    var scheduleElement = document.getElementById("prayerSchedule");
+    if (!scheduleElement) return;
+
+    scheduleElement.textContent = "";
+    setPrayerError("");
+
+    var displayCity = data.cityLabel || data.city || "Seçili şehir";
+    var displayCountry = data.countryLabel || data.country;
+    setText("prayerLocationTitle", displayCity + " namaz vakitleri");
+    setText(
+      "prayerLocationMeta",
+      [displayCountry, data.timezone].filter(Boolean).join(" • ") || "Seçili konum",
+    );
+    setText("prayerDateChip", data.readableDate || data.date || "Bugün");
+
+    schedule.forEach(function (entry) {
+      var card = document.createElement("div");
+      card.className = "prayer-time-card";
+
+      var name = document.createElement("span");
+      name.textContent = entry.name || entry.key || "Vakit";
+
+      var time = document.createElement("strong");
+      time.textContent = entry.time || "--:--";
+
+      card.appendChild(name);
+      card.appendChild(time);
+      scheduleElement.appendChild(card);
+    });
+
+    if (!schedule.length) {
+      setPrayerError("Bu tarih ve şehir için vakitler şu anda alınamadı.");
+    }
+
+    var providerName = data.provider && data.provider.name ? data.provider.name : "Vaktim.app / Diyanet İşleri Başkanlığı";
+    var methodName = data.provider && data.provider.calculationMethodName ? data.provider.calculationMethodName : "";
+    var hijriDate = data.hijriDate ? " • Hicri: " + data.hijriDate : "";
+    setText(
+      "prayerProviderText",
+      "Kaynak: " + providerName + (methodName ? " • " + methodName : "") + hijriDate,
+    );
+  }
+
+  async function loadPrayerContent(context, language) {
+    var reader = document.getElementById("reader");
+    if (!reader || context.kind !== "prayer") return;
+
+    reader.hidden = false;
+    reader.classList.add("is-prayer-mode");
+    setText("quranLink", "Kur'an");
+    resetAudioUi();
+    setPanelVisible("ayahPanel", false);
+    setPanelVisible("surahPanel", false);
+    setPanelVisible("prayerPanel", false);
+    setStatus("Namaz vakitleri yükleniyor...");
+    setLoading(true, "Namaz vakitleri hazırlanıyor...");
+    var request = beginPrayerRequest();
+
+    try {
+      await loadPrayerLocationCatalog();
+      if (!isCurrentPrayerRequest(request)) return;
+      resolvePrayerContextLocation(context);
+      hydratePrayerInputs(context);
+      var data = await fetchApiJson(
+        "/api/prayer-times",
+        buildPrayerRequestParams(context, language),
+        { signal: request.signal },
+      );
+      if (!isCurrentPrayerRequest(request)) return;
+      applyPrayerValues(context, {
+        city: data.city || context.city,
+        cityLabel: data.cityLabel || context.cityLabel || data.city || context.city,
+        country: data.country || context.country,
+        countryCode: data.countryCode || context.countryCode,
+        countryLabel: data.countryLabel || context.countryLabel || data.country || context.country,
+        date: data.date || context.date,
+        timezone: data.timezone || context.timezone,
+        locationId: data.locationId || context.locationId,
+      });
+      hydratePrayerInputs(context);
+      syncPrayerUrl(context, language);
+      document.title = context.target + " | Vaktim";
+      setText("pageTitle", context.title);
+      setText("leadText", "Seçili şehir ve tarih için namaz vakitlerini güvenli şekilde görebilir, uygulamada takibe devam edebilirsin.");
+      renderPrayerSchedule(data);
+      setStatus((data.readableDate || data.date || context.date) + " - " + (data.city || context.city));
+      setPanelVisible("prayerPanel", true);
+    } catch (error) {
+      if (!isCurrentPrayerRequest(request) || isAbortError(error)) return;
+      setPrayerError(error && error.message ? error.message : "Namaz vakitleri şu anda alınamadı.");
+      setText("prayerLocationTitle", context.title);
+      setText("prayerLocationMeta", [context.countryLabel || context.country, context.timezone].filter(Boolean).join(" • "));
+      setText("prayerDateChip", context.date || "Bugün");
+      setText("prayerProviderText", "");
+      setStatus("Namaz vakitleri alınamadı.");
+      setPanelVisible("prayerPanel", true);
+    } finally {
+      if (isCurrentPrayerRequest(request)) {
+        finishPrayerRequest(request);
+        setLoading(false);
+      }
+    }
+  }
+
+  function setupPrayerControls(context, language) {
+    var form = document.getElementById("prayerForm");
+    var prev = document.getElementById("prayerPrevDate");
+    var next = document.getElementById("prayerNextDate");
+    var countrySelect = document.getElementById("prayerCountryInput");
+    var cityInput = document.getElementById("prayerCityInput");
+    if (!form || form.dataset.bound === "true") return;
+
+    form.dataset.bound = "true";
+    loadPrayerLocationCatalog().then(function () {
+      resolvePrayerContextLocation(context);
+      hydratePrayerInputs(context);
+    });
+
+    if (countrySelect) {
+      countrySelect.addEventListener("change", function () {
+        var country = findPrayerCountry(countrySelect.value) || getDefaultPrayerCountry();
+        var locations = getPrayerLocationsForCountry(country.code);
+        updatePrayerCityOptions(country.code);
+        if (cityInput && locations.length) {
+          cityInput.value = locations[0].cityLabel || locations[0].city;
+        } else if (cityInput) {
+          cityInput.value = "";
+        }
+        setPrayerError("");
+      });
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var values = getPrayerFormValues(context);
+      if (values.invalidLocationSelection) {
+        setPrayerError("Türkiye için şehir alanından listedeki bir ili seçmelisin.");
+        return;
+      }
+      applyPrayerValues(context, values);
+      syncPrayerUrl(context, language);
+      loadPrayerContent(context, language);
+    });
+
+    if (prev) {
+      prev.addEventListener("click", function () {
+        var values = getPrayerFormValues(context);
+        if (values.invalidLocationSelection) {
+          setPrayerError("Önce şehir alanından listedeki bir ili seçmelisin.");
+          return;
+        }
+        values.date = addDaysToIsoDate(values.date, -1);
+        applyPrayerValues(context, values);
+        syncPrayerUrl(context, language);
+        loadPrayerContent(context, language);
+      });
+    }
+
+    if (next) {
+      next.addEventListener("click", function () {
+        var values = getPrayerFormValues(context);
+        if (values.invalidLocationSelection) {
+          setPrayerError("Önce şehir alanından listedeki bir ili seçmelisin.");
+          return;
+        }
+        values.date = addDaysToIsoDate(values.date, 1);
+        applyPrayerValues(context, values);
+        syncPrayerUrl(context, language);
+        loadPrayerContent(context, language);
+      });
     }
   }
 
@@ -2013,6 +2663,8 @@
       setText("kicker", "Namaz vakti bağlantısı");
       setText("pageTitle", context.title);
       setText("leadText", "Seçili şehir için namaz vakitlerini Vaktim uygulamasında takip edebilirsin.");
+      setupPrayerControls(context, language);
+      loadPrayerContent(context, language);
       return;
     }
   }
