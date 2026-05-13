@@ -8,6 +8,8 @@
     { "source": "/surah/:path*", "destination": "/open" },
     { "source": "/prayer-times", "destination": "/open" },
     { "source": "/prayer-times/:path*", "destination": "/open" },
+    { "source": "/quran", "destination": "/quran/index.html" },
+    { "source": "/quran/", "destination": "/quran/index.html" },
     { "source": "/davet", "destination": "/api/davet" },
     { "source": "/davet/", "destination": "/api/davet" },
     { "source": "/davet/:path*", "destination": "/api/davet" }
@@ -22,7 +24,7 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         { "key": "X-DNS-Prefetch-Control", "value": "off" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://*.supabase.co https://api.vaktim.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://*.supabase.co https://api.vaktim.app https://mcp.vaktim.app https://api.quran.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'" }
       ]
     },
     {
