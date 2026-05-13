@@ -200,6 +200,7 @@
 
   function render() {
     var grid = document.getElementById("surahGrid");
+    var loadingState = document.getElementById("loadingState");
     var resultCount = document.getElementById("resultCount");
     var emptyState = document.getElementById("emptyState");
     var sortButton = document.getElementById("sortButton");
@@ -215,6 +216,8 @@
     resultCount.textContent = result.length + " sure";
     sortButton.textContent = "Sıralama: " + (state.ascending ? "Artan" : "Azalan");
     emptyState.classList.toggle("is-visible", result.length === 0);
+    grid.hidden = false;
+    if (loadingState) loadingState.hidden = true;
     if (featuredSurahLink) featuredSurahLink.href = buildSurahUrl(67);
   }
 
