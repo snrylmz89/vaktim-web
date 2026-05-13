@@ -1,6 +1,6 @@
 (function () {
   var MAX_FIELD_LENGTH = 80;
-  var API_BASE_URL = "https://api.vaktim.app";
+  var API_BASE_URLS = ["https://api.vaktim.app", "https://mcp.vaktim.app"];
   var SUPPORTED_LANGUAGES = ["tr", "en", "de", "fr", "ar", "id", "ms"];
 
   function safeDecode(value) {
@@ -156,8 +156,8 @@
     setText("statusText", value);
   }
 
-  function requestUrl(path, params) {
-    var url = new URL(path, API_BASE_URL);
+  function requestUrl(baseUrl, path, params) {
+    var url = new URL(path, baseUrl);
     params.forEach(function (value, key) {
       url.searchParams.set(key, value);
     });
@@ -182,6 +182,20 @@
     return payload.data;
   }
 
+  async function fetchApiJson(path, params) {
+    var lastError = null;
+
+    for (var index = 0; index < API_BASE_URLS.length; index += 1) {
+      try {
+        return await fetchJson(requestUrl(API_BASE_URLS[index], path, params));
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error("İçerik şu anda alınamadı.");
+  }
+
   function setContentText(id, value, fallback) {
     setText(id, value || fallback || "");
   }
@@ -202,7 +216,7 @@
     setPanelVisible("surahPanel", false);
     setPanelVisible("ayahPanel", false);
 
-    var data = await fetchJson(requestUrl("/api/quran/ayah/" + split[0] + "/" + split[1], params));
+    var data = await fetchApiJson("/api/quran/ayah/" + split[0] + "/" + split[1], params);
 
     setContentText("arabicText", data.arabicText, "Arapça metin şu anda alınamadı.");
     setContentText("translationText", data.translationText || data.translation, "Bu dil için meal şu anda alınamadı.");
@@ -255,7 +269,7 @@
     setPanelVisible("ayahPanel", false);
     setPanelVisible("surahPanel", false);
 
-    var data = await fetchJson(requestUrl("/api/quran/surah/" + surah[0], params));
+    var data = await fetchApiJson("/api/quran/surah/" + surah[0], params);
     renderVerseList(data.verses || []);
     setStatus(data.surah && data.surah.name ? data.surah.name + " - " + data.surah.verseCount + " ayet" : context.target);
     setPanelVisible("surahPanel", true);
