@@ -119,6 +119,7 @@
 
   var state = {
     language: "tr",
+    script: "uthmani",
     query: "",
     ascending: true,
   };
@@ -126,6 +127,10 @@
   function normalizeLanguage(value) {
     var language = String(value || "tr").toLowerCase().split(/[-_]/)[0];
     return SUPPORTED_LANGUAGES.indexOf(language) === -1 ? "tr" : language;
+  }
+
+  function normalizeScript(value) {
+    return String(value || "").toLowerCase() === "tajweed" ? "tajweed" : "uthmani";
   }
 
   function fold(value) {
@@ -151,6 +156,7 @@
     var url = new URL("/surah/" + number, window.location.origin);
     url.searchParams.set("source", "web");
     url.searchParams.set("lang", selectedLanguage());
+    if (state.script === "tajweed") url.searchParams.set("script", "tajweed");
     return url.toString();
   }
 
@@ -224,13 +230,17 @@
   function applyQueryParams() {
     var params = new URLSearchParams(window.location.search);
     state.language = normalizeLanguage(params.get("lang") || params.get("language") || "tr");
+    state.script = normalizeScript(params.get("script"));
     var languageSelect = document.getElementById("languageSelect");
+    var scriptSelect = document.getElementById("scriptSelect");
     if (languageSelect) languageSelect.value = state.language;
+    if (scriptSelect) scriptSelect.value = state.script;
   }
 
   function bindControls() {
     var searchInput = document.getElementById("searchInput");
     var languageSelect = document.getElementById("languageSelect");
+    var scriptSelect = document.getElementById("scriptSelect");
     var sortButton = document.getElementById("sortButton");
 
     if (searchInput) {
@@ -245,6 +255,20 @@
         state.language = normalizeLanguage(languageSelect.value);
         var nextUrl = new URL(window.location.href);
         nextUrl.searchParams.set("lang", state.language);
+        window.history.replaceState(null, "", nextUrl.toString());
+        render();
+      });
+    }
+
+    if (scriptSelect) {
+      scriptSelect.addEventListener("change", function () {
+        state.script = normalizeScript(scriptSelect.value);
+        var nextUrl = new URL(window.location.href);
+        if (state.script === "tajweed") {
+          nextUrl.searchParams.set("script", "tajweed");
+        } else {
+          nextUrl.searchParams.delete("script");
+        }
         window.history.replaceState(null, "", nextUrl.toString());
         render();
       });
