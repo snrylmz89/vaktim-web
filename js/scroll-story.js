@@ -105,7 +105,8 @@
         brandAlt: "Vaktim logosu",
         phoneAlt: "Vaktim uygulaması telefon görünümü",
         navAriaLabel: "Bölümler",
-        nav: ["Namaz", "Kur'an", "Rafi Hoca", "Premium"],
+        nav: ["Namaz", "Vakitler", "Kur'an", "Rafi Hoca", "Premium"],
+        prayerTimesHref: "/prayer-times?locationId=tr-istanbul&lang=tr&source=home",
         headerCta: "İndir",
         backText: "Ana Sayfa",
         backHref: "/",
@@ -123,6 +124,7 @@
           title: "Her vakit, <span class=\"accent\">bilinçli bir adım.</span>",
           body: "Namaz vakitlerini tek ekranda takip et, günlük düzenini koru ve her ibadeti daha bilinçli bir ritimle sürdür.",
           quote: "Vakitlerini gör, tamamladıklarını işaretle, düzenini kolayca sürdür.",
+          ctaLabel: "Bugünün vakitlerini gör",
           names: ["Sabah", "Öğle", "İkindi", "Akşam", "Yatsı"],
           descriptions: [
             "Günün ilk sakin durağı",
@@ -220,7 +222,8 @@
         brandAlt: "Vaktim logo",
         phoneAlt: "Vaktim app screen on a phone",
         navAriaLabel: "Sections",
-        nav: ["Prayer", "Qur'an", "Rafi Hoca", "Premium"],
+        nav: ["Prayer", "Prayer Times", "Qur'an", "Rafi Hoca", "Premium"],
+        prayerTimesHref: "/prayer-times?locationId=tr-istanbul&lang=en&source=home",
         headerCta: "Download",
         backText: "Home",
         backHref: "/en/",
@@ -238,6 +241,7 @@
           title: "Every prayer, <span class=\"accent\">a mindful step.</span>",
           body: "Keep all prayer times on one screen, stay in rhythm through the day, and follow each prayer with more intention.",
           quote: "See your prayers, mark what you have completed, and keep your routine with ease.",
+          ctaLabel: "See today's prayer times",
           names: ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"],
           descriptions: [
             "The day’s first quiet pause",
@@ -335,7 +339,8 @@
         brandAlt: "شعار Vaktim",
         phoneAlt: "عرض تطبيق Vaktim على الهاتف",
         navAriaLabel: "الأقسام",
-        nav: ["الصلاة", "القرآن", "رافي هوجا", "بريميوم"],
+        nav: ["الصلاة", "أوقات الصلاة", "القرآن", "رافي هوجا", "بريميوم"],
+        prayerTimesHref: "/prayer-times?locationId=tr-istanbul&lang=ar&source=home",
         headerCta: "حمّل",
         backText: "الصفحة الرئيسية",
         backHref: "/ar/",
@@ -353,6 +358,7 @@
           title: "كل صلاة، <span class=\"accent\">خطوة واعية.</span>",
           body: "تابع أوقات الصلاة في شاشة واحدة، وحافظ على إيقاع يومك، وعِش كل صلاة بنيّة أوضح وحضور أهدأ.",
           quote: "اعرف صلواتك، علّم ما أنجزته، وحافظ على انتظامك بسهولة.",
+          ctaLabel: "اعرض أوقات اليوم",
           names: ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"],
           descriptions: [
             "بداية هادئة لأول لحظات اليوم",
@@ -501,6 +507,9 @@
     setAttr(".phone img", "alt", copy.phoneAlt);
     setAttr(".nav", "aria-label", copy.navAriaLabel);
     setTextList(".nav a", copy.nav);
+    document.querySelectorAll("[data-prayer-times-link]").forEach(function (link) {
+      link.setAttribute("href", copy.prayerTimesHref);
+    });
     setText(".header-cta", copy.headerCta);
     setText(".back-link", copy.backText);
     setAttr(".back-link", "href", copy.backHref);
@@ -516,6 +525,7 @@
     setHTML("#namaz h2", copy.namaz.title);
     setText("#namaz p", copy.namaz.body);
     setText("#namaz .quote", copy.namaz.quote);
+    setText("#namaz .prayer-times-link", copy.namaz.ctaLabel);
 
     var prayerItems = document.querySelectorAll("#namaz [data-prayer-item]");
     prayerItems.forEach(function (item, index) {
@@ -706,6 +716,10 @@
     setHTML("#namaz h2", "Her vakit, <span class=\"accent\">bilin\u00e7li bir ad\u0131m.</span>");
     setText("#namaz p", "Namaz vakitlerini tek ekranda takip et, g\u00fcnl\u00fck d\u00fczenini koru ve her ibadeti daha bilin\u00e7li bir ritimle s\u00fcrd\u00fcr.");
     setText("#namaz .quote", "Vakitlerini g\u00f6r, tamamlad\u0131klar\u0131n\u0131 i\u015faretle, d\u00fczenini kolayca s\u00fcrd\u00fcr.");
+    setText("#namaz .prayer-times-link", "Bug\u00fcn\u00fcn vakitlerini g\u00f6r");
+    document.querySelectorAll("[data-prayer-times-link]").forEach(function (link) {
+      link.setAttribute("href", "/prayer-times?locationId=tr-istanbul&lang=tr&source=home");
+    });
 
     var prayerItems = document.querySelectorAll("#namaz [data-prayer-item]");
     var prayerNames = ["Sabah", "\u00d6\u011fle", "\u0130kindi", "Ak\u015fam", "Yats\u0131"];
