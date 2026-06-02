@@ -63,6 +63,12 @@ if (fs.existsSync(destekSrc)) {
   copyRecursive(destekSrc, path.join(staticDir, 'destek'));
 }
 
+// Copy public demo recordings used for app review submissions
+const demoSrc = path.join(root, 'demo');
+if (fs.existsSync(demoSrc)) {
+  copyRecursive(demoSrc, path.join(staticDir, 'demo'));
+}
+
 // Copy shared js folder
 const jsSrc = path.join(root, 'js');
 if (fs.existsSync(jsSrc)) {
